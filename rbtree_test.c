@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +24,7 @@
 
 bool less(const void *a, const void *b) { return *(uintptr_t *)a < *(uintptr_t *)b; }
 
-void print(const struct rb_node *restrict node) { printf(node->color == BLACK ? "\033[01;30m%" PRIuPTR "\033[00m " : "\033[01;31m%" PRIuPTR "\033[00m ", *(uintptr_t *)node->key); }
+void print(const void *restrict key, void *restrict value) { printf("%" PRIuPTR " ", *(uintptr_t *)key); }
 
 int main(void) {
   const uintptr_t testcases[] = {40, 11, 77, 33, 20, 90, 99, 70, 88, 80, 66, 10, 22, 30, 44, 55, 50, 60, 25, 49};

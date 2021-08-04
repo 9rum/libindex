@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -303,7 +303,7 @@ extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-extern inline void rb_preorder(const struct rb_node *restrict tree, void (*func)(const struct rb_node *restrict)) { if (tree != NULL) { func(tree); rb_preorder(tree->left, func); rb_preorder(tree->right, func); } }
+extern inline void rb_preorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { func(tree->key, tree->value); rb_preorder(tree->left, func); rb_preorder(tree->right, func); } }
 
 /**
  * rb_inorder - applies @func to each node of @tree inorderwise
@@ -311,7 +311,7 @@ extern inline void rb_preorder(const struct rb_node *restrict tree, void (*func)
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-extern inline void rb_inorder(const struct rb_node *restrict tree, void (*func)(const struct rb_node *restrict)) { if (tree != NULL) { rb_inorder(tree->left, func); func(tree); rb_inorder(tree->right, func); } }
+extern inline void rb_inorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { rb_inorder(tree->left, func); func(tree->key, tree->value); rb_inorder(tree->right, func); } }
 
 /**
  * rb_postorder - applies @func to each node of @tree postorderwise
@@ -319,6 +319,6 @@ extern inline void rb_inorder(const struct rb_node *restrict tree, void (*func)(
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-extern inline void rb_postorder(const struct rb_node *restrict tree, void (*func)(const struct rb_node *restrict)) { if (tree != NULL) { rb_postorder(tree->left, func); rb_postorder(tree->right, func); func(tree); } }
+extern inline void rb_postorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { rb_postorder(tree->left, func); rb_postorder(tree->right, func); func(tree->key, tree->value); } }
 
 #endif /* _RBTREE_H */
