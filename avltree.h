@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,7 +31,6 @@
 #ifndef _AVLTREE_H
 #define _AVLTREE_H
 
-#include <stdint.h>
 #include <stack.h>
 
 /**
@@ -62,7 +61,7 @@ struct avl_node {
         void            *value;
         struct avl_node *left;
         struct avl_node *right;
-        uint32_t        height;
+        size_t          height;
 } __attribute__((aligned(__BIGGEST_ALIGNMENT__)));
 
 /**
@@ -76,14 +75,14 @@ static inline struct avl_node *avl_get_node(void) {
   return node;
 }
 
-static inline uint32_t max(const uint32_t a, const uint32_t b) { return a < b ? b : a; }
+static inline size_t max(const size_t a, const size_t b) { return a < b ? b : a; }
 
 /**
  * height - returns the height of @tree
  *
  * @tree: tree to get the height
  */
-static inline uint32_t height(const struct avl_node *restrict tree) { return tree == NULL ? 0 : tree->height; }
+static inline size_t height(const struct avl_node *restrict tree) { return tree == NULL ? 0 : tree->height; }
 
 /**
  * avl_rotate_left - rotates subtree rooted with @x counterclockwise
@@ -297,7 +296,7 @@ extern inline void avl_erase(struct avl_node **restrict tree, const void *restri
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-extern inline void avl_preorder(const struct avl_node *restrict tree, void (*func)(const struct avl_node *restrict)) { if (tree != NULL) { func(tree); avl_preorder(tree->left, func); avl_preorder(tree->right, func); } }
+extern inline void avl_preorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { func(tree->key, tree->value); avl_preorder(tree->left, func); avl_preorder(tree->right, func); } }
 
 /**
  * avl_inorder - applies @func to each node of @tree inorderwise
@@ -305,7 +304,7 @@ extern inline void avl_preorder(const struct avl_node *restrict tree, void (*fun
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-extern inline void avl_inorder(const struct avl_node *restrict tree, void (*func)(const struct avl_node *restrict)) { if (tree != NULL) { avl_inorder(tree->left, func); func(tree); avl_inorder(tree->right, func); } }
+extern inline void avl_inorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { avl_inorder(tree->left, func); func(tree->key, tree->value); avl_inorder(tree->right, func); } }
 
 /**
  * avl_postorder - applies @func to each node of @tree postorderwise
@@ -313,6 +312,6 @@ extern inline void avl_inorder(const struct avl_node *restrict tree, void (*func
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-extern inline void avl_postorder(const struct avl_node *restrict tree, void (*func)(const struct avl_node *restrict)) { if (tree != NULL) { avl_postorder(tree->left, func); avl_postorder(tree->right, func); func(tree); } }
+extern inline void avl_postorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { avl_postorder(tree->left, func); avl_postorder(tree->right, func); func(tree->key, tree->value); } }
 
 #endif /* _AVLTREE_H */
