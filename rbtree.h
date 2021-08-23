@@ -133,10 +133,10 @@ static inline void rb_rotate_right(struct rb_node **restrict root, struct rb_nod
  * @less:  operator defining the (partial) node order
  */
 extern inline void rb_insert(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *, const void *)) {
-  register struct rb_node *walk  = *tree;
   register struct rb_node *parent;
   register struct rb_node *gparent;
   register struct rb_node *uncle;
+  register struct rb_node *walk  = *tree;
            struct stack   *stack = NULL;
 
   while (walk != NULL) {
@@ -203,9 +203,9 @@ extern inline void rb_insert(struct rb_node **restrict tree, const void *restric
  * @less: operator defining the (partial) node order
  */
 extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict key, bool (*less)(const void *, const void *)) {
-  register struct rb_node *walk  = *tree;
   register struct rb_node *parent;
   register struct rb_node *sibling;
+  register struct rb_node *walk  = *tree;
            struct stack   *stack = NULL;
 
   while (walk != NULL && (less(key, walk->key) || less(walk->key, key))) {
