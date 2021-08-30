@@ -76,6 +76,18 @@ static inline struct btree_node *btree_get_node(const size_t order) {
   return node;
 }
 
+/**
+ * btree_free - deallocates @node
+ *
+ * @node: node to deallocate
+ */
+static inline void btree_free(struct btree_node *node) {
+  free(node->keys);
+  free(node->values);
+  free(node->children);
+  free(node);
+}
+
 /*
  * The below functions use the operator with 3 different
  * calling conventions. The operator denotes:
@@ -175,7 +187,7 @@ extern inline void btree_insert(struct btree_node **restrict tree, const size_t 
     sibling->nmemb = order-(order>>1)-1;
     key            = tmp->keys[order>>1];
     value          = tmp->values[order>>1];
-    free(tmp);
+    btree_free(tmp);
   }
 
   *tree                = btree_get_node(order);
@@ -240,7 +252,7 @@ extern inline void btree_erase(struct btree_node **restrict tree, const size_t o
       if (sibling == parent->children[idx-1]) {
         memcpy(&walk->keys[1], walk->keys, sizeof(void *)*walk->nmemb);
         memcpy(&walk->values[1], walk->values, sizeof(void *)*walk->nmemb);
-        memcpy(&walk->children[1], walk->children, sizeof(struct btree_node *)*(++walk->nmemb));
+        memcpy(&walk->children[1], walk->children, sizeof(struct btree_node *)*++walk->nmemb);
         walk->keys[0]         = parent->keys[idx-1];
         walk->values[0]       = parent->values[idx-1];
         walk->children[0]     = sibling->children[sibling->nmemb];
@@ -252,9 +264,9 @@ extern inline void btree_erase(struct btree_node **restrict tree, const size_t o
         walk->children[++walk->nmemb] = sibling->children[0];
         parent->keys[idx]             = sibling->keys[0];
         parent->values[idx]           = sibling->values[0];
+        memcpy(sibling->children, &sibling->children[1], sizeof(struct btree_node *)*sibling->nmemb);
         memcpy(sibling->keys, &sibling->keys[1], sizeof(void *)*--sibling->nmemb);
         memcpy(sibling->values, &sibling->values[1], sizeof(void *)*sibling->nmemb);
-        memcpy(sibling->children, &sibling->children[1], sizeof(struct btree_node *)*(sibling->nmemb+1));
       }
       destroy(&stack);
       return;
@@ -263,30 +275,30 @@ extern inline void btree_erase(struct btree_node **restrict tree, const size_t o
     if (sibling == parent->children[idx-1]) { /* case of node merge */
       sibling->keys[sibling->nmemb]   = parent->keys[idx-1];
       sibling->values[sibling->nmemb] = parent->values[idx-1];
-      memcpy(&sibling->keys[sibling->nmemb+1], walk->keys, sizeof(void *)*walk->nmemb);
-      memcpy(&sibling->values[sibling->nmemb+1], walk->values, sizeof(void *)*walk->nmemb);
-      memcpy(&sibling->children[sibling->nmemb+1], walk->children, sizeof(struct btree_node *)*++walk->nmemb);
+      memcpy(&sibling->keys[++sibling->nmemb], walk->keys, sizeof(void *)*walk->nmemb);
+      memcpy(&sibling->values[sibling->nmemb], walk->values, sizeof(void *)*walk->nmemb);
+      memcpy(&sibling->children[sibling->nmemb], walk->children, sizeof(struct btree_node *)*(walk->nmemb+1));
       memcpy(&parent->keys[idx-1], &parent->keys[idx], sizeof(void *)*(parent->nmemb-idx));
       memcpy(&parent->values[idx-1], &parent->values[idx], sizeof(void *)*(parent->nmemb-idx));
       memcpy(&parent->children[idx], &parent->children[idx+1], sizeof(struct btree_node *)*(parent->nmemb---idx));
       sibling->nmemb += walk->nmemb;
-      free(walk);
+      btree_free(walk);
     } else {
       walk->keys[walk->nmemb]   = parent->keys[idx];
       walk->values[walk->nmemb] = parent->values[idx];
-      memcpy(&walk->keys[walk->nmemb+1], sibling->keys, sizeof(void *)*sibling->nmemb);
-      memcpy(&walk->values[walk->nmemb+1], sibling->values, sizeof(void *)*sibling->nmemb);
-      memcpy(&walk->children[walk->nmemb+1], sibling->children, sizeof(struct btree_node *)*++sibling->nmemb);
+      memcpy(&walk->keys[++walk->nmemb], sibling->keys, sizeof(void *)*sibling->nmemb);
+      memcpy(&walk->values[walk->nmemb], sibling->values, sizeof(void *)*sibling->nmemb);
+      memcpy(&walk->children[walk->nmemb], sibling->children, sizeof(struct btree_node *)*(sibling->nmemb+1));
       memcpy(&parent->keys[idx], &parent->keys[idx+1], sizeof(void *)*(--parent->nmemb-idx));
       memcpy(&parent->values[idx], &parent->values[idx+1], sizeof(void *)*(parent->nmemb-idx));
       memcpy(&parent->children[idx+1], &parent->children[idx+2], sizeof(struct btree_node *)*(parent->nmemb-idx));
       walk->nmemb += sibling->nmemb;
-      free(sibling);
+      btree_free(sibling);
     }
     walk = parent;
   }
 
-  if (walk->nmemb == 0) { *tree = walk->children[0]; free(walk); }
+  if (walk->nmemb == 0) { *tree = walk->children[0]; btree_free(walk); }
 }
 
 /**
