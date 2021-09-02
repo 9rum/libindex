@@ -65,9 +65,9 @@ struct rb_node {
 } __attribute__((aligned(__BIGGEST_ALIGNMENT__)));
 
 /**
- * rb_get_node - returns a new struct rb_node
+ * rb_alloc - allocates a node
  */
-static inline struct rb_node *rb_get_node(void) {
+static inline struct rb_node *rb_alloc(void) {
   struct rb_node *node = malloc(sizeof(struct rb_node));
   node->left           = NULL;
   node->right          = NULL;
@@ -145,7 +145,7 @@ extern inline void rb_insert(struct rb_node **restrict tree, const void *restric
     walk = less(key, walk->key) ? walk->left : walk->right;
   }
 
-  walk        = rb_get_node();
+  walk        = rb_alloc();
   walk->key   = key;
   walk->value = value;
 

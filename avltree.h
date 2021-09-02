@@ -65,9 +65,9 @@ struct avl_node {
 } __attribute__((aligned(__BIGGEST_ALIGNMENT__)));
 
 /**
- * avl_get_node - returns a new struct avl_node
+ * avl_alloc - allocates a node
  */
-static inline struct avl_node *avl_get_node(void) {
+static inline struct avl_node *avl_alloc(void) {
   struct avl_node *node = malloc(sizeof(struct avl_node));
   node->left            = NULL;
   node->right           = NULL;
@@ -153,7 +153,7 @@ extern inline void avl_insert(struct avl_node **restrict tree, const void *restr
     walk = less(key, walk->key) ? walk->left : walk->right;
   }
 
-  walk        = avl_get_node();
+  walk        = avl_alloc();
   walk->key   = key;
   walk->value = value;
 

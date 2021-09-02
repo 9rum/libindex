@@ -63,11 +63,11 @@ struct btree_node {
 } __attribute__((aligned(__BIGGEST_ALIGNMENT__)));
 
 /**
- * btree_get_node - returns a new struct btree_node
+ * btree_alloc - allocates a node
  *
  * @order: order of B-tree
  */
-static inline struct btree_node *btree_get_node(const size_t order) {
+static inline struct btree_node *btree_alloc(const size_t order) {
   struct btree_node *node = malloc(sizeof(struct btree_node));
   node->keys              = malloc(sizeof(void *)*(order-1));
   node->values            = malloc(sizeof(void *)*(order-1));
@@ -165,7 +165,7 @@ extern inline void btree_insert(struct btree_node **restrict tree, const size_t 
       return;
     }
 
-    tmp = btree_get_node(order+1);
+    tmp = btree_alloc(order+1);
     memcpy(tmp->keys, walk->keys, sizeof(void *)*idx);
     memcpy(&tmp->keys[idx+1], &walk->keys[idx], sizeof(void *)*(walk->nmemb-idx));
     memcpy(tmp->values, walk->values, sizeof(void *)*idx);
@@ -176,7 +176,7 @@ extern inline void btree_insert(struct btree_node **restrict tree, const size_t 
     tmp->values[idx]     = value;
     tmp->children[idx+1] = sibling;
 
-    sibling = btree_get_node(order);
+    sibling = btree_alloc(order);
     memcpy(walk->keys, tmp->keys, sizeof(void *)*(order>>1));
     memcpy(sibling->keys, &tmp->keys[(order>>1)+1], sizeof(void *)*(order-(order>>1)-1));
     memcpy(walk->values, tmp->values, sizeof(void *)*(order>>1));
@@ -190,7 +190,7 @@ extern inline void btree_insert(struct btree_node **restrict tree, const size_t 
     btree_free(tmp);
   }
 
-  *tree                = btree_get_node(order);
+  *tree                = btree_alloc(order);
   (*tree)->keys[0]     = key;
   (*tree)->values[0]   = value;
   (*tree)->children[0] = walk;
