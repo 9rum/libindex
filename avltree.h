@@ -62,7 +62,7 @@ struct avl_node {
         struct avl_node *left;
         struct avl_node *right;
         size_t          height;
-} __attribute__((aligned(__BIGGEST_ALIGNMENT__)));
+} __attribute__((aligned(__SIZEOF_POINTER__)));
 
 /**
  * avl_alloc - allocates a node

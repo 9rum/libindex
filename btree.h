@@ -60,7 +60,7 @@ struct btree_node {
         void              **values;
         struct btree_node **children;
         size_t            nmemb;
-} __attribute__((aligned(__BIGGEST_ALIGNMENT__)));
+} __attribute__((aligned(__SIZEOF_POINTER__)));
 
 /**
  * btree_alloc - allocates a node

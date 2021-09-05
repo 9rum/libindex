@@ -39,7 +39,7 @@
 struct stack {
   const void         *value;
   const struct stack *next;
-} __attribute__((aligned(__BIGGEST_ALIGNMENT__)));
+} __attribute__((aligned(__SIZEOF_POINTER__)));
 
 /**
  * empty - checks whether @stack is empty

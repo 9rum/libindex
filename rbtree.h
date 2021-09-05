@@ -62,7 +62,7 @@ struct rb_node {
         struct rb_node      *left;
         struct rb_node      *right;
         enum { RED, BLACK } color;
-} __attribute__((aligned(__BIGGEST_ALIGNMENT__)));
+} __attribute__((aligned(__SIZEOF_POINTER__)));
 
 /**
  * rb_alloc - allocates a node
