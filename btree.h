@@ -69,9 +69,9 @@ struct btree_node {
  */
 static inline struct btree_node *btree_alloc(const size_t order) {
   struct btree_node *node = malloc(sizeof(struct btree_node));
-  node->keys              = malloc(sizeof(void *)*(order-1));
-  node->values            = malloc(sizeof(void *)*(order-1));
-  node->children          = malloc(sizeof(struct btree_node *)*order);
+  node->keys              = malloc(__SIZEOF_POINTER__*(order-1));
+  node->values            = malloc(__SIZEOF_POINTER__*(order-1));
+  node->children          = malloc(__SIZEOF_POINTER__*order);
   node->nmemb             = 0;
   return node;
 }
@@ -155,9 +155,9 @@ extern inline void btree_insert(struct btree_node **restrict tree, const size_t 
     walk = pop(&stack);
 
     if (walk->nmemb < order-1) {
-      memcpy(&walk->keys[idx+1], &walk->keys[idx], sizeof(void *)*(walk->nmemb-idx));
-      memcpy(&walk->values[idx+1], &walk->values[idx], sizeof(void *)*(walk->nmemb-idx));
-      memcpy(&walk->children[idx+2], &walk->children[idx+1], sizeof(struct btree_node *)*(walk->nmemb++-idx));
+      memcpy(&walk->keys[idx+1], &walk->keys[idx], __SIZEOF_POINTER__*(walk->nmemb-idx));
+      memcpy(&walk->values[idx+1], &walk->values[idx], __SIZEOF_POINTER__*(walk->nmemb-idx));
+      memcpy(&walk->children[idx+2], &walk->children[idx+1], __SIZEOF_POINTER__*(walk->nmemb++-idx));
       walk->keys[idx]       = key;
       walk->values[idx]     = value;
       walk->children[idx+1] = sibling;
@@ -166,27 +166,27 @@ extern inline void btree_insert(struct btree_node **restrict tree, const size_t 
     }
 
     tmp = btree_alloc(order+1);
-    memcpy(tmp->keys, walk->keys, sizeof(void *)*idx);
-    memcpy(&tmp->keys[idx+1], &walk->keys[idx], sizeof(void *)*(walk->nmemb-idx));
-    memcpy(tmp->values, walk->values, sizeof(void *)*idx);
-    memcpy(&tmp->values[idx+1], &walk->values[idx], sizeof(void *)*(walk->nmemb-idx));
-    memcpy(tmp->children, walk->children, sizeof(struct btree_node *)*(idx+1));
-    memcpy(&tmp->children[idx+2], &walk->children[idx+1], sizeof(struct btree_node *)*(walk->nmemb-idx));
+    memcpy(tmp->keys, walk->keys, __SIZEOF_POINTER__*idx);
+    memcpy(&tmp->keys[idx+1], &walk->keys[idx], __SIZEOF_POINTER__*(walk->nmemb-idx));
+    memcpy(tmp->values, walk->values, __SIZEOF_POINTER__*idx);
+    memcpy(&tmp->values[idx+1], &walk->values[idx], __SIZEOF_POINTER__*(walk->nmemb-idx));
+    memcpy(tmp->children, walk->children, __SIZEOF_POINTER__*(idx+1));
+    memcpy(&tmp->children[idx+2], &walk->children[idx+1], __SIZEOF_POINTER__*(walk->nmemb-idx));
     tmp->keys[idx]       = key;
     tmp->values[idx]     = value;
     tmp->children[idx+1] = sibling;
 
-    sibling = btree_alloc(order);
-    memcpy(walk->keys, tmp->keys, sizeof(void *)*(order>>1));
-    memcpy(sibling->keys, &tmp->keys[(order>>1)+1], sizeof(void *)*(order-(order>>1)-1));
-    memcpy(walk->values, tmp->values, sizeof(void *)*(order>>1));
-    memcpy(sibling->values, &tmp->values[(order>>1)+1], sizeof(void *)*(order-(order>>1)-1));
-    memcpy(walk->children, tmp->children, sizeof(struct btree_node *)*((order>>1)+1));
-    memcpy(sibling->children, &tmp->children[(order>>1)+1], sizeof(struct btree_node *)*(order-(order>>1)));
+    sibling        = btree_alloc(order);
+    sibling->nmemb = (order-1)>>1;
     walk->nmemb    = order>>1;
-    sibling->nmemb = order-(order>>1)-1;
-    key            = tmp->keys[order>>1];
-    value          = tmp->values[order>>1];
+    memcpy(walk->keys, tmp->keys, __SIZEOF_POINTER__*walk->nmemb);
+    memcpy(sibling->keys, &tmp->keys[walk->nmemb+1], __SIZEOF_POINTER__*sibling->nmemb);
+    memcpy(walk->values, tmp->values, __SIZEOF_POINTER__*walk->nmemb);
+    memcpy(sibling->values, &tmp->values[walk->nmemb+1], __SIZEOF_POINTER__*sibling->nmemb);
+    memcpy(walk->children, tmp->children, __SIZEOF_POINTER__*(walk->nmemb+1));
+    memcpy(sibling->children, &tmp->children[walk->nmemb+1], __SIZEOF_POINTER__*(sibling->nmemb+1));
+    key   = tmp->keys[walk->nmemb];
+    value = tmp->values[walk->nmemb];
     btree_free(tmp);
   }
 
@@ -236,8 +236,8 @@ extern inline void btree_erase(struct btree_node **restrict tree, const size_t o
     idx                 = walk->nmemb-1;
   }
 
-  memcpy(&walk->keys[idx], &walk->keys[idx+1], sizeof(void *)*(--walk->nmemb-idx));
-  memcpy(&walk->values[idx], &walk->values[idx+1], sizeof(void *)*(walk->nmemb-idx));
+  memcpy(&walk->keys[idx], &walk->keys[idx+1], __SIZEOF_POINTER__*(--walk->nmemb-idx));
+  memcpy(&walk->values[idx], &walk->values[idx+1], __SIZEOF_POINTER__*(walk->nmemb-idx));
 
   while (!empty(stack)) {
     if  ((order-1)>>1 <= walk->nmemb) { destroy(&stack); return; }
@@ -250,9 +250,9 @@ extern inline void btree_erase(struct btree_node **restrict tree, const size_t o
                                                                               : parent->children[idx-1];
     if   ((order-1)>>1 < sibling->nmemb) {    /* case of key redistribution */
       if (sibling == parent->children[idx-1]) {
-        memcpy(&walk->keys[1], walk->keys, sizeof(void *)*walk->nmemb);
-        memcpy(&walk->values[1], walk->values, sizeof(void *)*walk->nmemb);
-        memcpy(&walk->children[1], walk->children, sizeof(struct btree_node *)*++walk->nmemb);
+        memcpy(&walk->keys[1], walk->keys, __SIZEOF_POINTER__*walk->nmemb);
+        memcpy(&walk->values[1], walk->values, __SIZEOF_POINTER__*walk->nmemb);
+        memcpy(&walk->children[1], walk->children, __SIZEOF_POINTER__*++walk->nmemb);
         walk->keys[0]         = parent->keys[idx-1];
         walk->values[0]       = parent->values[idx-1];
         walk->children[0]     = sibling->children[sibling->nmemb];
@@ -264,9 +264,9 @@ extern inline void btree_erase(struct btree_node **restrict tree, const size_t o
         walk->children[++walk->nmemb] = sibling->children[0];
         parent->keys[idx]             = sibling->keys[0];
         parent->values[idx]           = sibling->values[0];
-        memcpy(sibling->children, &sibling->children[1], sizeof(struct btree_node *)*sibling->nmemb);
-        memcpy(sibling->keys, &sibling->keys[1], sizeof(void *)*--sibling->nmemb);
-        memcpy(sibling->values, &sibling->values[1], sizeof(void *)*sibling->nmemb);
+        memcpy(sibling->children, &sibling->children[1], __SIZEOF_POINTER__*sibling->nmemb);
+        memcpy(sibling->keys, &sibling->keys[1], __SIZEOF_POINTER__*--sibling->nmemb);
+        memcpy(sibling->values, &sibling->values[1], __SIZEOF_POINTER__*sibling->nmemb);
       }
       destroy(&stack);
       return;
@@ -275,23 +275,23 @@ extern inline void btree_erase(struct btree_node **restrict tree, const size_t o
     if (sibling == parent->children[idx-1]) { /* case of node merge */
       sibling->keys[sibling->nmemb]   = parent->keys[idx-1];
       sibling->values[sibling->nmemb] = parent->values[idx-1];
-      memcpy(&sibling->keys[++sibling->nmemb], walk->keys, sizeof(void *)*walk->nmemb);
-      memcpy(&sibling->values[sibling->nmemb], walk->values, sizeof(void *)*walk->nmemb);
-      memcpy(&sibling->children[sibling->nmemb], walk->children, sizeof(struct btree_node *)*(walk->nmemb+1));
-      memcpy(&parent->keys[idx-1], &parent->keys[idx], sizeof(void *)*(parent->nmemb-idx));
-      memcpy(&parent->values[idx-1], &parent->values[idx], sizeof(void *)*(parent->nmemb-idx));
-      memcpy(&parent->children[idx], &parent->children[idx+1], sizeof(struct btree_node *)*(parent->nmemb---idx));
+      memcpy(&sibling->keys[++sibling->nmemb], walk->keys, __SIZEOF_POINTER__*walk->nmemb);
+      memcpy(&sibling->values[sibling->nmemb], walk->values, __SIZEOF_POINTER__*walk->nmemb);
+      memcpy(&sibling->children[sibling->nmemb], walk->children, __SIZEOF_POINTER__*(walk->nmemb+1));
+      memcpy(&parent->keys[idx-1], &parent->keys[idx], __SIZEOF_POINTER__*(parent->nmemb-idx));
+      memcpy(&parent->values[idx-1], &parent->values[idx], __SIZEOF_POINTER__*(parent->nmemb-idx));
+      memcpy(&parent->children[idx], &parent->children[idx+1], __SIZEOF_POINTER__*(parent->nmemb---idx));
       sibling->nmemb += walk->nmemb;
       btree_free(walk);
     } else {
       walk->keys[walk->nmemb]   = parent->keys[idx];
       walk->values[walk->nmemb] = parent->values[idx];
-      memcpy(&walk->keys[++walk->nmemb], sibling->keys, sizeof(void *)*sibling->nmemb);
-      memcpy(&walk->values[walk->nmemb], sibling->values, sizeof(void *)*sibling->nmemb);
-      memcpy(&walk->children[walk->nmemb], sibling->children, sizeof(struct btree_node *)*(sibling->nmemb+1));
-      memcpy(&parent->keys[idx], &parent->keys[idx+1], sizeof(void *)*(--parent->nmemb-idx));
-      memcpy(&parent->values[idx], &parent->values[idx+1], sizeof(void *)*(parent->nmemb-idx));
-      memcpy(&parent->children[idx+1], &parent->children[idx+2], sizeof(struct btree_node *)*(parent->nmemb-idx));
+      memcpy(&walk->keys[++walk->nmemb], sibling->keys, __SIZEOF_POINTER__*sibling->nmemb);
+      memcpy(&walk->values[walk->nmemb], sibling->values, __SIZEOF_POINTER__*sibling->nmemb);
+      memcpy(&walk->children[walk->nmemb], sibling->children, __SIZEOF_POINTER__*(sibling->nmemb+1));
+      memcpy(&parent->keys[idx], &parent->keys[idx+1], __SIZEOF_POINTER__*(--parent->nmemb-idx));
+      memcpy(&parent->values[idx], &parent->values[idx+1], __SIZEOF_POINTER__*(parent->nmemb-idx));
+      memcpy(&parent->children[idx+1], &parent->children[idx+2], __SIZEOF_POINTER__*(parent->nmemb-idx));
       walk->nmemb += sibling->nmemb;
       btree_free(sibling);
     }
