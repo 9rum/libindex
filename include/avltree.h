@@ -15,7 +15,7 @@
  *
  * File Processing, 2020
  *
- * avltree.h - generic AVL tree implementation
+ * avltree.h - generic AVL tree definition
  *
  * The AVL tree (named after inventors Adelson-Velsky and Landis)
  * is a self-balancing binary search tree.

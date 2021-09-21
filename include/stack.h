@@ -15,7 +15,7 @@
  *
  * File Processing, 2020
  *
- * stack.h - generic stack implementation
+ * stack.h - generic stack definition
  *
  * The stack gives the programmer the functionality of a stack
  * - specifically, a LIFO (last-in, first-out) data structure.

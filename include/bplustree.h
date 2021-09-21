@@ -15,7 +15,7 @@
  *
  * File Processing, 2020
  *
- * bplustree.h - generic B+-tree implementation
+ * bplustree.h - generic B+-tree definition
  *
  * A B+-tree is an m-ary tree with large number of children per node.
  * It can be viewed as a B-tree in which each node contains only keys (not key–value pairs),

@@ -15,7 +15,7 @@
  *
  * File Processing, 2020
  *
- * rbtree.h - generic red-black tree implementation
+ * rbtree.h - generic red-black tree definition
  *
  * The red-black tree is a kind of self-balancing binary search tree.
  * Each node stores an extra bit representing "color" ("red" or "black"),
