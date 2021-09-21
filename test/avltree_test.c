@@ -15,12 +15,11 @@
  *
  * File Processing, 2020
  *
- * rbtree_test.c - generic red-black tree unit test
+ * avltree_test.c - generic AVL tree unit test
  */
 #include <stdio.h>
 #include <inttypes.h>
-
-#include "rbtree.h"
+#include <avltree.h>
 
 bool less(const void *a, const void *b) { return *(uintptr_t *)a < *(uintptr_t *)b; }
 
@@ -29,26 +28,26 @@ void print(const void *restrict key, void *restrict value) { printf("%" PRIuPTR 
 int main(void) {
   const uintptr_t testcases[] = {40, 11, 77, 33, 20, 90, 99, 70, 88, 80, 66, 10, 22, 30, 44, 55, 50, 60, 25, 49};
 
-  struct rb_node *tree = NULL;
+  struct avl_node *tree = NULL;
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it) {
-    rb_insert(&tree, it, NULL, less);
-    rb_inorder(tree, print);
+    avl_insert(&tree, it, NULL, less);
+    avl_inorder(tree, print);
     printf("\n");
   }
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it) {
-    rb_erase(&tree, it, less);
-    rb_inorder(tree, print);
+    avl_erase(&tree, it, less);
+    avl_inorder(tree, print);
     printf("\n");
   }
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it) {
-    rb_insert(&tree, it, NULL, less);
-    rb_inorder(tree, print);
+    avl_insert(&tree, it, NULL, less);
+    avl_inorder(tree, print);
     printf("\n");
   }
   for (const uintptr_t *it = testcases + sizeof(testcases)/sizeof(uintptr_t) - 1; testcases <= it; --it) {
-    rb_erase(&tree, it, less);
-    rb_inorder(tree, print);
+    avl_erase(&tree, it, less);
+    avl_inorder(tree, print);
     printf("\n");
   }
   /*

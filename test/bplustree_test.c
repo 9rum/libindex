@@ -15,12 +15,11 @@
  *
  * File Processing, 2020
  *
- * btree_test.c - generic B-tree unit test
+ * bplustree_test.c - generic B+-tree unit test
  */
 #include <stdio.h>
 #include <inttypes.h>
-
-#include "btree.h"
+#include <bplustree.h>
 
 bool less(const void *a, const void *b) { return *(uintptr_t *)a < *(uintptr_t *)b; }
 
@@ -45,25 +44,26 @@ int main(void) {
   };
 
   struct btree_node *tree = NULL;
+  struct list_node  *list = NULL;
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it) {
-    btree_insert(&tree, 3, it, NULL, less);
-    btree_inorder(tree, print);
+    bplus_insert(&tree, &list, 3, it, NULL, less);
+    bplus_iterate(list, print);
     printf("\n");
   }
   for (const uintptr_t *it = testcases + sizeof(testcases)/sizeof(uintptr_t)/2; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it) {
-    btree_erase(&tree, 3, it, less);
-    btree_inorder(tree, print);
+    bplus_erase(&tree, &list, 3, it, less);
+    bplus_iterate(list, print);
     printf("\n");
   }
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it) {
-    btree_insert(&tree, 4, it, NULL, less);
-    btree_inorder(tree, print);
+    bplus_insert(&tree, &list, 4, it, NULL, less);
+    bplus_iterate(list, print);
     printf("\n");
   }
   for (const uintptr_t *it = testcases + sizeof(testcases)/sizeof(uintptr_t)/2; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it) {
-    btree_erase(&tree, 4, it, less);
-    btree_inorder(tree, print);
+    bplus_erase(&tree, &list, 4, it, less);
+    bplus_iterate(list, print);
     printf("\n");
   }
   /*
