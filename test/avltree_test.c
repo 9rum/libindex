@@ -17,119 +17,587 @@
  *
  * avltree_test.c - generic AVL tree unit test
  */
+#define CTEST_MAIN
+#define CTEST_SEGFAULT
+#define CTEST_COLOR_OK
+
 #include <stdio.h>
+#include <string.h>
 #include <inttypes.h>
 #include <avltree.h>
+#include <ctest.h>
+
+      char            __s[41];
+      char            __c[3];
+const uintptr_t       testcases[] = {40, 11, 77, 33, 20, 90, 99, 70, 88, 80, 66, 10, 22, 30, 44, 55, 50, 60, 25, 49};
+const uintptr_t       *__it       = testcases;
+      struct avl_node *tree       = NULL;
 
 bool less(const void *a, const void *b) { return *(uintptr_t *)a < *(uintptr_t *)b; }
 
-void print(const void *restrict key, void *restrict value) { printf("%" PRIuPTR " ", *(uintptr_t *)key); }
+void __f(const void *restrict key, void *restrict value) { sprintf(__c, "%" PRIuPTR, *(uintptr_t *)key); strcat(__s, __c); }
 
-int main(void) {
-  const uintptr_t testcases[] = {40, 11, 77, 33, 20, 90, 99, 70, 88, 80, 66, 10, 22, 30, 44, 55, 50, 60, 25, 49};
-
-  struct avl_node *tree = NULL;
-
-  for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it) {
-    avl_insert(&tree, it, NULL, less);
-    avl_inorder(tree, print);
-    printf("\n");
-  }
-  for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it) {
-    avl_erase(&tree, it, less);
-    avl_inorder(tree, print);
-    printf("\n");
-  }
-  for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it) {
-    avl_insert(&tree, it, NULL, less);
-    avl_inorder(tree, print);
-    printf("\n");
-  }
-  for (const uintptr_t *it = testcases + sizeof(testcases)/sizeof(uintptr_t) - 1; testcases <= it; --it) {
-    avl_erase(&tree, it, less);
-    avl_inorder(tree, print);
-    printf("\n");
-  }
-  /*
-   * 40
-   * 11 40
-   * 11 40 77
-   * 11 33 40 77
-   * 11 20 33 40 77
-   * 11 20 33 40 77 90
-   * 11 20 33 40 77 90 99
-   * 11 20 33 40 70 77 90 99
-   * 11 20 33 40 70 77 88 90 99
-   * 11 20 33 40 70 77 80 88 90 99
-   * 11 20 33 40 66 70 77 80 88 90 99
-   * 10 11 20 33 40 66 70 77 80 88 90 99
-   * 10 11 20 22 33 40 66 70 77 80 88 90 99
-   * 10 11 20 22 30 33 40 66 70 77 80 88 90 99
-   * 10 11 20 22 30 33 40 44 66 70 77 80 88 90 99
-   * 10 11 20 22 30 33 40 44 55 66 70 77 80 88 90 99
-   * 10 11 20 22 30 33 40 44 50 55 66 70 77 80 88 90 99
-   * 10 11 20 22 30 33 40 44 50 55 60 66 70 77 80 88 90 99
-   * 10 11 20 22 25 30 33 40 44 50 55 60 66 70 77 80 88 90 99
-   * 10 11 20 22 25 30 33 40 44 49 50 55 60 66 70 77 80 88 90 99
-   * 10 11 20 22 25 30 33 44 49 50 55 60 66 70 77 80 88 90 99
-   * 10 20 22 25 30 33 44 49 50 55 60 66 70 77 80 88 90 99
-   * 10 20 22 25 30 33 44 49 50 55 60 66 70 80 88 90 99
-   * 10 20 22 25 30 44 49 50 55 60 66 70 80 88 90 99
-   * 10 22 25 30 44 49 50 55 60 66 70 80 88 90 99
-   * 10 22 25 30 44 49 50 55 60 66 70 80 88 99
-   * 10 22 25 30 44 49 50 55 60 66 70 80 88
-   * 10 22 25 30 44 49 50 55 60 66 80 88
-   * 10 22 25 30 44 49 50 55 60 66 80
-   * 10 22 25 30 44 49 50 55 60 66
-   * 10 22 25 30 44 49 50 55 60
-   * 22 25 30 44 49 50 55 60
-   * 25 30 44 49 50 55 60
-   * 25 44 49 50 55 60
-   * 25 49 50 55 60
-   * 25 49 50 60
-   * 25 49 60
-   * 25 49
-   * 49
-   *
-   * 40
-   * 11 40
-   * 11 40 77
-   * 11 33 40 77
-   * 11 20 33 40 77
-   * 11 20 33 40 77 90
-   * 11 20 33 40 77 90 99
-   * 11 20 33 40 70 77 90 99
-   * 11 20 33 40 70 77 88 90 99
-   * 11 20 33 40 70 77 80 88 90 99
-   * 11 20 33 40 66 70 77 80 88 90 99
-   * 10 11 20 33 40 66 70 77 80 88 90 99
-   * 10 11 20 22 33 40 66 70 77 80 88 90 99
-   * 10 11 20 22 30 33 40 66 70 77 80 88 90 99
-   * 10 11 20 22 30 33 40 44 66 70 77 80 88 90 99
-   * 10 11 20 22 30 33 40 44 55 66 70 77 80 88 90 99
-   * 10 11 20 22 30 33 40 44 50 55 66 70 77 80 88 90 99
-   * 10 11 20 22 30 33 40 44 50 55 60 66 70 77 80 88 90 99
-   * 10 11 20 22 25 30 33 40 44 50 55 60 66 70 77 80 88 90 99
-   * 10 11 20 22 25 30 33 40 44 49 50 55 60 66 70 77 80 88 90 99
-   * 10 11 20 22 25 30 33 40 44 50 55 60 66 70 77 80 88 90 99
-   * 10 11 20 22 30 33 40 44 50 55 60 66 70 77 80 88 90 99
-   * 10 11 20 22 30 33 40 44 50 55 66 70 77 80 88 90 99
-   * 10 11 20 22 30 33 40 44 55 66 70 77 80 88 90 99
-   * 10 11 20 22 30 33 40 44 66 70 77 80 88 90 99
-   * 10 11 20 22 30 33 40 66 70 77 80 88 90 99
-   * 10 11 20 22 33 40 66 70 77 80 88 90 99
-   * 10 11 20 33 40 66 70 77 80 88 90 99
-   * 11 20 33 40 66 70 77 80 88 90 99
-   * 11 20 33 40 70 77 80 88 90 99
-   * 11 20 33 40 70 77 88 90 99
-   * 11 20 33 40 70 77 90 99
-   * 11 20 33 40 77 90 99
-   * 11 20 33 40 77 90
-   * 11 20 33 40 77
-   * 11 33 40 77
-   * 11 40 77
-   * 11 40
-   * 40
-   *
-   */
+CTEST(avltree_test, test1) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "40");
 }
+
+CTEST(avltree_test, test2) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1140");
+}
+
+CTEST(avltree_test, test3) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "114077");
+}
+
+CTEST(avltree_test, test4) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "11334077");
+}
+
+CTEST(avltree_test, test5) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1120334077");
+}
+
+CTEST(avltree_test, test6) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "112033407790");
+}
+
+CTEST(avltree_test, test7) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "11203340779099");
+}
+
+CTEST(avltree_test, test8) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1120334070779099");
+}
+
+CTEST(avltree_test, test9) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "112033407077889099");
+}
+
+CTEST(avltree_test, test10) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "11203340707780889099");
+}
+
+CTEST(avltree_test, test11) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1120334066707780889099");
+}
+
+CTEST(avltree_test, test12) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "101120334066707780889099");
+}
+
+CTEST(avltree_test, test13) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "10112022334066707780889099");
+}
+
+CTEST(avltree_test, test14) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1011202230334066707780889099");
+}
+
+CTEST(avltree_test, test15) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "101120223033404466707780889099");
+}
+
+CTEST(avltree_test, test16) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "10112022303340445566707780889099");
+}
+
+CTEST(avltree_test, test17) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1011202230334044505566707780889099");
+}
+
+CTEST(avltree_test, test18) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "101120223033404450556066707780889099");
+}
+
+CTEST(avltree_test, test19) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "10112022253033404450556066707780889099");
+}
+
+CTEST(avltree_test, test20) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1011202225303340444950556066707780889099");
+}
+
+CTEST(avltree_test, test21) {
+  __it = testcases;
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "10112022253033444950556066707780889099");
+}
+
+CTEST(avltree_test, test22) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "102022253033444950556066707780889099");
+}
+
+CTEST(avltree_test, test23) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1020222530334449505560667080889099");
+}
+
+CTEST(avltree_test, test24) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "10202225304449505560667080889099");
+}
+
+CTEST(avltree_test, test25) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "102225304449505560667080889099");
+}
+
+CTEST(avltree_test, test26) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1022253044495055606670808899");
+}
+
+CTEST(avltree_test, test27) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "10222530444950556066708088");
+}
+
+CTEST(avltree_test, test28) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "102225304449505560668088");
+}
+
+CTEST(avltree_test, test29) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1022253044495055606680");
+}
+
+CTEST(avltree_test, test30) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "10222530444950556066");
+}
+
+CTEST(avltree_test, test31) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "102225304449505560");
+}
+
+CTEST(avltree_test, test32) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "2225304449505560");
+}
+
+CTEST(avltree_test, test33) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "25304449505560");
+}
+
+CTEST(avltree_test, test34) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "254449505560");
+}
+
+CTEST(avltree_test, test35) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "2549505560");
+}
+
+CTEST(avltree_test, test36) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "25495060");
+}
+
+CTEST(avltree_test, test37) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "254960");
+}
+
+CTEST(avltree_test, test38) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "2549");
+}
+
+CTEST(avltree_test, test39) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "49");
+}
+
+CTEST(avltree_test, test40) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it++, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "");
+}
+
+CTEST(avltree_test, test41) {
+  __it = testcases;
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "40");
+}
+
+CTEST(avltree_test, test42) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1140");
+}
+
+CTEST(avltree_test, test43) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "114077");
+}
+
+CTEST(avltree_test, test44) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "11334077");
+}
+
+CTEST(avltree_test, test45) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1120334077");
+}
+
+CTEST(avltree_test, test46) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "112033407790");
+}
+
+CTEST(avltree_test, test47) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "11203340779099");
+}
+
+CTEST(avltree_test, test48) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1120334070779099");
+}
+
+CTEST(avltree_test, test49) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "112033407077889099");
+}
+
+CTEST(avltree_test, test50) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "11203340707780889099");
+}
+
+CTEST(avltree_test, test51) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1120334066707780889099");
+}
+
+CTEST(avltree_test, test52) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "101120334066707780889099");
+}
+
+CTEST(avltree_test, test53) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "10112022334066707780889099");
+}
+
+CTEST(avltree_test, test54) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1011202230334066707780889099");
+}
+
+CTEST(avltree_test, test55) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "101120223033404466707780889099");
+}
+
+CTEST(avltree_test, test56) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "10112022303340445566707780889099");
+}
+
+CTEST(avltree_test, test57) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1011202230334044505566707780889099");
+}
+
+CTEST(avltree_test, test58) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "101120223033404450556066707780889099");
+}
+
+CTEST(avltree_test, test59) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "10112022253033404450556066707780889099");
+}
+
+CTEST(avltree_test, test60) {
+  memset(__s, 0, sizeof(__s));
+  avl_insert(&tree, __it++, NULL, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1011202225303340444950556066707780889099");
+}
+
+CTEST(avltree_test, test61) {
+  __it = testcases + sizeof(testcases)/sizeof(uintptr_t) - 1;
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "10112022253033404450556066707780889099");
+}
+
+CTEST(avltree_test, test62) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "101120223033404450556066707780889099");
+}
+
+CTEST(avltree_test, test63) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1011202230334044505566707780889099");
+}
+
+CTEST(avltree_test, test64) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "10112022303340445566707780889099");
+}
+
+CTEST(avltree_test, test65) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "101120223033404466707780889099");
+}
+
+CTEST(avltree_test, test66) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1011202230334066707780889099");
+}
+
+CTEST(avltree_test, test67) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "10112022334066707780889099");
+}
+
+CTEST(avltree_test, test68) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "101120334066707780889099");
+}
+
+CTEST(avltree_test, test69) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1120334066707780889099");
+}
+
+CTEST(avltree_test, test70) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "11203340707780889099");
+}
+
+CTEST(avltree_test, test71) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "112033407077889099");
+}
+
+CTEST(avltree_test, test72) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1120334070779099");
+}
+
+CTEST(avltree_test, test73) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "11203340779099");
+}
+
+CTEST(avltree_test, test74) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "112033407790");
+}
+
+CTEST(avltree_test, test75) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1120334077");
+}
+
+CTEST(avltree_test, test76) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "11334077");
+}
+
+CTEST(avltree_test, test77) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "114077");
+}
+
+CTEST(avltree_test, test78) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "1140");
+}
+
+CTEST(avltree_test, test79) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "40");
+}
+
+CTEST(avltree_test, test80) {
+  memset(__s, 0, sizeof(__s));
+  avl_erase(&tree, __it--, less);
+  avl_inorder(tree, __f);
+  ASSERT_STR(__s, "");
+}
+
+int main(int argc, const char **argv) { return ctest_main(argc, argv); }
