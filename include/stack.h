@@ -25,6 +25,10 @@
 #ifndef _STACK_H
 #define _STACK_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdlib.h>
 #include <stdbool.h>
 
@@ -96,5 +100,9 @@ extern inline void destroy(struct stack **restrict stack) {
     free(top);
   }
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _STACK_H */

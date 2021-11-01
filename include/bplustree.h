@@ -47,6 +47,10 @@
 #ifndef _BPLUSTREE_H
 #define _BPLUSTREE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <string.h>
 #include <stack.h>
 
@@ -231,7 +235,7 @@ extern inline void bplus_insert(struct btree_node **restrict tree, struct list_n
   memcpy(sib->values, &temp->values[node->nmemb], __SIZEOF_POINTER__*sib->nmemb);
   sib->next  = node->next;
   node->next = sib;
-  key        = node->keys[order>>1];
+  key        = node->keys[node->nmemb-1];
   list_free(temp);
 
   if (empty(stack)) {
@@ -450,9 +454,13 @@ extern inline void bplus_erase(struct btree_node **restrict tree, struct list_no
  * @func: function to apply to each node of @list
  */
 extern inline void bplus_iterate(const struct list_node *restrict list, void (*func)(const void *restrict, void *restrict)) {
-  for (const struct list_node *node = list; node != NULL; node = node->next)
+  for   (const struct list_node *node = list; node != NULL; node = node->next)
     for (size_t idx = 0; idx < node->nmemb; ++idx)
       func(node->keys[idx], node->values[idx]);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _BPLUSTREE_H */

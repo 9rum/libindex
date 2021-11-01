@@ -34,6 +34,10 @@
 #ifndef _BTREE_H
 #define _BTREE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <string.h>
 #include <stack.h>
 
@@ -348,5 +352,9 @@ extern inline void btree_postorder(const struct btree_node *restrict tree, void 
     }
   }
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _BTREE_H */

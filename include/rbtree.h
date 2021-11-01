@@ -33,6 +33,10 @@
 #ifndef _RBTREE_H
 #define _RBTREE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stack.h>
 
 /**
@@ -320,5 +324,9 @@ extern inline void rb_inorder(const struct rb_node *restrict tree, void (*func)(
  * @func: function to apply to each node of @tree
  */
 extern inline void rb_postorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { rb_postorder(tree->left, func); rb_postorder(tree->right, func); func(tree->key, tree->value); } }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _RBTREE_H */

@@ -31,6 +31,10 @@
 #ifndef _AVLTREE_H
 #define _AVLTREE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stack.h>
 
 /**
@@ -313,5 +317,9 @@ extern inline void avl_inorder(const struct avl_node *restrict tree, void (*func
  * @func: function to apply to each node of @tree
  */
 extern inline void avl_postorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { avl_postorder(tree->left, func); avl_postorder(tree->right, func); func(tree->key, tree->value); } }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _AVLTREE_H */
