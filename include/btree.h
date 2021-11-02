@@ -312,7 +312,7 @@ extern inline void btree_erase(struct btree_node **restrict tree, const size_t o
  * @func: function to apply to each node of @tree
  */
 extern inline void btree_preorder(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
-  if (tree != NULL) {
+  if    (tree != NULL) {
     for (size_t idx = 0; idx < tree->nmemb; ++idx) {
       func(tree->keys[idx], tree->values[idx]);
       btree_preorder(tree->children[idx], func);
@@ -328,7 +328,7 @@ extern inline void btree_preorder(const struct btree_node *restrict tree, void (
  * @func: function to apply to each node of @tree
  */
 extern inline void btree_inorder(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
-  if (tree != NULL) {
+  if    (tree != NULL) {
     for (size_t idx = 0; idx < tree->nmemb; ++idx) {
       btree_inorder(tree->children[idx], func);
       func(tree->keys[idx], tree->values[idx]);
@@ -344,7 +344,7 @@ extern inline void btree_inorder(const struct btree_node *restrict tree, void (*
  * @func: function to apply to each node of @tree
  */
 extern inline void btree_postorder(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
-  if (tree != NULL) {
+  if    (tree != NULL) {
     btree_postorder(tree->children[0], func);
     for (size_t idx = 0; idx < tree->nmemb; ++idx) {
       btree_postorder(tree->children[idx+1], func);
