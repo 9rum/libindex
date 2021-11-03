@@ -1,14 +1,12 @@
-cmake_minimum_required(VERSION 3.9)
-
-include_directories(${PROJECT_SOURCE_DIR}/../include)
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 add_compile_options(-v -O3)
 
-file(GLOB TESTS ${PROJECT_SOURCE_DIR}/*.c)
+file(GLOB_RECURSE tests ${CMAKE_SOURCE_DIR}/test/*.c)
 
-foreach(TEST ${TESTS})
-  set(EXECUTABLE)
-  get_filename_component(EXECUTABLE ${TEST} NAME_WE)
-  add_executable(${EXECUTABLE} ${TEST})
-  set_property(TARGET ${EXECUTABLE} PROPERTY C_STANDARD 11)
-endforeach()
+foreach(test ${tests})
+  get_filename_component(tname ${test} NAME_WE)
+  add_executable(${tname} ${test})
+  add_test(NAME ${tname} COMMAND ${tname})
+  set_property(TARGET ${tname} PROPERTY C_STANDARD 11)
+endforeach(test)

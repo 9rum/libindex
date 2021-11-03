@@ -1,6 +1,13 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.5)
 
-project(file-processing
-        LANGUAGES C)
+project(file-processing LANGUAGES C)
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
+enable_testing()
+
+include(CTest)
+
+add_subdirectory(test)
+
+file(GLOB_RECURSE headers ${CMAKE_SOURCE_DIR}/include/*.h)
+
+install(FILES ${headers} DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
