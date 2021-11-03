@@ -41,8 +41,8 @@ extern "C" {
  * See https://en.cppreference.com/w/cpp/container/stack
  */
 struct stack {
-  const void         *value;
-  const struct stack *next;
+  void         *value;
+  struct stack *next;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
 /**
@@ -65,7 +65,7 @@ extern inline void *top(const struct stack *restrict stack) { return empty(stack
  * @stack: stack to insert element
  * @value: the value of the element to push
  */
-extern inline void push(struct stack **restrict stack, const void *restrict value) {
+extern inline void push(struct stack **restrict stack, void *restrict value) {
   struct stack *top = malloc(sizeof(struct stack));
   top->value        = value;
   top->next         = *stack;
