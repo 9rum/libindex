@@ -1,7 +1,5 @@
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-add_compile_options(-v -O3)
-
 file(GLOB_RECURSE tests ${CMAKE_SOURCE_DIR}/test/*.c)
 
 foreach(test ${tests})
