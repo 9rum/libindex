@@ -1,19 +1,6 @@
+/* SPDX-License-Identifier: Apache-2.0 */
 /*
  * Copyright 2020 9rum
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * File Processing, 2020
  *
  * stack.h - generic stack definition
  *
@@ -21,6 +8,8 @@
  * - specifically, a LIFO (last-in, first-out) data structure.
  *
  * The stack pushes and pops the element from the top of the stack.
+ *
+ * See https://dl.gi.de/bitstream/handle/20.500.12116/4381/lni-t-7.pdf
  */
 #ifndef _STACK_H
 #define _STACK_H
@@ -37,8 +26,6 @@ extern "C" {
  *
  * @value: the value of the element
  * @next:  the pointer to the next element
- *
- * See https://en.cppreference.com/w/cpp/container/stack
  */
 struct stack {
   void         *value;
@@ -91,12 +78,12 @@ extern inline void *pop(struct stack **restrict stack) {
  *
  * @stack: stack to empty
  */
-extern inline void destroy(struct stack **restrict stack) {
+extern inline void destroy(struct stack *restrict stack) {
   register struct stack *top;
 
-  while (!empty(*stack)) {
-    top    = *stack;
-    *stack = top->next;
+  while (!empty(stack)) {
+    top   = stack;
+    stack = top->next;
     free(top);
   }
 }

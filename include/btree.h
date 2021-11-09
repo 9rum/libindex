@@ -1,19 +1,6 @@
+/* SPDX-License-Identifier: Apache-2.0 */
 /*
  * Copyright 2020 9rum
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * File Processing, 2020
  *
  * btree.h - generic B-tree definition
  *
@@ -30,6 +17,8 @@
  * that only small chunks of the tree could fit in main memory.
  * Bayer and McCreight's paper, Organization and maintenance of large ordered indices,
  * was first circulated in July 1970 and later published in Acta Informatica.
+ *
+ * See https://infolab.usc.edu/csci585/Spring2010/den_ar/indexing.pdf
  */
 #ifndef _BTREE_H
 #define _BTREE_H
@@ -56,8 +45,6 @@ extern "C" {
  *  3. The root has at least two children if it is not a leaf node
  *  4. A non-leaf node with k children contains k−1 keys
  *  5. All leaves appear in the same level and carry information
- *
- * See https://infolab.usc.edu/csci585/Spring2010/den_ar/indexing.pdf
  */
 struct btree_node {
   const void              **keys;
@@ -85,7 +72,7 @@ static inline struct btree_node *btree_alloc(const size_t order) {
  *
  * @node: node to deallocate
  */
-static inline void btree_free(struct btree_node *node) {
+static inline void btree_free(struct btree_node *restrict node) {
   free(node->keys);
   free(node->values);
   free(node->children);
@@ -115,7 +102,7 @@ static inline void btree_free(struct btree_node *node) {
  * @nmemb: number of elements in @base
  * @less:  operator defining the (partial) element order
  */
-static inline size_t binsearch(const void *restrict key, const void **restrict base, const size_t nmemb, bool (*less)(const void *, const void *)) {
+static inline size_t binsearch(const void *restrict key, const void **restrict base, const size_t nmemb, bool (*less)(const void *restrict, const void *restrict)) {
   register size_t idx;
   register size_t lo = 0;
   register size_t hi = nmemb;
@@ -139,7 +126,7 @@ static inline size_t binsearch(const void *restrict key, const void **restrict b
  * @value: the value to insert
  * @less:  operator defining the (partial) node order
  */
-extern inline void btree_insert(struct btree_node **restrict tree, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *, const void *)) {
+extern inline void btree_insert(struct btree_node **restrict tree, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
   register size_t            idx;
   register struct btree_node *tmp;
   register struct btree_node *walk    = *tree;
@@ -148,7 +135,7 @@ extern inline void btree_insert(struct btree_node **restrict tree, const size_t 
 
   while (walk != NULL) {
     if  ((idx = binsearch(key, walk->keys, walk->nmemb, less)) < walk->nmemb &&
-        !(less(key, walk->keys[idx]) || less(walk->keys[idx], key))) { destroy(&stack); return; }
+        !(less(key, walk->keys[idx]) || less(walk->keys[idx], key))) { destroy(stack); return; }
     push(&stack, walk);
     push(&stack, (void *)idx);
     walk = walk->children[idx];
@@ -165,7 +152,7 @@ extern inline void btree_insert(struct btree_node **restrict tree, const size_t 
       walk->keys[idx]       = key;
       walk->values[idx]     = value;
       walk->children[idx+1] = sibling;
-      destroy(&stack);
+      destroy(stack);
       return;
     }
 
@@ -210,7 +197,7 @@ extern inline void btree_insert(struct btree_node **restrict tree, const size_t 
  * @key:   the key to erase
  * @less:  operator defining the (partial) node order
  */
-extern inline void btree_erase(struct btree_node **restrict tree, const size_t order, const void *restrict key, bool (*less)(const void *, const void *)) {
+extern inline void btree_erase(struct btree_node **restrict tree, const size_t order, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
   register size_t            idx;
   register struct btree_node *parent;
   register struct btree_node *sibling;
@@ -225,7 +212,7 @@ extern inline void btree_erase(struct btree_node **restrict tree, const size_t o
     walk = walk->children[idx];
   }
 
-  if (walk == NULL) { destroy(&stack); return; }
+  if (walk == NULL) { destroy(stack); return; }
 
   if (walk->children[idx] != NULL) {
     parent = walk;
@@ -244,7 +231,7 @@ extern inline void btree_erase(struct btree_node **restrict tree, const size_t o
   memcpy(&walk->values[idx], &walk->values[idx+1], __SIZEOF_POINTER__*(walk->nmemb-idx));
 
   while (!empty(stack)) {
-    if  ((order-1)>>1 <= walk->nmemb) { destroy(&stack); return; }
+    if  ((order-1)>>1 <= walk->nmemb) { destroy(stack); return; }
 
     idx     = (size_t)pop(&stack);
     parent  = pop(&stack);
@@ -272,7 +259,7 @@ extern inline void btree_erase(struct btree_node **restrict tree, const size_t o
         memcpy(sibling->keys, &sibling->keys[1], __SIZEOF_POINTER__*--sibling->nmemb);
         memcpy(sibling->values, &sibling->values[1], __SIZEOF_POINTER__*sibling->nmemb);
       }
-      destroy(&stack);
+      destroy(stack);
       return;
     }
 

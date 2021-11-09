@@ -1,19 +1,6 @@
+/* SPDX-License-Identifier: Apache-2.0 */
 /*
  * Copyright 2020 9rum
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * File Processing, 2020
  *
  * bplustree.h - generic B+-tree definition
  *
@@ -88,7 +75,7 @@ static inline struct btree_node *btree_alloc(const size_t order) {
  *
  * @node: node to deallocate
  */
-static inline void btree_free(struct btree_node *node) {
+static inline void btree_free(struct btree_node *restrict node) {
   free(node->keys);
   free(node->children);
   free(node);
@@ -128,7 +115,7 @@ static inline struct list_node *list_alloc(const size_t order) {
  *
  * @node: node to deallocate
  */
-static inline void list_free(struct list_node *node) {
+static inline void list_free(struct list_node *restrict node) {
   free(node->keys);
   free(node->values);
   free(node);
@@ -157,7 +144,7 @@ static inline void list_free(struct list_node *node) {
  * @nmemb: number of elements in @base
  * @less:  operator defining the (partial) element order
  */
-static inline size_t binsearch(const void *restrict key, const void **restrict base, const size_t nmemb, bool (*less)(const void *, const void *)) {
+static inline size_t binsearch(const void *restrict key, const void **restrict base, const size_t nmemb, bool (*less)(const void *restrict, const void *restrict)) {
   register size_t idx;
   register size_t lo = 0;
   register size_t hi = nmemb;
@@ -182,7 +169,7 @@ static inline size_t binsearch(const void *restrict key, const void **restrict b
  * @value: the value to insert
  * @less:  operator defining the (partial) node order
  */
-extern inline void bplus_insert(struct btree_node **restrict tree, struct list_node **restrict list, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *, const void *)) {
+extern inline void bplus_insert(struct btree_node **restrict tree, struct list_node **restrict list, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
   register size_t            idx;
   register struct btree_node *tmp;
   register struct btree_node *sibling;
@@ -207,14 +194,14 @@ extern inline void bplus_insert(struct btree_node **restrict tree, struct list_n
   }
 
   if ((idx = binsearch(key, node->keys, node->nmemb, less)) < node->nmemb &&
-     !(less(key, node->keys[idx]) || less(node->keys[idx], key))) { destroy(&stack); return; }
+     !(less(key, node->keys[idx]) || less(node->keys[idx], key))) { destroy(stack); return; }
 
   if (node->nmemb < order) {
     memcpy(&node->keys[idx+1], &node->keys[idx], __SIZEOF_POINTER__*(node->nmemb-idx));
     memcpy(&node->values[idx+1], &node->values[idx], __SIZEOF_POINTER__*(node->nmemb++-idx));
     node->keys[idx]   = key;
     node->values[idx] = value;
-    destroy(&stack);
+    destroy(stack);
     return;
   }
 
@@ -256,7 +243,7 @@ extern inline void bplus_insert(struct btree_node **restrict tree, struct list_n
     memcpy(&walk->children[idx+2], &walk->children[idx+1], __SIZEOF_POINTER__*(walk->nmemb++-idx));
     walk->keys[idx]       = key;
     walk->children[idx+1] = sib;
-    destroy(&stack);
+    destroy(stack);
     return;
   }
 
@@ -288,7 +275,7 @@ extern inline void bplus_insert(struct btree_node **restrict tree, struct list_n
       memcpy(&walk->children[idx+2], &walk->children[idx+1], __SIZEOF_POINTER__*(walk->nmemb++-idx));
       walk->keys[idx]       = key;
       walk->children[idx+1] = sibling;
-      destroy(&stack);
+      destroy(stack);
       return;
     }
 
@@ -327,7 +314,7 @@ extern inline void bplus_insert(struct btree_node **restrict tree, struct list_n
  * @key:   the key to erase
  * @less:  operator defining the (partial) node order
  */
-extern inline void bplus_erase(struct btree_node **restrict tree, struct list_node **restrict list, const size_t order, const void *restrict key, bool (*less)(const void *, const void *)) {
+extern inline void bplus_erase(struct btree_node **restrict tree, struct list_node **restrict list, const size_t order, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
   register size_t            idx;
   register struct btree_node *parent;
   register struct btree_node *sibling;
@@ -346,12 +333,12 @@ extern inline void bplus_erase(struct btree_node **restrict tree, struct list_no
   if (node == NULL) return;
 
   if ((idx = binsearch(key, node->keys, node->nmemb, less)) < node->nmemb &&
-     (less(key, node->keys[idx]) || less(node->keys[idx], key)) || idx == node->nmemb) { destroy(&stack); return; }
+     (less(key, node->keys[idx]) || less(node->keys[idx], key)) || idx == node->nmemb) { destroy(stack); return; }
 
   memcpy(&node->keys[idx], &node->keys[idx+1], __SIZEOF_POINTER__*(--node->nmemb-idx));
   memcpy(&node->values[idx], &node->values[idx+1], __SIZEOF_POINTER__*(node->nmemb-idx));
 
-  if ((order+1)>>1 <= node->nmemb) { destroy(&stack); return; }
+  if ((order+1)>>1 <= node->nmemb) { destroy(stack); return; }
 
   if (empty(stack)) { if (node->nmemb == 0) { *list = NULL; list_free(node); } return; }
 
@@ -375,7 +362,7 @@ extern inline void bplus_erase(struct btree_node **restrict tree, struct list_no
       memcpy(sib->keys, &sib->keys[1], __SIZEOF_POINTER__*--sib->nmemb);
       memcpy(sib->values, &sib->values[1], __SIZEOF_POINTER__*sib->nmemb);
     }
-    destroy(&stack);
+    destroy(stack);
     return;
   }
 
@@ -398,7 +385,7 @@ extern inline void bplus_erase(struct btree_node **restrict tree, struct list_no
   }
 
   while (!empty(stack)) {
-    if  ((order-1)>>1 <= walk->nmemb) { destroy(&stack); return; }
+    if  ((order-1)>>1 <= walk->nmemb) { destroy(stack); return; }
 
     idx     = (size_t)pop(&stack);
     parent  = pop(&stack);
@@ -420,7 +407,7 @@ extern inline void bplus_erase(struct btree_node **restrict tree, struct list_no
         memcpy(sibling->children, &sibling->children[1], __SIZEOF_POINTER__*sibling->nmemb);
         memcpy(sibling->keys, &sibling->keys[1], __SIZEOF_POINTER__*--sibling->nmemb);
       }
-      destroy(&stack);
+      destroy(stack);
       return;
     }
 

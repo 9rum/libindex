@@ -1,19 +1,6 @@
+/* SPDX-License-Identifier: Apache-2.0 */
 /*
  * Copyright 2020 9rum
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * File Processing, 2020
  *
  * rbtree.h - generic red-black tree definition
  *
@@ -25,10 +12,12 @@
  * to restore the coloring properties that constrain how unbalanced
  * the tree can become in the worst case.
  *
- * The rebalancing is not perfect, but guarantees searching in O(log n) time,
+ * The rebalancing is not perfect, but guarantees searching in logarithmic time,
  * where n is the number of nodes in the tree.
  * The insertion and deletion, along with the tree rearranging and recoloring,
- * are also performed in O(log n) time.
+ * are also performed in logarithmic time.
+ *
+ * See https://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1457&context=cstech
  */
 #ifndef _RBTREE_H
 #define _RBTREE_H
@@ -57,8 +46,6 @@ extern "C" {
  *  4. Both children of every red node are black
  *  5. Every simple path from a given node to any of its descendant NIL leaves
  *     goes through the same number of black nodes
- *
- * See https://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1457&context=cstech
  */
 struct rb_node {
   const void           *key;
@@ -136,7 +123,7 @@ static inline void rb_rotate_right(struct rb_node **restrict root, struct rb_nod
  * @value: the value to insert
  * @less:  operator defining the (partial) node order
  */
-extern inline void rb_insert(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *, const void *)) {
+extern inline void rb_insert(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
   register struct rb_node *parent;
   register struct rb_node *gparent;
   register struct rb_node *uncle;
@@ -144,7 +131,7 @@ extern inline void rb_insert(struct rb_node **restrict tree, const void *restric
            struct stack   *stack = NULL;
 
   while (walk != NULL) {
-    if  (!(less(key, walk->key) || less(walk->key, key))) { destroy(&stack); return; }
+    if  (!(less(key, walk->key) || less(walk->key, key))) { destroy(stack); return; }
     push(&stack, walk);
     walk = less(key, walk->key) ? walk->left : walk->right;
   }
@@ -158,7 +145,7 @@ extern inline void rb_insert(struct rb_node **restrict tree, const void *restric
   else                                    parent->right = walk;
 
   while (!empty(stack)) {
-    if  ((parent = pop(&stack))->color) { destroy(&stack); return; }
+    if  ((parent = pop(&stack))->color) { destroy(stack); return; }
 
     gparent = pop(&stack);
     uncle   = gparent->right == parent ? gparent->left : gparent->right;
@@ -188,7 +175,7 @@ extern inline void rb_insert(struct rb_node **restrict tree, const void *restric
         }
       }
 
-      destroy(&stack);
+      destroy(stack);
       return;
     }
 
@@ -206,7 +193,7 @@ extern inline void rb_insert(struct rb_node **restrict tree, const void *restric
  * @key:  the key to erase
  * @less: operator defining the (partial) node order
  */
-extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict key, bool (*less)(const void *, const void *)) {
+extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
   register struct rb_node *parent;
   register struct rb_node *sibling;
   register struct rb_node *walk  = *tree;
@@ -217,7 +204,7 @@ extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict
     walk = less(key, walk->key) ? walk->left : walk->right;
   }
 
-  if (walk == NULL) { destroy(&stack); return; }
+  if (walk == NULL) { destroy(stack); return; }
 
   if (walk->left != NULL && walk->right != NULL) {              /* case of degree 2 */
     parent = walk;
@@ -245,13 +232,13 @@ extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict
     }
   }
 
-  if (!walk->color) { free(walk); destroy(&stack); return; }
+  if (!walk->color) { free(walk); destroy(stack); return; }
 
   parent = walk;
   walk   = parent->right == NULL ? parent->left : parent->right;
   free(parent);
 
-  if (walk != NULL && !walk->color) { walk->color = true; destroy(&stack); return; }
+  if (walk != NULL && !walk->color) { walk->color = true; destroy(stack); return; }
 
   while (!empty(stack)) {
     parent  = pop(&stack);
@@ -291,12 +278,12 @@ extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict
         rb_rotate_left(tree, parent, top(stack));
       }
 
-      destroy(&stack);
+      destroy(stack);
       return;
     }
 
     sibling->color = false;                                     /* case of recoloring */
-    if (!parent->color) { parent->color = true; destroy(&stack); return; }
+    if (!parent->color) { parent->color = true; destroy(stack); return; }
     walk           = parent;
   }
 }

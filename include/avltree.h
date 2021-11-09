@@ -1,19 +1,6 @@
+/* SPDX-License-Identifier: Apache-2.0 */
 /*
  * Copyright 2020 9rum
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * File Processing, 2020
  *
  * avltree.h - generic AVL tree definition
  *
@@ -24,9 +11,11 @@
  * differ by at most one; if at any time they differ by more than one,
  * rebalancing is done to restore this property.
  *
- * Lookup, insertion, and deletion all take O(log n) time in both
+ * Lookup, insertion, and deletion all take logarithmic time in both
  * the average and worst cases, where n is the number of nodes
  * in the tree prior to the operation.
+ *
+ * See https://zhjwpku.com/assets/pdf/AED2-10-avl-paper.pdf
  */
 #ifndef _AVLTREE_H
 #define _AVLTREE_H
@@ -57,8 +46,6 @@ extern "C" {
  *    BF(X) ∈ {-1, 0, 1}
  *
  * holds for every node X in the tree.
- *
- * See https://zhjwpku.com/assets/pdf/AED2-10-avl-paper.pdf
  */
 struct avl_node {
   const void            *key;
@@ -145,14 +132,14 @@ static inline void avl_rotate_right(struct avl_node **restrict root, struct avl_
  * @value: the value to insert
  * @less:  operator defining the (partial) node order
  */
-extern inline void avl_insert(struct avl_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *, const void *)) {
+extern inline void avl_insert(struct avl_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
            struct avl_node *parent;
   register struct avl_node *walk  = *tree;
            struct avl_node *x     = NULL;
            struct stack    *stack = NULL;
 
   while (walk != NULL) {
-    if  (!(less(key, walk->key) || less(walk->key, key))) { destroy(&stack); return; }
+    if  (!(less(key, walk->key) || less(walk->key, key))) { destroy(stack); return; }
     push(&stack, walk);
     walk = less(key, walk->key) ? walk->left : walk->right;
   }
@@ -212,7 +199,7 @@ extern inline void avl_insert(struct avl_node **restrict tree, const void *restr
  * @key:  the key to erase
  * @less: operator defining the (partial) node order
  */
-extern inline void avl_erase(struct avl_node **restrict tree, const void *restrict key, bool (*less)(const void *, const void *)) {
+extern inline void avl_erase(struct avl_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
            struct avl_node *parent;
   register struct avl_node *walk  = *tree;
            struct avl_node *x     = NULL;
@@ -223,7 +210,7 @@ extern inline void avl_erase(struct avl_node **restrict tree, const void *restri
     walk = less(key, walk->key) ? walk->left : walk->right;
   }
 
-  if (walk == NULL) { destroy(&stack); return; }
+  if (walk == NULL) { destroy(stack); return; }
 
   if (walk->left != NULL && walk->right != NULL) {                         /* case of degree 2 */
     parent = walk;
