@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 add_compile_options(-O3)
