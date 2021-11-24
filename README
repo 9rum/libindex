@@ -7,3 +7,21 @@ The File Processing is licensed under the Apache License, Version 2.0;
 the full license text is at:
 
     https://www.apache.org/licenses/LICENSE-2.0
+
+Generate Makefile
+-----------------
+You should have CMake already installed on your machine, before generating Makefile.
+Run the following commands:
+
+    mkdir build/
+    cd build/
+    cmake ../
+
+Install File Processing
+-----------------------
+Use ``make install``.
+
+Run tests
+---------
+Build tests using ``make`` or ``cmake --build .``.
+Run tests using ``make test`` or ``ctest``.
