@@ -4,7 +4,7 @@ The File Processing is provided under:
 
 In addition, the File Processing uses the CTest for its test. Please see:
 
-    https://github.com/bvdberg/ctest/blob/master/LICENSE
+    https://github.com/bvdberg/ctest
 
 for more details.
 
