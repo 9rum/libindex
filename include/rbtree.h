@@ -202,7 +202,7 @@ extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict
 
   if (walk == NULL) { stack_free(stack); return; }
 
-  if (walk->left != NULL && walk->right != NULL) {              /* case of degree 2 */
+  if (walk->left != NULL && walk->right != NULL) {                          /* case of degree 2 */
     parent = walk;
     stack_push(&stack, walk);
 
@@ -212,17 +212,17 @@ extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict
     parent->value = walk->value;
   }
 
-  if (walk->left == NULL && walk->right == NULL) {              /* case of degree 0 */
-    if ((parent = stack_top(stack)) == NULL)   *tree         = NULL;
+  if (walk->left == NULL && walk->right == NULL) {                          /* case of degree 0 */
+    if ((parent = stack_top(stack)) == NULL)   *tree         = NULL;        /* case of root */
     else if (parent->left == walk)             parent->left  = NULL;
     else                                       parent->right = NULL;
-  } else {                                                      /* case of degree 1 */
+  } else {                                                                  /* case of degree 1 */
     if (walk->left != NULL) {
-      if ((parent = stack_top(stack)) == NULL) *tree         = walk->left;
+      if ((parent = stack_top(stack)) == NULL) *tree         = walk->left;  /* case of root */
       else if (parent->left == walk)           parent->left  = walk->left;
       else                                     parent->right = walk->left;
     } else {
-      if ((parent = stack_top(stack)) == NULL) *tree         = walk->right;
+      if ((parent = stack_top(stack)) == NULL) *tree         = walk->right; /* case of root */
       else if (parent->left == walk)           parent->left  = walk->right;
       else                                     parent->right = walk->right;
     }
@@ -240,7 +240,7 @@ extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict
     parent  = stack_pop(&stack);
     sibling = parent->right == walk ? parent->left : parent->right;
 
-    if (!sibling->color) {                                      /* case of rearranging */
+    if (!sibling->color) {                                                  /* case of rearranging */
       sibling->color = true;
       parent->color  = false;
       parent->left == walk ? rb_rotate_left(tree, parent, stack_top(stack)) : rb_rotate_right(tree, parent, stack_top(stack));
@@ -249,26 +249,26 @@ extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict
     }
 
     if (sibling->left != NULL && !sibling->left->color ||
-        sibling->right != NULL && !sibling->right->color) {     /* case of rearranging */
+        sibling->right != NULL && !sibling->right->color) {                 /* case of rearranging */
       if (parent->left == sibling) {
-        if (sibling->right != NULL && !sibling->right->color) { /* case of Left Right */
+        if (sibling->right != NULL && !sibling->right->color) {             /* case of Left Right */
           sibling->right->color = true;
           sibling->color        = false;
           rb_rotate_left(tree, sibling, parent);
           sibling = parent->left;
         }
-        sibling->left->color = true;                            /* case of Left Left */
+        sibling->left->color = true;                                        /* case of Left Left */
         sibling->color       = parent->color;
         parent->color        = true;
         rb_rotate_right(tree, parent, stack_top(stack));
       } else {
-        if (sibling->left != NULL && !sibling->left->color) {   /* case of Right Left */
+        if (sibling->left != NULL && !sibling->left->color) {               /* case of Right Left */
           sibling->left->color = true;
           sibling->color       = false;
           rb_rotate_right(tree, sibling, parent);
           sibling = parent->right;
         }
-        sibling->right->color = true;                           /* csae of Right Right */
+        sibling->right->color = true;                                       /* case of Right Right */
         sibling->color        = parent->color;
         parent->color         = true;
         rb_rotate_left(tree, parent, stack_top(stack));
@@ -278,7 +278,7 @@ extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict
       return;
     }
 
-    sibling->color = false;                                     /* case of recoloring */
+    sibling->color = false;                                                 /* case of recoloring */
     if (!parent->color) { parent->color = true; stack_free(stack); return; }
     walk = parent;
   }
