@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /*
- * Copyright 2020 9rum
+ * Copyright 2021 9rum
  *
  * rbtree.h - generic red-black tree definition
  *
@@ -17,14 +17,10 @@
  * The insertion and deletion, along with the tree rearranging and recoloring,
  * are also performed in logarithmic time.
  *
- * See https://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1457&context=cstech
+ * See https://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1457&context=cstech for more details.
  */
 #ifndef _RBTREE_H
 #define _RBTREE_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <stack.h>
 
@@ -78,7 +74,7 @@ static inline void rb_rotate_left(struct rb_node **restrict root, struct rb_node
   node->right            = rchild->left;
   rchild->left           = node;
 
-  if      (parent == NULL)       *root         = rchild; /* case of root */
+  if (parent == NULL)            *root         = rchild; /* case of root */
   else if (parent->left == node) parent->left  = rchild;
   else                           parent->right = rchild;
 }
@@ -95,7 +91,7 @@ static inline void rb_rotate_right(struct rb_node **restrict root, struct rb_nod
   node->left             = lchild->right;
   lchild->right          = node;
 
-  if      (parent == NULL)       *root         = lchild; /* case of root */
+  if (parent == NULL)            *root         = lchild; /* case of root */
   else if (parent->left == node) parent->left  = lchild;
   else                           parent->right = lchild;
 }
@@ -131,8 +127,8 @@ extern inline void rb_insert(struct rb_node **restrict tree, const void *restric
            struct stack   *stack = NULL;
 
   while (walk != NULL) {
-    if  (!(less(key, walk->key) || less(walk->key, key))) { destroy(stack); return; }
-    push(&stack, walk);
+    if (!(less(key, walk->key) || less(walk->key, key))) { stack_free(stack); return; }
+    stack_push(&stack, walk);
     walk = less(key, walk->key) ? walk->left : walk->right;
   }
 
@@ -140,49 +136,49 @@ extern inline void rb_insert(struct rb_node **restrict tree, const void *restric
   walk->key   = key;
   walk->value = value;
 
-  if      ((parent = top(stack)) == NULL) *tree         = walk, walk->color = true;
-  else if (less(key, parent->key))        parent->left  = walk;
-  else                                    parent->right = walk;
+  if ((parent = stack_top(stack)) == NULL) *tree         = walk, walk->color = true;
+  else if (less(key, parent->key))         parent->left  = walk;
+  else                                     parent->right = walk;
 
-  while (!empty(stack)) {
-    if  ((parent = pop(&stack))->color) { destroy(stack); return; }
+  while (!stack_empty(stack)) {
+    if ((parent = stack_pop(&stack))->color) { stack_free(stack); return; }
 
-    gparent = pop(&stack);
+    gparent = stack_pop(&stack);
     uncle   = gparent->right == parent ? gparent->left : gparent->right;
 
-    if     (uncle == NULL || uncle->color) { /* case of rearranging */
-      if   (gparent->left == parent) {
-        if (parent->left == walk) {          /* case of Left Left */
+    if (uncle == NULL || uncle->color) { /* case of rearranging */
+      if (gparent->left == parent) {
+        if (parent->left == walk) {      /* case of Left Left */
           parent->color  = true;
           gparent->color = false;
-          rb_rotate_right(tree, gparent, top(stack));
-        } else {                             /* case of Left Right */
+          rb_rotate_right(tree, gparent, stack_top(stack));
+        } else {                         /* case of Left Right */
           walk->color    = true;
           gparent->color = false;
           rb_rotate_left(tree, parent, gparent);
-          rb_rotate_right(tree, gparent, top(stack));
+          rb_rotate_right(tree, gparent, stack_top(stack));
         }
       } else {
-        if (parent->left == walk) {          /* case of Right Left */
+        if (parent->left == walk) {      /* case of Right Left */
           walk->color    = true;
           gparent->color = false;
           rb_rotate_right(tree, parent, gparent);
-          rb_rotate_left(tree, gparent, top(stack));
-        } else {                             /* case of Right Right */
+          rb_rotate_left(tree, gparent, stack_top(stack));
+        } else {                         /* case of Right Right */
           parent->color  = true;
           gparent->color = false;
-          rb_rotate_left(tree, gparent, top(stack));
+          rb_rotate_left(tree, gparent, stack_top(stack));
         }
       }
 
-      destroy(stack);
+      stack_free(stack);
       return;
     }
 
-    parent->color = true;                    /* case of recoloring */
+    parent->color = true;                /* case of recoloring */
     uncle->color  = true;
     walk          = gparent;
-    walk->color   = empty(stack) ? true : false;
+    walk->color   = stack_empty(stack) ? true : false;
   }
 }
 
@@ -200,91 +196,91 @@ extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict
            struct stack   *stack = NULL;
 
   while (walk != NULL && (less(key, walk->key) || less(walk->key, key))) {
-    push(&stack, walk);
+    stack_push(&stack, walk);
     walk = less(key, walk->key) ? walk->left : walk->right;
   }
 
-  if (walk == NULL) { destroy(stack); return; }
+  if (walk == NULL) { stack_free(stack); return; }
 
   if (walk->left != NULL && walk->right != NULL) {              /* case of degree 2 */
     parent = walk;
-    push(&stack, walk);
+    stack_push(&stack, walk);
 
-    for (walk = walk->left; walk->right != NULL; walk = walk->right) push(&stack, walk);
+    for (walk = walk->left; walk->right != NULL; walk = walk->right) stack_push(&stack, walk);
 
     parent->key   = walk->key;
     parent->value = walk->value;
   }
 
-  if          (walk->left == NULL && walk->right == NULL) {     /* case of degree 0 */
-    if        ((parent = top(stack)) == NULL) *tree         = NULL;
-    else if   (parent->left == walk)          parent->left  = NULL;
-    else                                      parent->right = NULL;
+  if (walk->left == NULL && walk->right == NULL) {              /* case of degree 0 */
+    if ((parent = stack_top(stack)) == NULL)   *tree         = NULL;
+    else if (parent->left == walk)             parent->left  = NULL;
+    else                                       parent->right = NULL;
   } else {                                                      /* case of degree 1 */
-    if        (walk->left != NULL) {
-      if      ((parent = top(stack)) == NULL) *tree         = walk->left;
-      else if (parent->left == walk)          parent->left  = walk->left;
-      else                                    parent->right = walk->left;
+    if (walk->left != NULL) {
+      if ((parent = stack_top(stack)) == NULL) *tree         = walk->left;
+      else if (parent->left == walk)           parent->left  = walk->left;
+      else                                     parent->right = walk->left;
     } else {
-      if      ((parent = top(stack)) == NULL) *tree         = walk->right;
-      else if (parent->left == walk)          parent->left  = walk->right;
-      else                                    parent->right = walk->right;
+      if ((parent = stack_top(stack)) == NULL) *tree         = walk->right;
+      else if (parent->left == walk)           parent->left  = walk->right;
+      else                                     parent->right = walk->right;
     }
   }
 
-  if (!walk->color) { free(walk); destroy(stack); return; }
+  if (!walk->color) { free(walk); stack_free(stack); return; }
 
   parent = walk;
   walk   = parent->right == NULL ? parent->left : parent->right;
   free(parent);
 
-  if (walk != NULL && !walk->color) { walk->color = true; destroy(stack); return; }
+  if (walk != NULL && !walk->color) { walk->color = true; stack_free(stack); return; }
 
-  while (!empty(stack)) {
-    parent  = pop(&stack);
+  while (!stack_empty(stack)) {
+    parent  = stack_pop(&stack);
     sibling = parent->right == walk ? parent->left : parent->right;
 
     if (!sibling->color) {                                      /* case of rearranging */
       sibling->color = true;
       parent->color  = false;
-      parent->left == walk ? rb_rotate_left(tree, parent, top(stack)) : rb_rotate_right(tree, parent, top(stack));
-      push(&stack, sibling);
-      sibling        = parent->right == walk ? parent->left : parent->right;
+      parent->left == walk ? rb_rotate_left(tree, parent, stack_top(stack)) : rb_rotate_right(tree, parent, stack_top(stack));
+      stack_push(&stack, sibling);
+      sibling = parent->right == walk ? parent->left : parent->right;
     }
 
-    if     (sibling->left != NULL && !sibling->left->color ||
-            sibling->right != NULL && !sibling->right->color) { /* case of rearranging */
-      if   (parent->left == sibling) {
+    if (sibling->left != NULL && !sibling->left->color ||
+        sibling->right != NULL && !sibling->right->color) {     /* case of rearranging */
+      if (parent->left == sibling) {
         if (sibling->right != NULL && !sibling->right->color) { /* case of Left Right */
           sibling->right->color = true;
           sibling->color        = false;
           rb_rotate_left(tree, sibling, parent);
-          sibling               = parent->left;
+          sibling = parent->left;
         }
         sibling->left->color = true;                            /* case of Left Left */
         sibling->color       = parent->color;
         parent->color        = true;
-        rb_rotate_right(tree, parent, top(stack));
+        rb_rotate_right(tree, parent, stack_top(stack));
       } else {
         if (sibling->left != NULL && !sibling->left->color) {   /* case of Right Left */
           sibling->left->color = true;
           sibling->color       = false;
           rb_rotate_right(tree, sibling, parent);
-          sibling              = parent->right;
+          sibling = parent->right;
         }
         sibling->right->color = true;                           /* csae of Right Right */
         sibling->color        = parent->color;
         parent->color         = true;
-        rb_rotate_left(tree, parent, top(stack));
+        rb_rotate_left(tree, parent, stack_top(stack));
       }
 
-      destroy(stack);
+      stack_free(stack);
       return;
     }
 
     sibling->color = false;                                     /* case of recoloring */
-    if (!parent->color) { parent->color = true; destroy(stack); return; }
-    walk           = parent;
+    if (!parent->color) { parent->color = true; stack_free(stack); return; }
+    walk = parent;
   }
 }
 
@@ -311,9 +307,5 @@ extern inline void rb_inorder(const struct rb_node *restrict tree, void (*func)(
  * @func: function to apply to each node of @tree
  */
 extern inline void rb_postorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { rb_postorder(tree->left, func); rb_postorder(tree->right, func); func(tree->key, tree->value); } }
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _RBTREE_H */

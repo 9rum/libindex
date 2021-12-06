@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /*
- * Copyright 2020 9rum
+ * Copyright 2021 9rum
  *
  * avltree_test.c - generic AVL tree unit test
  */

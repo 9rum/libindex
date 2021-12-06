@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /*
- * Copyright 2020 9rum
+ * Copyright 2021 9rum
  *
  * btree_test.c - generic B-tree unit test
  */

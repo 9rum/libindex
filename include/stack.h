@@ -9,14 +9,10 @@
  *
  * The stack pushes and pops the element from the top of the stack.
  *
- * See https://dl.gi.de/bitstream/handle/20.500.12116/4381/lni-t-7.pdf
+ * See https://dl.gi.de/bitstream/handle/20.500.12116/4381/lni-t-7.pdf for more details.
  */
 #ifndef _STACK_H
 #define _STACK_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -33,26 +29,26 @@ struct stack {
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
 /**
- * empty - checks whether @stack is empty
+ * stack_empty - checks whether @stack is empty
  *
  * @stack: stack to check
  */
-extern inline bool empty(const struct stack *restrict stack) { return stack == NULL; }
+extern inline bool stack_empty(const struct stack *restrict stack) { return stack == NULL; }
 
 /**
- * top - accesses the top element
+ * stack_top - accesses the top element of @stack
  *
  * @stack: stack to access the top element
  */
-extern inline void *top(const struct stack *restrict stack) { return empty(stack) ? NULL : stack->value; }
+extern inline void *stack_top(const struct stack *restrict stack) { return stack_empty(stack) ? NULL : stack->value; }
 
 /**
- * push - inserts element at the top
+ * stack_push - inserts @value at the top of @stack
  *
- * @stack: stack to insert element
- * @value: the value of the element to push
+ * @stack: stack to insert @value
+ * @value: the value of the element to insert
  */
-extern inline void push(struct stack **restrict stack, void *restrict value) {
+extern inline void stack_push(struct stack **restrict stack, void *restrict value) {
   struct stack *top = malloc(sizeof(struct stack));
   top->value        = value;
   top->next         = *stack;
@@ -60,36 +56,32 @@ extern inline void push(struct stack **restrict stack, void *restrict value) {
 }
 
 /**
- * pop - removes the top element
+ * stack_pop - removes the top element from @stack
  *
- * @stack: stack to remove the top element
+ * @stack: stack to remove the top element from
  */
-extern inline void *pop(struct stack **restrict stack) {
-  if (empty(*stack))  return NULL;
-  struct stack *top   = *stack;
-  void         *value = top->value;
-  *stack              = top->next;
+extern inline void *stack_pop(struct stack **restrict stack) {
+  if (stack_empty(*stack)) return NULL;
+  struct stack *top        = *stack;
+  void         *value      = top->value;
+  *stack                   = top->next;
   free(top);
   return value;
 }
 
 /**
- * destroy - empties @stack
+ * stack_free - deallocates @stack
  *
- * @stack: stack to empty
+ * @stack: stack to deallocate
  */
-extern inline void destroy(struct stack *restrict stack) {
+extern inline void stack_free(struct stack *restrict stack) {
   register struct stack *top;
 
-  while (!empty(stack)) {
+  while (!stack_empty(stack)) {
     top   = stack;
     stack = top->next;
     free(top);
   }
 }
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _STACK_H */

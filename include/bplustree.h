@@ -29,14 +29,10 @@
  * An early survey of B-trees also covering B+-trees is Douglas Comer.
  * Comer notes that the B+-tree was used in IBM's VSAM data access software and he refers to an IBM published article from 1973.
  *
- * See http://carlosproal.com/ir/papers/p121-comer.pdf
+ * See http://carlosproal.com/ir/papers/p121-comer.pdf for more details.
  */
 #ifndef _BPLUSTREE_H
 #define _BPLUSTREE_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <string.h>
 #include <stack.h>
@@ -137,21 +133,21 @@ static inline void list_free(struct list_node *restrict node) {
  */
 
 /**
- * binsearch - do a binary search for @key in @base, which consists of @nmemb elements, using @less to perform the comparisons
+ * __bsearch - do a binary search for @key in @base, which consists of @nmemb elements, using @less to perform the comparisons
  *
  * @key:   the key to search
  * @base:  where to search @key
  * @nmemb: number of elements in @base
  * @less:  operator defining the (partial) element order
  */
-static inline size_t binsearch(const void *restrict key, const void **restrict base, const size_t nmemb, bool (*less)(const void *restrict, const void *restrict)) {
+static inline size_t __bsearch(const void *restrict key, const void **restrict base, const size_t nmemb, bool (*less)(const void *restrict, const void *restrict)) {
   register size_t idx;
   register size_t lo = 0;
   register size_t hi = nmemb;
 
   while (lo < hi) {
     idx = (lo + hi) / 2;
-    if      (less(key, base[idx])) hi = idx;
+    if (less(key, base[idx]))      hi = idx;
     else if (less(base[idx], key)) lo = idx+1;
     else                              return idx;
   }
@@ -178,11 +174,11 @@ extern inline void bplus_insert(struct btree_node **restrict tree, struct list_n
            struct stack      *stack = NULL;
 
   while (walk != NULL) {
-    idx = binsearch(key, walk->keys, walk->nmemb, less);
-    push(&stack, walk);
-    push(&stack, (void *)idx);
-    if  (walk->type) node = walk->children[idx], walk = NULL;
-    else             walk = walk->children[idx];
+    idx = __bsearch(key, walk->keys, walk->nmemb, less);
+    stack_push(&stack, walk);
+    stack_push(&stack, (void *)idx);
+    if (walk->type) node = walk->children[idx], walk = NULL;
+    else            walk = walk->children[idx];
   }
 
   if (node == NULL) {
@@ -193,15 +189,15 @@ extern inline void bplus_insert(struct btree_node **restrict tree, struct list_n
     return;
   }
 
-  if ((idx = binsearch(key, node->keys, node->nmemb, less)) < node->nmemb &&
-     !(less(key, node->keys[idx]) || less(node->keys[idx], key))) { destroy(stack); return; }
+  if ((idx = __bsearch(key, node->keys, node->nmemb, less)) < node->nmemb &&
+      !(less(key, node->keys[idx]) || less(node->keys[idx], key))) { stack_free(stack); return; }
 
   if (node->nmemb < order) {
     memcpy(&node->keys[idx+1], &node->keys[idx], __SIZEOF_POINTER__*(node->nmemb-idx));
     memcpy(&node->values[idx+1], &node->values[idx], __SIZEOF_POINTER__*(node->nmemb++-idx));
     node->keys[idx]   = key;
     node->values[idx] = value;
-    destroy(stack);
+    stack_free(stack);
     return;
   }
 
@@ -225,7 +221,7 @@ extern inline void bplus_insert(struct btree_node **restrict tree, struct list_n
   key        = node->keys[node->nmemb-1];
   list_free(temp);
 
-  if (empty(stack)) {
+  if (stack_empty(stack)) {
     *tree                = btree_alloc(order);
     (*tree)->keys[0]     = key;
     (*tree)->children[0] = node;
@@ -235,15 +231,15 @@ extern inline void bplus_insert(struct btree_node **restrict tree, struct list_n
     return;
   }
 
-  idx  = (size_t)pop(&stack);
-  walk = pop(&stack);
+  idx  = (size_t)stack_pop(&stack);
+  walk = stack_pop(&stack);
 
   if (walk->nmemb < order-1) {
     memcpy(&walk->keys[idx+1], &walk->keys[idx], __SIZEOF_POINTER__*(walk->nmemb-idx));
     memcpy(&walk->children[idx+2], &walk->children[idx+1], __SIZEOF_POINTER__*(walk->nmemb++-idx));
     walk->keys[idx]       = key;
     walk->children[idx+1] = sib;
-    destroy(stack);
+    stack_free(stack);
     return;
   }
 
@@ -266,16 +262,16 @@ extern inline void bplus_insert(struct btree_node **restrict tree, struct list_n
   key = tmp->keys[walk->nmemb];
   btree_free(tmp);
 
-  while (!empty(stack)) {
-    idx  = (size_t)pop(&stack);
-    walk = pop(&stack);
+  while (!stack_empty(stack)) {
+    idx  = (size_t)stack_pop(&stack);
+    walk = stack_pop(&stack);
 
     if (walk->nmemb < order-1) {
       memcpy(&walk->keys[idx+1], &walk->keys[idx], __SIZEOF_POINTER__*(walk->nmemb-idx));
       memcpy(&walk->children[idx+2], &walk->children[idx+1], __SIZEOF_POINTER__*(walk->nmemb++-idx));
       walk->keys[idx]       = key;
       walk->children[idx+1] = sibling;
-      destroy(stack);
+      stack_free(stack);
       return;
     }
 
@@ -323,32 +319,32 @@ extern inline void bplus_erase(struct btree_node **restrict tree, struct list_no
            struct stack      *stack = NULL;
 
   while (walk != NULL) {
-    idx = binsearch(key, walk->keys, walk->nmemb, less);
-    push(&stack, walk);
-    push(&stack, (void *)idx);
-    if  (walk->type) node = walk->children[idx], walk = NULL;
-    else             walk = walk->children[idx];
+    idx = __bsearch(key, walk->keys, walk->nmemb, less);
+    stack_push(&stack, walk);
+    stack_push(&stack, (void *)idx);
+    if (walk->type) node = walk->children[idx], walk = NULL;
+    else            walk = walk->children[idx];
   }
 
   if (node == NULL) return;
 
-  if ((idx = binsearch(key, node->keys, node->nmemb, less)) < node->nmemb &&
-     (less(key, node->keys[idx]) || less(node->keys[idx], key)) || idx == node->nmemb) { destroy(stack); return; }
+  if ((idx = __bsearch(key, node->keys, node->nmemb, less)) < node->nmemb &&
+      (less(key, node->keys[idx]) || less(node->keys[idx], key)) || idx == node->nmemb) { stack_free(stack); return; }
 
   memcpy(&node->keys[idx], &node->keys[idx+1], __SIZEOF_POINTER__*(--node->nmemb-idx));
   memcpy(&node->values[idx], &node->values[idx+1], __SIZEOF_POINTER__*(node->nmemb-idx));
 
-  if ((order+1)>>1 <= node->nmemb) { destroy(stack); return; }
+  if ((order+1)>>1 <= node->nmemb) { stack_free(stack); return; }
 
-  if (empty(stack)) { if (node->nmemb == 0) { *list = NULL; list_free(node); } return; }
+  if (stack_empty(stack)) { if (node->nmemb == 0) { *list = NULL; list_free(node); } return; }
 
-  idx                   = (size_t)pop(&stack);
-  walk                  = pop(&stack);
+  idx                   = (size_t)stack_pop(&stack);
+  walk                  = stack_pop(&stack);
   struct list_node *sib = idx == 0                                                                                                ? walk->children[1]
                         : idx == walk->nmemb                                                                                      ? walk->children[idx-1]
                         : ((struct list_node *)walk->children[idx-1])->nmemb < ((struct list_node *)walk->children[idx+1])->nmemb ? walk->children[idx+1]
                                                                                                                                   : walk->children[idx-1];
-  if   ((order+1)>>1 < sib->nmemb) {          /* case of key redistribution */
+  if ((order+1)>>1 < sib->nmemb) {            /* case of key redistribution */
     if (sib == walk->children[idx-1]) {
       memcpy(&node->keys[1], node->keys, __SIZEOF_POINTER__*node->nmemb);
       memcpy(&node->values[1], node->values, __SIZEOF_POINTER__*node->nmemb++);
@@ -362,7 +358,7 @@ extern inline void bplus_erase(struct btree_node **restrict tree, struct list_no
       memcpy(sib->keys, &sib->keys[1], __SIZEOF_POINTER__*--sib->nmemb);
       memcpy(sib->values, &sib->values[1], __SIZEOF_POINTER__*sib->nmemb);
     }
-    destroy(stack);
+    stack_free(stack);
     return;
   }
 
@@ -384,16 +380,16 @@ extern inline void bplus_erase(struct btree_node **restrict tree, struct list_no
     list_free(sib);
   }
 
-  while (!empty(stack)) {
-    if  ((order-1)>>1 <= walk->nmemb) { destroy(stack); return; }
+  while (!stack_empty(stack)) {
+    if ((order-1)>>1 <= walk->nmemb) { stack_free(stack); return; }
 
-    idx     = (size_t)pop(&stack);
-    parent  = pop(&stack);
+    idx     = (size_t)stack_pop(&stack);
+    parent  = stack_pop(&stack);
     sibling = idx == 0                                                                                                      ? parent->children[1]
             : idx == parent->nmemb                                                                                          ? parent->children[idx-1]
             : ((struct btree_node *)parent->children[idx-1])->nmemb < ((struct btree_node *)parent->children[idx+1])->nmemb ? parent->children[idx+1]
                                                                                                                             : parent->children[idx-1];
-    if   ((order-1)>>1 < sibling->nmemb) {    /* case of key redistribution */
+    if ((order-1)>>1 < sibling->nmemb) {      /* case of key redistribution */
       if (sibling == parent->children[idx-1]) {
         memcpy(&walk->keys[1], walk->keys, __SIZEOF_POINTER__*walk->nmemb);
         memcpy(&walk->children[1], walk->children, __SIZEOF_POINTER__*++walk->nmemb);
@@ -407,7 +403,7 @@ extern inline void bplus_erase(struct btree_node **restrict tree, struct list_no
         memcpy(sibling->children, &sibling->children[1], __SIZEOF_POINTER__*sibling->nmemb);
         memcpy(sibling->keys, &sibling->keys[1], __SIZEOF_POINTER__*--sibling->nmemb);
       }
-      destroy(stack);
+      stack_free(stack);
       return;
     }
 
@@ -435,19 +431,15 @@ extern inline void bplus_erase(struct btree_node **restrict tree, struct list_no
 }
 
 /**
- * bplus_iterate - applies @func to each node of @list sequentialwise
+ * bplus_for_each - applies @func to each node of @list sequentialwise
  *
  * @list: list to apply @func to each node of
  * @func: function to apply to each node of @list
  */
-extern inline void bplus_iterate(const struct list_node *restrict list, void (*func)(const void *restrict, void *restrict)) {
-  for   (const struct list_node *node = list; node != NULL; node = node->next)
+extern inline void bplus_for_each(const struct list_node *restrict list, void (*func)(const void *restrict, void *restrict)) {
+  for (const struct list_node *node = list; node != NULL; node = node->next)
     for (size_t idx = 0; idx < node->nmemb; ++idx)
       func(node->keys[idx], node->values[idx]);
 }
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _BPLUSTREE_H */

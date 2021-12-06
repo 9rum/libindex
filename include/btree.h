@@ -18,14 +18,10 @@
  * Bayer and McCreight's paper, Organization and maintenance of large ordered indices,
  * was first circulated in July 1970 and later published in Acta Informatica.
  *
- * See https://infolab.usc.edu/csci585/Spring2010/den_ar/indexing.pdf
+ * See https://infolab.usc.edu/csci585/Spring2010/den_ar/indexing.pdf for more details.
  */
 #ifndef _BTREE_H
 #define _BTREE_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <string.h>
 #include <stack.h>
@@ -95,21 +91,21 @@ static inline void btree_free(struct btree_node *restrict node) {
  */
 
 /**
- * binsearch - do a binary search for @key in @base, which consists of @nmemb elements, using @less to perform the comparisons
+ * __bsearch - do a binary search for @key in @base, which consists of @nmemb elements, using @less to perform the comparisons
  *
  * @key:   the key to search
  * @base:  where to search @key
  * @nmemb: number of elements in @base
  * @less:  operator defining the (partial) element order
  */
-static inline size_t binsearch(const void *restrict key, const void **restrict base, const size_t nmemb, bool (*less)(const void *restrict, const void *restrict)) {
+static inline size_t __bsearch(const void *restrict key, const void **restrict base, const size_t nmemb, bool (*less)(const void *restrict, const void *restrict)) {
   register size_t idx;
   register size_t lo = 0;
   register size_t hi = nmemb;
 
   while (lo < hi) {
     idx = (lo + hi) / 2;
-    if      (less(key, base[idx])) hi = idx;
+    if (less(key, base[idx]))      hi = idx;
     else if (less(base[idx], key)) lo = idx+1;
     else                              return idx;
   }
@@ -134,16 +130,16 @@ extern inline void btree_insert(struct btree_node **restrict tree, const size_t 
            struct stack      *stack   = NULL;
 
   while (walk != NULL) {
-    if  ((idx = binsearch(key, walk->keys, walk->nmemb, less)) < walk->nmemb &&
-        !(less(key, walk->keys[idx]) || less(walk->keys[idx], key))) { destroy(stack); return; }
-    push(&stack, walk);
-    push(&stack, (void *)idx);
+    if ((idx = __bsearch(key, walk->keys, walk->nmemb, less)) < walk->nmemb &&
+        !(less(key, walk->keys[idx]) || less(walk->keys[idx], key))) { stack_free(stack); return; }
+    stack_push(&stack, walk);
+    stack_push(&stack, (void *)idx);
     walk = walk->children[idx];
   }
 
-  while (!empty(stack)) {
-    idx  = (size_t)pop(&stack);
-    walk = pop(&stack);
+  while (!stack_empty(stack)) {
+    idx  = (size_t)stack_pop(&stack);
+    walk = stack_pop(&stack);
 
     if (walk->nmemb < order-1) {
       memcpy(&walk->keys[idx+1], &walk->keys[idx], __SIZEOF_POINTER__*(walk->nmemb-idx));
@@ -152,7 +148,7 @@ extern inline void btree_insert(struct btree_node **restrict tree, const size_t 
       walk->keys[idx]       = key;
       walk->values[idx]     = value;
       walk->children[idx+1] = sibling;
-      destroy(stack);
+      stack_free(stack);
       return;
     }
 
@@ -205,22 +201,22 @@ extern inline void btree_erase(struct btree_node **restrict tree, const size_t o
            struct stack      *stack = NULL;
 
   while (walk != NULL) {
-    if  ((idx = binsearch(key, walk->keys, walk->nmemb, less)) < walk->nmemb &&
+    if ((idx = __bsearch(key, walk->keys, walk->nmemb, less)) < walk->nmemb &&
         !(less(key, walk->keys[idx]) || less(walk->keys[idx], key))) break;
-    push(&stack, walk);
-    push(&stack, (void *)idx);
+    stack_push(&stack, walk);
+    stack_push(&stack, (void *)idx);
     walk = walk->children[idx];
   }
 
-  if (walk == NULL) { destroy(stack); return; }
+  if (walk == NULL) { stack_free(stack); return; }
 
   if (walk->children[idx] != NULL) {
     parent = walk;
-    push(&stack, walk);
-    push(&stack, (void *)idx);
+    stack_push(&stack, walk);
+    stack_push(&stack, (void *)idx);
     for (walk = walk->children[idx]; walk->children[walk->nmemb] != NULL; walk = walk->children[walk->nmemb]) {
-      push(&stack, walk);
-      push(&stack, (void *)walk->nmemb);
+      stack_push(&stack, walk);
+      stack_push(&stack, (void *)walk->nmemb);
     }
     parent->keys[idx]   = walk->keys[walk->nmemb-1];
     parent->values[idx] = walk->values[walk->nmemb-1];
@@ -230,16 +226,16 @@ extern inline void btree_erase(struct btree_node **restrict tree, const size_t o
   memcpy(&walk->keys[idx], &walk->keys[idx+1], __SIZEOF_POINTER__*(--walk->nmemb-idx));
   memcpy(&walk->values[idx], &walk->values[idx+1], __SIZEOF_POINTER__*(walk->nmemb-idx));
 
-  while (!empty(stack)) {
-    if  ((order-1)>>1 <= walk->nmemb) { destroy(stack); return; }
+  while (!stack_empty(stack)) {
+    if ((order-1)>>1 <= walk->nmemb) { stack_free(stack); return; }
 
-    idx     = (size_t)pop(&stack);
-    parent  = pop(&stack);
+    idx     = (size_t)stack_pop(&stack);
+    parent  = stack_pop(&stack);
     sibling = idx == 0                                                        ? parent->children[1]
             : idx == parent->nmemb                                            ? parent->children[idx-1]
             : parent->children[idx-1]->nmemb < parent->children[idx+1]->nmemb ? parent->children[idx+1]
                                                                               : parent->children[idx-1];
-    if   ((order-1)>>1 < sibling->nmemb) {    /* case of key redistribution */
+    if ((order-1)>>1 < sibling->nmemb) {      /* case of key redistribution */
       if (sibling == parent->children[idx-1]) {
         memcpy(&walk->keys[1], walk->keys, __SIZEOF_POINTER__*walk->nmemb);
         memcpy(&walk->values[1], walk->values, __SIZEOF_POINTER__*walk->nmemb);
@@ -259,7 +255,7 @@ extern inline void btree_erase(struct btree_node **restrict tree, const size_t o
         memcpy(sibling->keys, &sibling->keys[1], __SIZEOF_POINTER__*--sibling->nmemb);
         memcpy(sibling->values, &sibling->values[1], __SIZEOF_POINTER__*sibling->nmemb);
       }
-      destroy(stack);
+      stack_free(stack);
       return;
     }
 
@@ -299,7 +295,7 @@ extern inline void btree_erase(struct btree_node **restrict tree, const size_t o
  * @func: function to apply to each node of @tree
  */
 extern inline void btree_preorder(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
-  if    (tree != NULL) {
+  if (tree != NULL) {
     for (size_t idx = 0; idx < tree->nmemb; ++idx) {
       func(tree->keys[idx], tree->values[idx]);
       btree_preorder(tree->children[idx], func);
@@ -315,7 +311,7 @@ extern inline void btree_preorder(const struct btree_node *restrict tree, void (
  * @func: function to apply to each node of @tree
  */
 extern inline void btree_inorder(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
-  if    (tree != NULL) {
+  if (tree != NULL) {
     for (size_t idx = 0; idx < tree->nmemb; ++idx) {
       btree_inorder(tree->children[idx], func);
       func(tree->keys[idx], tree->values[idx]);
@@ -331,7 +327,7 @@ extern inline void btree_inorder(const struct btree_node *restrict tree, void (*
  * @func: function to apply to each node of @tree
  */
 extern inline void btree_postorder(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
-  if    (tree != NULL) {
+  if (tree != NULL) {
     btree_postorder(tree->children[0], func);
     for (size_t idx = 0; idx < tree->nmemb; ++idx) {
       btree_postorder(tree->children[idx+1], func);
@@ -339,9 +335,5 @@ extern inline void btree_postorder(const struct btree_node *restrict tree, void 
     }
   }
 }
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* _BTREE_H */
