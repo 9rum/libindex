@@ -23,5 +23,4 @@ Use ``make install``.
 
 Run tests
 ---------
-Build tests using ``make`` or ``cmake --build ./``.
-Run tests using ``make test`` or ``ctest``.
+Use ``ctest``.
