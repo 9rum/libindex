@@ -62,14 +62,14 @@ static inline struct avl_node *avl_alloc(void) {
   return node;
 }
 
-static inline size_t max(const size_t a, const size_t b) { return a < b ? b : a; }
+static inline size_t __max(const size_t a, const size_t b) { return a < b ? b : a; }
 
 /**
- * height - returns the height of @tree
+ * avl_height - returns the height of @tree
  *
  * @tree: tree to get the height
  */
-static inline size_t height(const struct avl_node *restrict tree) { return tree == NULL ? 0 : tree->height; }
+static inline size_t avl_height(const struct avl_node *restrict tree) { return tree == NULL ? 0 : tree->height; }
 
 /**
  * avl_rotate_left - rotates subtree rooted with @node counterclockwise
@@ -150,32 +150,32 @@ extern inline void avl_insert(struct avl_node **restrict tree, const void *restr
 
   while (!stack_empty(stack)) {
     walk         = stack_pop(&stack);
-    walk->height = 1 + max(height(walk->left), height(walk->right));
-    if (1 + height(walk->right) < height(walk->left) || 1 + height(walk->left) < height(walk->right)) { x = walk; parent = stack_top(stack); break; }
+    walk->height = 1 + __max(avl_height(walk->left), avl_height(walk->right));
+    if (1 + avl_height(walk->right) < avl_height(walk->left) || 1 + avl_height(walk->left) < avl_height(walk->right)) { x = walk; parent = stack_top(stack); break; }
   }
 
   if (x == NULL) return;
 
-  if (1 + height(x->right) < height(x->left)) {
-    if (height(x->left->left) < height(x->left->right)) {   /* case of Left Right */
+  if (1 + avl_height(x->right) < avl_height(x->left)) {
+    if (avl_height(x->left->left) < avl_height(x->left->right)) {   /* case of Left Right */
       stack_push(&stack, x->left->right);
       stack_push(&stack, x->left);
       stack_push(&stack, x);
       avl_rotate_left(tree, x->left, x);
       avl_rotate_right(tree, x, parent);
-    } else {                                                /* case of Left Left */
+    } else {                                                        /* case of Left Left */
       stack_push(&stack, x->left);
       stack_push(&stack, x);
       avl_rotate_right(tree, x, parent);
     }
   } else {
-    if (height(x->right->right) < height(x->right->left)) { /* case of Right Left */
+    if (avl_height(x->right->right) < avl_height(x->right->left)) { /* case of Right Left */
       stack_push(&stack, x->right->left);
       stack_push(&stack, x->right);
       stack_push(&stack, x);
       avl_rotate_right(tree, x->right, x);
       avl_rotate_left(tree, x, parent);
-    } else {                                                /* case of Right Right */
+    } else {                                                        /* case of Right Right */
       stack_push(&stack, x->right);
       stack_push(&stack, x);
       avl_rotate_left(tree, x, parent);
@@ -184,7 +184,7 @@ extern inline void avl_insert(struct avl_node **restrict tree, const void *restr
 
   while (!stack_empty(stack)) {
     walk         = stack_pop(&stack);
-    walk->height = 1 + max(height(walk->left), height(walk->right));
+    walk->height = 1 + __max(avl_height(walk->left), avl_height(walk->right));
   }
 }
 
@@ -212,8 +212,8 @@ extern inline void avl_erase(struct avl_node **restrict tree, const void *restri
     parent = walk;
     stack_push(&stack, walk);
 
-    if (height(walk->left) <= height(walk->right)) for (walk = walk->right; walk->left != NULL; walk = walk->left)  stack_push(&stack, walk);
-    else                                           for (walk = walk->left; walk->right != NULL; walk = walk->right) stack_push(&stack, walk);
+    if (avl_height(walk->left) <= avl_height(walk->right)) for (walk = walk->right; walk->left != NULL; walk = walk->left)  stack_push(&stack, walk);
+    else                                                   for (walk = walk->left; walk->right != NULL; walk = walk->right) stack_push(&stack, walk);
 
     parent->key   = walk->key;
     parent->value = walk->value;
@@ -239,14 +239,14 @@ extern inline void avl_erase(struct avl_node **restrict tree, const void *restri
 
   while (!stack_empty(stack)) {
     walk         = stack_pop(&stack);
-    walk->height = 1 + max(height(walk->left), height(walk->right));
-    if (1 + height(walk->right) < height(walk->left) || 1 + height(walk->left) < height(walk->right)) { x = walk; parent = stack_top(stack); break; }
+    walk->height = 1 + __max(avl_height(walk->left), avl_height(walk->right));
+    if (1 + avl_height(walk->right) < avl_height(walk->left) || 1 + avl_height(walk->left) < avl_height(walk->right)) { x = walk; parent = stack_top(stack); break; }
   }
 
   if (x == NULL) return;
 
-  if (1 + height(x->right) < height(x->left)) {
-    if (height(x->left->left) < height(x->left->right)) {                   /* case of Left Right */
+  if (1 + avl_height(x->right) < avl_height(x->left)) {
+    if (avl_height(x->left->left) < avl_height(x->left->right)) {           /* case of Left Right */
       stack_push(&stack, x->left->right);
       stack_push(&stack, x->left);
       stack_push(&stack, x);
@@ -258,7 +258,7 @@ extern inline void avl_erase(struct avl_node **restrict tree, const void *restri
       avl_rotate_right(tree, x, parent);
     }
   } else {
-    if (height(x->right->right) < height(x->right->left)) {                 /* case of Right Left */
+    if (avl_height(x->right->right) < avl_height(x->right->left)) {         /* case of Right Left */
       stack_push(&stack, x->right->left);
       stack_push(&stack, x->right);
       stack_push(&stack, x);
@@ -273,7 +273,7 @@ extern inline void avl_erase(struct avl_node **restrict tree, const void *restri
 
   while (!stack_empty(stack)) {
     walk         = stack_pop(&stack);
-    walk->height = 1 + max(height(walk->left), height(walk->right));
+    walk->height = 1 + __max(avl_height(walk->left), avl_height(walk->right));
   }
 }
 
