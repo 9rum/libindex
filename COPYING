@@ -1,11 +1,11 @@
-The File Processing is provided under:
+The Index library is provided under:
 
     SPDX-License-Identifier: Apache-2.0
 
-In addition, the File Processing uses the CTest for its test. Please see:
+In addition, the Index library uses the CTest for its test. Please see:
 
     https://github.com/bvdberg/ctest
 
 for more details.
 
-All contributions to the File Processing are subject to this COPYING file.
+All contributions to the Index library are subject to this COPYING file.

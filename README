@@ -1,9 +1,9 @@
-File Processing
-===============
+Index library
+=============
 
-This directory contains the sources of the File Processing.
+This directory contains the sources of the Index library.
 
-The File Processing is licensed under the Apache License, Version 2.0;
+The Index library is licensed under the Apache License, Version 2.0;
 the full license text is at:
 
     https://www.apache.org/licenses/LICENSE-2.0
@@ -17,8 +17,8 @@ Run the following commands:
     cd build/
     cmake ../
 
-Install File Processing
------------------------
+Install the Index library
+-------------------------
 Use ``make install``.
 
 Run tests
