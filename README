@@ -8,8 +8,8 @@ the full license text is at:
 
     https://www.apache.org/licenses/LICENSE-2.0
 
-Generate Makefile
------------------
+Generating Makefile
+-------------------
 You should have CMake already installed on your machine, before generating Makefile.
 Run the following commands:
 
@@ -17,10 +17,10 @@ Run the following commands:
     cd build/
     cmake ../
 
-Install the Index library
--------------------------
-Use ``make install``.
+Building the Index library
+--------------------------
+Run ``make install``.
 
-Run tests
----------
-Use ``ctest``.
+Running tests
+-------------
+Run ``ctest``.
