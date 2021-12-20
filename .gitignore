@@ -14,7 +14,7 @@
 *.map
 *.exp
 
-# Precompiled Headers
+# Precompiled headers
 *.gch
 *.pch
 
@@ -44,7 +44,7 @@
 *.idb
 *.pdb
 
-# Kernel Module Compile Results
+# Kernel module compile results
 *.mod*
 *.cmd
 .tmp_versions/
@@ -52,3 +52,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# CMake build results
+build/
+ctest.h
