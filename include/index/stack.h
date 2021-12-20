@@ -11,8 +11,8 @@
  *
  * See https://dl.gi.de/bitstream/handle/20.500.12116/4381/lni-t-7.pdf for more details.
  */
-#ifndef _STACK_H
-#define _STACK_H
+#ifndef _INDEX_STACK_H
+#define _INDEX_STACK_H
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -84,4 +84,4 @@ extern inline void stack_free(struct stack *restrict stack) {
   }
 }
 
-#endif /* _STACK_H */
+#endif /* _INDEX_STACK_H */

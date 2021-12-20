@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(file-processing LANGUAGES C)
+project(libindex LANGUAGES C)
 
 enable_testing()
 
@@ -14,6 +14,6 @@ if(NOT EXISTS ${CMAKE_SOURCE_DIR}/include/ctest.h)
   execute_process(COMMAND curl -o ${CMAKE_SOURCE_DIR}/include/ctest.h https://raw.githubusercontent.com/bvdberg/ctest/master/ctest.h)
 endif()
 
-file(GLOB_RECURSE headers ${CMAKE_SOURCE_DIR}/include/*.h)
+file(GLOB_RECURSE headers ${CMAKE_SOURCE_DIR}/include/index/*.h)
 
-install(FILES ${headers} DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+install(FILES ${headers} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/index)

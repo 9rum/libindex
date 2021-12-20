@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
-#include <btree.h>
+#include <index/btree.h>
 #include <ctest.h>
 
       char              __s[131];

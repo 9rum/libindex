@@ -20,11 +20,11 @@
  *
  * See https://infolab.usc.edu/csci585/Spring2010/den_ar/indexing.pdf for more details.
  */
-#ifndef _BTREE_H
-#define _BTREE_H
+#ifndef _INDEX_BTREE_H
+#define _INDEX_BTREE_H
 
 #include <string.h>
-#include <stack.h>
+#include <index/stack.h>
 
 /**
  * struct btree_node - a node in B-tree
@@ -336,4 +336,4 @@ extern inline void btree_postorder(const struct btree_node *restrict tree, void 
   }
 }
 
-#endif /* _BTREE_H */
+#endif /* _INDEX_BTREE_H */

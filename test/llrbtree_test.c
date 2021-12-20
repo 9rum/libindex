@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
-#include <llrbtree.h>
+#include <index/llrbtree.h>
 #include <ctest.h>
 
       char             __s[41];

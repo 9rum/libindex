@@ -17,10 +17,10 @@
  *
  * See https://zhjwpku.com/assets/pdf/AED2-10-avl-paper.pdf for more details.
  */
-#ifndef _AVLTREE_H
-#define _AVLTREE_H
+#ifndef _INDEX_AVLTREE_H
+#define _INDEX_AVLTREE_H
 
-#include <stack.h>
+#include <index/stack.h>
 
 /**
  * struct avl_node - a node in AVL tree
@@ -301,4 +301,4 @@ extern inline void avl_inorder(const struct avl_node *restrict tree, void (*func
  */
 extern inline void avl_postorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { avl_postorder(tree->left, func); avl_postorder(tree->right, func); func(tree->key, tree->value); } }
 
-#endif /* _AVLTREE_H */
+#endif /* _INDEX_AVLTREE_H */

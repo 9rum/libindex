@@ -31,11 +31,11 @@
  *
  * See http://carlosproal.com/ir/papers/p121-comer.pdf for more details.
  */
-#ifndef _BPLUSTREE_H
-#define _BPLUSTREE_H
+#ifndef _INDEX_BPLUSTREE_H
+#define _INDEX_BPLUSTREE_H
 
 #include <string.h>
-#include <stack.h>
+#include <index/stack.h>
 
 /**
  * struct btree_node - an internal node in B+-tree
@@ -442,4 +442,4 @@ extern inline void bplus_for_each(const struct list_node *restrict list, void (*
       func(node->keys[idx], node->values[idx]);
 }
 
-#endif /* _BPLUSTREE_H */
+#endif /* _INDEX_BPLUSTREE_H */

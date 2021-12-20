@@ -10,10 +10,10 @@
  *
  * See https://www.cs.princeton.edu/~rs/talks/LLRB/LLRB.pdf for more details.
  */
-#ifndef _LLRBTREE_H
-#define _LLRBTREE_H
+#ifndef _INDEX_LLRBTREE_H
+#define _INDEX_LLRBTREE_H
 
-#include <stack.h>
+#include <index/stack.h>
 
 /**
  * struct llrb_node - a node in left-leaning red-black tree
@@ -281,4 +281,4 @@ extern inline void llrb_inorder(const struct llrb_node *restrict tree, void (*fu
  */
 extern inline void llrb_postorder(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { llrb_postorder(tree->left, func); llrb_postorder(tree->right, func); func(tree->key, tree->value); } }
 
-#endif /* _LLRBTREE_H */
+#endif /* _INDEX_LLRBTREE_H */

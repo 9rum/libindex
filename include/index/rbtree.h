@@ -19,10 +19,10 @@
  *
  * See https://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1457&context=cstech for more details.
  */
-#ifndef _RBTREE_H
-#define _RBTREE_H
+#ifndef _INDEX_RBTREE_H
+#define _INDEX_RBTREE_H
 
-#include <stack.h>
+#include <index/stack.h>
 
 /**
  * struct rb_node - a node in red-black tree
@@ -308,4 +308,4 @@ extern inline void rb_inorder(const struct rb_node *restrict tree, void (*func)(
  */
 extern inline void rb_postorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { rb_postorder(tree->left, func); rb_postorder(tree->right, func); func(tree->key, tree->value); } }
 
-#endif /* _RBTREE_H */
+#endif /* _INDEX_RBTREE_H */

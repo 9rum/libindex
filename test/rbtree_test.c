@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
-#include <rbtree.h>
+#include <index/rbtree.h>
 #include <ctest.h>
 
       char           __s[41];
