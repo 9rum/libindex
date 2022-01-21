@@ -1,57 +1,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
-# Prerequisites
-*.d
-
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
-
-# Linker output
-*.ilk
-*.map
-*.exp
-
-# Precompiled headers
-*.gch
-*.pch
-
 # Libraries
-*.lib
 *.a
-*.la
-*.lo
 
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
+# macOS files
+.DS_Store
 
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
-
-# Kernel module compile results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
-
-# CMake build results
+# CMake generated directories and files
 build/
+CMakeFiles/
+CTestTestfile.cmake
+Makefile
+cmake_install.cmake
+CMakeCache.txt
