@@ -1,12 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
-include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
 
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_EXTENSIONS OFF)
-
-add_compile_options(-O3)
+link_libraries(index)
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
   add_compile_options(-fno-toplevel-reorder)
