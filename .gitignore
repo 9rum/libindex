@@ -55,4 +55,3 @@ dkms.conf
 
 # CMake build results
 build/
-ctest.h
