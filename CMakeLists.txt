@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(libindex LANGUAGES C)
+project(Index LANGUAGES C)
 
 include(GNUInstallDirs)
 include(CTest)
