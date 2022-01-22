@@ -91,7 +91,7 @@ extern void avl_erase(struct avl_node **restrict tree, const void *restrict key,
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-extern void avl_preorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict));
+static inline void avl_preorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { func(tree->key, tree->value); avl_preorder(tree->left, func); avl_preorder(tree->right, func); } }
 
 /**
  * avl_inorder - applies @func to each node of @tree inorderwise
@@ -99,7 +99,7 @@ extern void avl_preorder(const struct avl_node *restrict tree, void (*func)(cons
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-extern void avl_inorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict));
+static inline void avl_inorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { avl_inorder(tree->left, func); func(tree->key, tree->value); avl_inorder(tree->right, func); } }
 
 /**
  * avl_postorder - applies @func to each node of @tree postorderwise
@@ -107,6 +107,6 @@ extern void avl_inorder(const struct avl_node *restrict tree, void (*func)(const
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-extern void avl_postorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict));
+static inline void avl_postorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { avl_postorder(tree->left, func); avl_postorder(tree->right, func); func(tree->key, tree->value); } }
 
 #endif /* _INDEX_AVLTREE_H */

@@ -91,7 +91,7 @@ extern void rb_erase(struct rb_node **restrict tree, const void *restrict key, b
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-extern void rb_preorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict));
+static inline void rb_preorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { func(tree->key, tree->value); rb_preorder(tree->left, func); rb_preorder(tree->right, func); } }
 
 /**
  * rb_inorder - applies @func to each node of @tree inorderwise
@@ -99,7 +99,7 @@ extern void rb_preorder(const struct rb_node *restrict tree, void (*func)(const 
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-extern void rb_inorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict));
+static inline void rb_inorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { rb_inorder(tree->left, func); func(tree->key, tree->value); rb_inorder(tree->right, func); } }
 
 /**
  * rb_postorder - applies @func to each node of @tree postorderwise
@@ -107,6 +107,6 @@ extern void rb_inorder(const struct rb_node *restrict tree, void (*func)(const v
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-extern void rb_postorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict));
+static inline void rb_postorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { rb_postorder(tree->left, func); rb_postorder(tree->right, func); func(tree->key, tree->value); } }
 
 #endif /* _INDEX_RBTREE_H */

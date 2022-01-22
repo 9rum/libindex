@@ -111,6 +111,10 @@ extern void bplus_erase(struct btree_node **restrict tree, struct list_node **re
  * @list: list to apply @func to each node of
  * @func: function to apply to each node of @list
  */
-extern void bplus_for_each(const struct list_node *restrict list, void (*func)(const void *restrict, void *restrict));
+static inline void bplus_for_each(const struct list_node *restrict list, void (*func)(const void *restrict, void *restrict)) {
+  for (const struct list_node *node = list; node != NULL; node = node->next)
+    for (size_t idx = 0; idx < node->nmemb; ++idx)
+      func(node->keys[idx], node->values[idx]);
+}
 
 #endif /* _INDEX_BPLUSTREE_H */

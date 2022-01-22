@@ -77,7 +77,7 @@ extern void llrb_erase(struct llrb_node **restrict tree, const void *restrict ke
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-extern void llrb_preorder(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict));
+static inline void llrb_preorder(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { func(tree->key, tree->value); llrb_preorder(tree->left, func); llrb_preorder(tree->right, func); } }
 
 /**
  * llrb_inorder - applies @func to each node of @tree inorderwise
@@ -85,7 +85,7 @@ extern void llrb_preorder(const struct llrb_node *restrict tree, void (*func)(co
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-extern void llrb_inorder(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict));
+static inline void llrb_inorder(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { llrb_inorder(tree->left, func); func(tree->key, tree->value); llrb_inorder(tree->right, func); } }
 
 /**
  * llrb_postorder - applies @func to each node of @tree postorderwise
@@ -93,6 +93,6 @@ extern void llrb_inorder(const struct llrb_node *restrict tree, void (*func)(con
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-extern void llrb_postorder(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict));
+static inline void llrb_postorder(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { llrb_postorder(tree->left, func); llrb_postorder(tree->right, func); func(tree->key, tree->value); } }
 
 #endif /* _INDEX_LLRBTREE_H */

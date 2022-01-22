@@ -80,7 +80,7 @@ static inline size_t __bsearch(const void *restrict key, const void **restrict b
   return lo;
 }
 
-extern inline void bplus_insert(struct btree_node **restrict tree, struct list_node **restrict list, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
+extern void bplus_insert(struct btree_node **restrict tree, struct list_node **restrict list, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
   register size_t            idx;
   register struct btree_node *tmp;
   register struct btree_node *sibling;
@@ -216,7 +216,7 @@ extern inline void bplus_insert(struct btree_node **restrict tree, struct list_n
   (*tree)->nmemb       = 1;
 }
 
-extern inline void bplus_erase(struct btree_node **restrict tree, struct list_node **restrict list, const size_t order, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
+extern void bplus_erase(struct btree_node **restrict tree, struct list_node **restrict list, const size_t order, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
   register size_t            idx;
   register struct btree_node *parent;
   register struct btree_node *sibling;
@@ -334,10 +334,4 @@ extern inline void bplus_erase(struct btree_node **restrict tree, struct list_no
   }
 
   if (walk->nmemb == 0) { *tree = walk->type ? NULL : walk->children[0]; btree_free(walk); }
-}
-
-extern inline void bplus_for_each(const struct list_node *restrict list, void (*func)(const void *restrict, void *restrict)) {
-  for (const struct list_node *node = list; node != NULL; node = node->next)
-    for (size_t idx = 0; idx < node->nmemb; ++idx)
-      func(node->keys[idx], node->values[idx]);
 }

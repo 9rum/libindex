@@ -60,7 +60,7 @@ static inline void avl_rotate_right(struct avl_node **restrict root, struct avl_
   else                           parent->right = lchild;
 }
 
-extern inline void avl_insert(struct avl_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
+extern void avl_insert(struct avl_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
            struct avl_node *parent;
   register struct avl_node *walk  = *tree;
            struct avl_node *x     = NULL;
@@ -120,7 +120,7 @@ extern inline void avl_insert(struct avl_node **restrict tree, const void *restr
   }
 }
 
-extern inline void avl_erase(struct avl_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
+extern void avl_erase(struct avl_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
            struct avl_node *parent;
   register struct avl_node *walk  = *tree;
            struct avl_node *x     = NULL;
@@ -201,9 +201,3 @@ extern inline void avl_erase(struct avl_node **restrict tree, const void *restri
     walk->height = 1 + max(avl_height(walk->left), avl_height(walk->right));
   }
 }
-
-extern inline void avl_preorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { func(tree->key, tree->value); avl_preorder(tree->left, func); avl_preorder(tree->right, func); } }
-
-extern inline void avl_inorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { avl_inorder(tree->left, func); func(tree->key, tree->value); avl_inorder(tree->right, func); } }
-
-extern inline void avl_postorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { avl_postorder(tree->left, func); avl_postorder(tree->right, func); func(tree->key, tree->value); } }

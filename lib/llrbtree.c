@@ -107,7 +107,7 @@ static inline struct llrb_node *llrb_move_red_right(struct llrb_node **restrict 
   return node;
 }
 
-extern inline void llrb_insert(struct llrb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
+extern void llrb_insert(struct llrb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
   register struct llrb_node *parent;
   register struct llrb_node *walk  = *tree;
            struct stack     *stack = NULL;
@@ -138,7 +138,7 @@ extern inline void llrb_insert(struct llrb_node **restrict tree, const void *res
   (*tree)->color = true;
 }
 
-extern inline void llrb_erase(struct llrb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
+extern void llrb_erase(struct llrb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
   register struct llrb_node *parent;
   register struct llrb_node *walk  = *tree;
            struct stack     *stack = NULL;
@@ -195,9 +195,3 @@ extern inline void llrb_erase(struct llrb_node **restrict tree, const void *rest
 
   if (*tree != NULL) (*tree)->color = true;
 }
-
-extern inline void llrb_preorder(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { func(tree->key, tree->value); llrb_preorder(tree->left, func); llrb_preorder(tree->right, func); } }
-
-extern inline void llrb_inorder(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { llrb_inorder(tree->left, func); func(tree->key, tree->value); llrb_inorder(tree->right, func); } }
-
-extern inline void llrb_postorder(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { llrb_postorder(tree->left, func); llrb_postorder(tree->right, func); func(tree->key, tree->value); } }

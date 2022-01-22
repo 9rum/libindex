@@ -2,7 +2,7 @@
 /*
  * Copyright 2020 - 2022 9rum
  *
- * stack.h - generic stack declaration
+ * stack.h - generic stack definition
  *
  * The stack gives the programmer the functionality of a stack
  * - specifically, a LIFO (last-in, first-out) data structure.
@@ -33,14 +33,14 @@ struct stack {
  *
  * @stack: stack to check
  */
-extern bool stack_empty(const struct stack *restrict stack);
+static inline bool stack_empty(const struct stack *restrict stack) { return stack == NULL; }
 
 /**
  * stack_top - accesses the top element of @stack
  *
  * @stack: stack to access the top element
  */
-extern void *stack_top(const struct stack *restrict stack);
+static inline void *stack_top(const struct stack *restrict stack) { return stack_empty(stack) ? NULL : stack->value; }
 
 /**
  * stack_push - inserts @value at the top of @stack
@@ -48,20 +48,40 @@ extern void *stack_top(const struct stack *restrict stack);
  * @stack: stack to insert @value
  * @value: the value of the element to insert
  */
-extern void stack_push(struct stack **restrict stack, void *restrict value);
+static inline void stack_push(struct stack **restrict stack, void *restrict value) {
+  struct stack *top = malloc(sizeof(struct stack));
+  top->value        = value;
+  top->next         = *stack;
+  *stack            = top;
+}
 
 /**
  * stack_pop - removes the top element from @stack
  *
  * @stack: stack to remove the top element from
  */
-extern void *stack_pop(struct stack **restrict stack);
+static inline void *stack_pop(struct stack **restrict stack) {
+  if (stack_empty(*stack)) return NULL;
+  struct stack *top        = *stack;
+  void         *value      = top->value;
+  *stack                   = top->next;
+  free(top);
+  return value;
+}
 
 /**
  * stack_free - deallocates @stack
  *
  * @stack: stack to deallocate
  */
-extern void stack_free(struct stack *restrict stack);
+static inline void stack_free(struct stack *restrict stack) {
+  register struct stack *top;
+
+  while (!stack_empty(stack)) {
+    top   = stack;
+    stack = top->next;
+    free(top);
+  }
+}
 
 #endif /* _INDEX_STACK_H */

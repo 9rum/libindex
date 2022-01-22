@@ -51,7 +51,7 @@ static inline void rb_rotate_right(struct rb_node **restrict root, struct rb_nod
   else                           parent->right = lchild;
 }
 
-extern inline void rb_insert(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
+extern void rb_insert(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
   register struct rb_node *parent;
   register struct rb_node *gparent;
   register struct rb_node *uncle;
@@ -114,7 +114,7 @@ extern inline void rb_insert(struct rb_node **restrict tree, const void *restric
   }
 }
 
-extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
+extern void rb_erase(struct rb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
   register struct rb_node *parent;
   register struct rb_node *sibling;
   register struct rb_node *walk  = *tree;
@@ -208,9 +208,3 @@ extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict
     walk = parent;
   }
 }
-
-extern inline void rb_preorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { func(tree->key, tree->value); rb_preorder(tree->left, func); rb_preorder(tree->right, func); } }
-
-extern inline void rb_inorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { rb_inorder(tree->left, func); func(tree->key, tree->value); rb_inorder(tree->right, func); } }
-
-extern inline void rb_postorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { rb_postorder(tree->left, func); rb_postorder(tree->right, func); func(tree->key, tree->value); } }
