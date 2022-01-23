@@ -13,8 +13,8 @@ set(CMAKE_C_EXTENSIONS OFF)
 
 add_compile_options(-O3)
 
-file(GLOB_RECURSE headers ${CMAKE_SOURCE_DIR}/${CMAKE_INSTALL_INCLUDEDIR}/index/*.h)
-file(GLOB_RECURSE sources ${CMAKE_SOURCE_DIR}/${CMAKE_INSTALL_LIBDIR}/*.c)
+file(GLOB headers ${CMAKE_SOURCE_DIR}/${CMAKE_INSTALL_INCLUDEDIR}/index/*.h)
+file(GLOB sources ${CMAKE_SOURCE_DIR}/${CMAKE_INSTALL_LIBDIR}/*.c)
 
 add_library(index STATIC ${sources})
 target_include_directories(index PUBLIC ${CMAKE_SOURCE_DIR}/${CMAKE_INSTALL_INCLUDEDIR})

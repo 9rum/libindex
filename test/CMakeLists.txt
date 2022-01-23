@@ -11,7 +11,7 @@ endif()
 add_test(NAME build COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR})
 set_tests_properties(build PROPERTIES FIXTURES_SETUP fixture)
 
-file(GLOB_RECURSE tests ${CMAKE_SOURCE_DIR}/test/*.c)
+file(GLOB tests ${CMAKE_SOURCE_DIR}/test/*.c)
 
 foreach(test ${tests})
   get_filename_component(tname ${test} NAME_WE)
