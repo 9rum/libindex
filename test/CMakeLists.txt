@@ -2,7 +2,7 @@
 
 include_directories(${CMAKE_SOURCE_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
 
-link_libraries(index)
+link_libraries(${libname})
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
   add_compile_options(-fno-toplevel-reorder)
