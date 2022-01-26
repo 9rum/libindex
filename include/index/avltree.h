@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /*
- * Copyright 2020 - 2022 9rum
+ * Copyright 2020-2022 9rum
  *
  * avltree.h - generic AVL tree declaration
  *
