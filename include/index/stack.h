@@ -4,10 +4,11 @@
  *
  * stack.h - generic stack definition
  *
- * The stack gives the programmer the functionality of a stack
- * - specifically, a LIFO (last-in, first-out) data structure.
+ * A stack serves as a collection of elements, with two main principal operations:
+ *  - Push, which adds an element to the collection, and
+ *  - Pop, which removes the most recently added element that was not yet removed.
  *
- * The stack pushes and pops the element from the top of the stack.
+ * The order in which elements come off a stack gives rise to its alternative name, LIFO (last in, first out).
  *
  * See https://dl.gi.de/bitstream/handle/20.500.12116/4381/lni-t-7.pdf for more details.
  */
