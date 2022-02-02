@@ -8,19 +8,26 @@ the full license text is at:
 
     https://www.apache.org/licenses/LICENSE-2.0
 
-Generating Makefile
--------------------
-You should have CMake already installed on your machine, before generating Makefile.
-Run the following commands:
-
-    mkdir build/
-    cd build/
-    cmake ../
-
 Building the Index library
 --------------------------
-Run ``make install``.
+You should have Autotools already installed on your machine, before generating Makefile.
+Run the following commands:
+
+    autoreconf --install
+    ./configure
+    make
 
 Running tests
 -------------
-Run ``ctest``.
+Run ``make check``.
+
+Installing the Index library
+----------------------------
+Run the following commands:
+
+    make install
+    ldconfig
+
+Uninstalling the Index library
+------------------------------
+Run ``make uninstall``.
