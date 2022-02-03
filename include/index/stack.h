@@ -15,8 +15,8 @@
 #ifndef _INDEX_STACK_H
 #define _INDEX_STACK_H
 
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 /**
  * struct stack - generic stack

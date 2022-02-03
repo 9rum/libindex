@@ -4,8 +4,9 @@
  *
  * bplustree.c - generic B+-tree definition
  */
-#include <string.h>
 #include <index/bplustree.h>
+#include <index/stack.h>
+#include <string.h>
 
 /**
  * btree_alloc - allocates an internal node

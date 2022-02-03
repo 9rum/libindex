@@ -5,6 +5,7 @@
  * avltree.c - generic AVL tree definition
  */
 #include <index/avltree.h>
+#include <index/stack.h>
 
 /**
  * avl_alloc - allocates a node

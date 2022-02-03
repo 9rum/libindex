@@ -5,6 +5,7 @@
  * llrbtree.c - generic left-leaning red-black tree definition
  */
 #include <index/llrbtree.h>
+#include <index/stack.h>
 
 /**
  * llrb_alloc - allocates a node

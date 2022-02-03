@@ -20,7 +20,8 @@
 #ifndef _INDEX_AVLTREE_H
 #define _INDEX_AVLTREE_H
 
-#include <index/stack.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 /**
  * struct avl_node - a node in AVL tree

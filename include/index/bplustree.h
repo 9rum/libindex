@@ -34,8 +34,8 @@
 #ifndef _INDEX_BPLUSTREE_H
 #define _INDEX_BPLUSTREE_H
 
-#include <string.h>
-#include <index/stack.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 /**
  * struct btree_node - an internal node in B+-tree

@@ -5,6 +5,8 @@
  * btree.c - generic B-tree definition
  */
 #include <index/btree.h>
+#include <index/stack.h>
+#include <string.h>
 
 /**
  * btree_alloc - allocates a node

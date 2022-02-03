@@ -5,6 +5,7 @@
  * rbtree.c - generic red-black tree definition
  */
 #include <index/rbtree.h>
+#include <index/stack.h>
 
 /**
  * rb_alloc - allocates a node

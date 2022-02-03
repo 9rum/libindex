@@ -22,7 +22,8 @@
 #ifndef _INDEX_RBTREE_H
 #define _INDEX_RBTREE_H
 
-#include <index/stack.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 /**
  * struct rb_node - a node in red-black tree
