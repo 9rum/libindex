@@ -1,9 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 AM_CFLAGS = -std=c11 -O3 -I$(top_builddir)/include
-if GNU
-AM_CFLAGS += -fno-toplevel-reorder
-endif
 
 TESTS = avltree_test \
         rbtree_test \
