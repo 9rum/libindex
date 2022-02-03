@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /*
- * Copyright 2021 9rum
+ * Copyright 2021-2022 9rum
  *
  * llrbtree_test.c - generic left-leaning red-black tree unit test
  */
@@ -8,11 +8,11 @@
 #define CTEST_SEGFAULT
 #define CTEST_COLOR_OK
 
+#include <ctest.h>
+#include <index/llrbtree.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
-#include <inttypes.h>
-#include <index/llrbtree.h>
-#include <ctest.h>
 
       char             __s[41];
       char             __c[3];
