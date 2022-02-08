@@ -17,7 +17,7 @@ dnl Checks for libraries.
 
 dnl Checks for header files.
 AC_CHECK_HEADER([inttypes.h])
-AC_CHECK_HEADER([$(pwd)/include/ctest.h], , [curl -o $(pwd)/include/ctest.h https://raw.githubusercontent.com/bvdberg/ctest/master/ctest.h])
+AC_CHECK_HEADER([`pwd`/include/ctest.h], , [curl -o `pwd`/include/ctest.h https://raw.githubusercontent.com/bvdberg/ctest/master/ctest.h])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
