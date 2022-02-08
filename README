@@ -27,7 +27,3 @@ Run the following commands:
 
     make install
     ldconfig
-
-Uninstalling the Index library
-------------------------------
-Run ``make uninstall``.
