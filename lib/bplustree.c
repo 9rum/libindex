@@ -75,7 +75,7 @@ static inline size_t __bsearch(const void *restrict key, const void **restrict b
     idx = (lo + hi) / 2;
     if (less(key, base[idx]))      hi = idx;
     else if (less(base[idx], key)) lo = idx+1;
-    else                              return idx;
+    else                           return idx;
   }
 
   return lo;
@@ -106,14 +106,14 @@ extern void bplus_insert(struct btree_node **restrict tree, struct list_node **r
   }
 
   if ((idx = __bsearch(key, node->keys, node->nmemb, less)) < node->nmemb &&
-      !(less(key, node->keys[idx]) || less(node->keys[idx], key))) { stack_free(stack); return; }
+      !(less(key, node->keys[idx]) || less(node->keys[idx], key))) { stack_clear(&stack); return; }
 
   if (node->nmemb < order) {
     memcpy(&node->keys[idx+1], &node->keys[idx], __SIZEOF_POINTER__*(node->nmemb-idx));
     memcpy(&node->values[idx+1], &node->values[idx], __SIZEOF_POINTER__*(node->nmemb++-idx));
     node->keys[idx]   = key;
     node->values[idx] = value;
-    stack_free(stack);
+    stack_clear(&stack);
     return;
   }
 
@@ -155,7 +155,7 @@ extern void bplus_insert(struct btree_node **restrict tree, struct list_node **r
     memcpy(&walk->children[idx+2], &walk->children[idx+1], __SIZEOF_POINTER__*(walk->nmemb++-idx));
     walk->keys[idx]       = key;
     walk->children[idx+1] = sib;
-    stack_free(stack);
+    stack_clear(&stack);
     return;
   }
 
@@ -187,7 +187,7 @@ extern void bplus_insert(struct btree_node **restrict tree, struct list_node **r
       memcpy(&walk->children[idx+2], &walk->children[idx+1], __SIZEOF_POINTER__*(walk->nmemb++-idx));
       walk->keys[idx]       = key;
       walk->children[idx+1] = sibling;
-      stack_free(stack);
+      stack_clear(&stack);
       return;
     }
 
@@ -236,12 +236,12 @@ extern void bplus_erase(struct btree_node **restrict tree, struct list_node **re
   if (node == NULL) return;
 
   if ((idx = __bsearch(key, node->keys, node->nmemb, less)) < node->nmemb &&
-      (less(key, node->keys[idx]) || less(node->keys[idx], key)) || idx == node->nmemb) { stack_free(stack); return; }
+      (less(key, node->keys[idx]) || less(node->keys[idx], key)) || idx == node->nmemb) { stack_clear(&stack); return; }
 
   memcpy(&node->keys[idx], &node->keys[idx+1], __SIZEOF_POINTER__*(--node->nmemb-idx));
   memcpy(&node->values[idx], &node->values[idx+1], __SIZEOF_POINTER__*(node->nmemb-idx));
 
-  if ((order+1)>>1 <= node->nmemb) { stack_free(stack); return; }
+  if ((order+1)>>1 <= node->nmemb) { stack_clear(&stack); return; }
 
   if (stack_empty(stack)) { if (node->nmemb == 0) { *list = NULL; list_free(node); } return; }
 
@@ -265,7 +265,7 @@ extern void bplus_erase(struct btree_node **restrict tree, struct list_node **re
       memcpy(sib->keys, &sib->keys[1], __SIZEOF_POINTER__*--sib->nmemb);
       memcpy(sib->values, &sib->values[1], __SIZEOF_POINTER__*sib->nmemb);
     }
-    stack_free(stack);
+    stack_clear(&stack);
     return;
   }
 
@@ -274,7 +274,7 @@ extern void bplus_erase(struct btree_node **restrict tree, struct list_node **re
     memcpy(&sib->values[sib->nmemb], node->values, __SIZEOF_POINTER__*node->nmemb);
     memcpy(&walk->keys[idx-1], &walk->keys[idx], __SIZEOF_POINTER__*(walk->nmemb-idx));
     memcpy(&walk->children[idx], &walk->children[idx+1], __SIZEOF_POINTER__*(walk->nmemb---idx));
-    sib->next  = node->next;
+    sib->next   = node->next;
     sib->nmemb += node->nmemb;
     list_free(node);
   } else {
@@ -282,13 +282,13 @@ extern void bplus_erase(struct btree_node **restrict tree, struct list_node **re
     memcpy(&node->values[node->nmemb], sib->values, __SIZEOF_POINTER__*sib->nmemb);
     memcpy(&walk->keys[idx], &walk->keys[idx+1], __SIZEOF_POINTER__*(--walk->nmemb-idx));
     memcpy(&walk->children[idx+1], &walk->children[idx+2], __SIZEOF_POINTER__*(walk->nmemb-idx));
-    node->next  = sib->next;
+    node->next   = sib->next;
     node->nmemb += sib->nmemb;
     list_free(sib);
   }
 
   while (!stack_empty(stack)) {
-    if ((order-1)>>1 <= walk->nmemb) { stack_free(stack); return; }
+    if ((order-1)>>1 <= walk->nmemb) { stack_clear(&stack); return; }
 
     idx     = (size_t)stack_pop(&stack);
     parent  = stack_pop(&stack);
@@ -310,7 +310,7 @@ extern void bplus_erase(struct btree_node **restrict tree, struct list_node **re
         memcpy(sibling->children, &sibling->children[1], __SIZEOF_POINTER__*sibling->nmemb);
         memcpy(sibling->keys, &sibling->keys[1], __SIZEOF_POINTER__*--sibling->nmemb);
       }
-      stack_free(stack);
+      stack_clear(&stack);
       return;
     }
 

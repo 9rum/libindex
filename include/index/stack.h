@@ -63,24 +63,26 @@ static inline void stack_push(struct stack **restrict stack, void *restrict valu
  */
 static inline void *stack_pop(struct stack **restrict stack) {
   if (stack_empty(*stack)) return NULL;
-  struct stack *top        = *stack;
-  void         *value      = top->value;
-  *stack                   = top->next;
+
+  struct stack *top   = *stack;
+  void         *value = top->value;
+  *stack              = top->next;
+
   free(top);
   return value;
 }
 
 /**
- * stack_free - deallocates @stack
+ * stack_clear - empties @stack
  *
- * @stack: stack to deallocate
+ * @stack: stack to empty
  */
-static inline void stack_free(struct stack *restrict stack) {
+static inline void stack_clear(struct stack **restrict stack) {
   register struct stack *top;
 
-  while (!stack_empty(stack)) {
-    top   = stack;
-    stack = top->next;
+  while (!stack_empty(*stack)) {
+    top    = *stack;
+    *stack = top->next;
     free(top);
   }
 }

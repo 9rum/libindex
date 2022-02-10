@@ -114,7 +114,7 @@ extern void llrb_insert(struct llrb_node **restrict tree, const void *restrict k
            struct stack     *stack = NULL;
 
   while (walk != NULL) {
-    if (!(less(key, walk->key) || less(walk->key, key))) { stack_free(stack); return; }
+    if (!(less(key, walk->key) || less(walk->key, key))) { stack_clear(&stack); return; }
     stack_push(&stack, walk);
     walk = less(key, walk->key) ? walk->left : walk->right;
   }

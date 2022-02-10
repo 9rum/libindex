@@ -51,7 +51,7 @@ static inline size_t __bsearch(const void *restrict key, const void **restrict b
     idx = (lo + hi) / 2;
     if (less(key, base[idx]))      hi = idx;
     else if (less(base[idx], key)) lo = idx+1;
-    else                              return idx;
+    else                           return idx;
   }
 
   return lo;
@@ -66,7 +66,7 @@ extern void btree_insert(struct btree_node **restrict tree, const size_t order, 
 
   while (walk != NULL) {
     if ((idx = __bsearch(key, walk->keys, walk->nmemb, less)) < walk->nmemb &&
-        !(less(key, walk->keys[idx]) || less(walk->keys[idx], key))) { stack_free(stack); return; }
+        !(less(key, walk->keys[idx]) || less(walk->keys[idx], key))) { stack_clear(&stack); return; }
     stack_push(&stack, walk);
     stack_push(&stack, (void *)idx);
     walk = walk->children[idx];
@@ -83,7 +83,7 @@ extern void btree_insert(struct btree_node **restrict tree, const size_t order, 
       walk->keys[idx]       = key;
       walk->values[idx]     = value;
       walk->children[idx+1] = sibling;
-      stack_free(stack);
+      stack_clear(&stack);
       return;
     }
 
@@ -135,7 +135,7 @@ extern void btree_erase(struct btree_node **restrict tree, const size_t order, c
     walk = walk->children[idx];
   }
 
-  if (walk == NULL) { stack_free(stack); return; }
+  if (walk == NULL) { stack_clear(&stack); return; }
 
   if (walk->children[idx] != NULL) {
     parent = walk;
@@ -154,7 +154,7 @@ extern void btree_erase(struct btree_node **restrict tree, const size_t order, c
   memcpy(&walk->values[idx], &walk->values[idx+1], __SIZEOF_POINTER__*(walk->nmemb-idx));
 
   while (!stack_empty(stack)) {
-    if ((order-1)>>1 <= walk->nmemb) { stack_free(stack); return; }
+    if ((order-1)>>1 <= walk->nmemb) { stack_clear(&stack); return; }
 
     idx     = (size_t)stack_pop(&stack);
     parent  = stack_pop(&stack);
@@ -182,7 +182,7 @@ extern void btree_erase(struct btree_node **restrict tree, const size_t order, c
         memcpy(sibling->keys, &sibling->keys[1], __SIZEOF_POINTER__*--sibling->nmemb);
         memcpy(sibling->values, &sibling->values[1], __SIZEOF_POINTER__*sibling->nmemb);
       }
-      stack_free(stack);
+      stack_clear(&stack);
       return;
     }
 

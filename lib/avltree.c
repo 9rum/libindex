@@ -68,7 +68,7 @@ extern void avl_insert(struct avl_node **restrict tree, const void *restrict key
            struct stack    *stack = NULL;
 
   while (walk != NULL) {
-    if (!(less(key, walk->key) || less(walk->key, key))) { stack_free(stack); return; }
+    if (!(less(key, walk->key) || less(walk->key, key))) { stack_clear(&stack); return; }
     stack_push(&stack, walk);
     walk = less(key, walk->key) ? walk->left : walk->right;
   }
@@ -132,7 +132,7 @@ extern void avl_erase(struct avl_node **restrict tree, const void *restrict key,
     walk = less(key, walk->key) ? walk->left : walk->right;
   }
 
-  if (walk == NULL) { stack_free(stack); return; }
+  if (walk == NULL) { stack_clear(&stack); return; }
 
   if (walk->left != NULL && walk->right != NULL) {                          /* case of degree 2 */
     parent = walk;
