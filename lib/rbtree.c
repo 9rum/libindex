@@ -52,6 +52,13 @@ static inline void rb_rotate_right(struct rb_node **restrict root, struct rb_nod
   else                           parent->right = lchild;
 }
 
+/**
+ * __rb_clear - empties @tree
+ *
+ * @tree: tree to empty
+ */
+static inline void __rb_clear(struct rb_node *restrict tree) { if (tree != NULL) { __rb_clear(tree->left); __rb_clear(tree->right); free(tree); } }
+
 extern void rb_insert(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
   register struct rb_node *parent;
   register struct rb_node *gparent;
@@ -209,3 +216,5 @@ extern void rb_erase(struct rb_node **restrict tree, const void *restrict key, b
     walk = parent;
   }
 }
+
+extern void rb_clear(struct rb_node **restrict tree) { __rb_clear(*tree); *tree = NULL; }

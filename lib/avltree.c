@@ -61,6 +61,13 @@ static inline void avl_rotate_right(struct avl_node **restrict root, struct avl_
   else                           parent->right = lchild;
 }
 
+/**
+ * __avl_clear - empties @tree
+ *
+ * @tree: tree to empty
+ */
+static inline void __avl_clear(struct avl_node *restrict tree) { if (tree != NULL) { __avl_clear(tree->left); __avl_clear(tree->right); free(tree); } }
+
 extern void avl_insert(struct avl_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
            struct avl_node *parent;
   register struct avl_node *walk  = *tree;
@@ -202,3 +209,5 @@ extern void avl_erase(struct avl_node **restrict tree, const void *restrict key,
     walk->height = 1 + max(avl_height(walk->left), avl_height(walk->right));
   }
 }
+
+extern void avl_clear(struct avl_node **restrict tree) { __avl_clear(*tree); *tree = NULL; }

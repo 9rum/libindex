@@ -35,6 +35,19 @@ static inline void btree_free(struct btree_node *restrict node) {
 }
 
 /**
+ * __btree_clear - empties @tree
+ *
+ * @tree: tree to empty
+ */
+static inline void __btree_clear(struct btree_node *restrict tree) {
+  if (tree != NULL) {
+    for (size_t idx = 0; idx <= tree->nmemb; ++idx)
+      __btree_clear(tree->children[idx]);
+    btree_free(tree);
+  }
+}
+
+/**
  * __bsearch - do a binary search for @key in @base, which consists of @nmemb elements, using @less to perform the comparisons
  *
  * @key:   the key to search
@@ -214,3 +227,5 @@ extern void btree_erase(struct btree_node **restrict tree, const size_t order, c
 
   if (walk->nmemb == 0) { *tree = walk->children[0]; btree_free(walk); }
 }
+
+extern void btree_clear(struct btree_node **restrict tree) { __btree_clear(*tree); *tree = NULL; }

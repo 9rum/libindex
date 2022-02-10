@@ -87,6 +87,13 @@ extern void rb_insert(struct rb_node **restrict tree, const void *restrict key, 
 extern void rb_erase(struct rb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
 
 /**
+ * rb_clear - empties @tree
+ *
+ * @tree: tree to empty
+ */
+extern void rb_clear(struct rb_node **restrict tree);
+
+/**
  * rb_preorder - applies @func to each node of @tree preorderwise
  *
  * @tree: tree to apply @func to each node of

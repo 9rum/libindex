@@ -53,9 +53,7 @@ CTEST(btree_test, btree_insert_odd_test) {
   btree_inorder(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
 
-  for (it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
-    btree_erase(&tree, 3, it, less);
-
+  btree_clear(&tree);
   ASSERT_NULL(tree);
 }
 
@@ -93,9 +91,7 @@ CTEST(btree_test, btree_insert_even_test) {
   btree_inorder(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
 
-  for (it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
-    btree_erase(&tree, 4, it, less);
-
+  btree_clear(&tree);
   ASSERT_NULL(tree);
 }
 

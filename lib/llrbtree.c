@@ -108,6 +108,13 @@ static inline struct llrb_node *llrb_move_red_right(struct llrb_node **restrict 
   return node;
 }
 
+/**
+ * __llrb_clear - empties @tree
+ *
+ * @tree: tree to empty
+ */
+static inline void __llrb_clear(struct llrb_node *restrict tree) { if (tree != NULL) { __llrb_clear(tree->left); __llrb_clear(tree->right); free(tree); } }
+
 extern void llrb_insert(struct llrb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
   register struct llrb_node *parent;
   register struct llrb_node *walk  = *tree;
@@ -196,3 +203,5 @@ extern void llrb_erase(struct llrb_node **restrict tree, const void *restrict ke
 
   if (*tree != NULL) (*tree)->color = true;
 }
+
+extern void llrb_clear(struct llrb_node **restrict tree) { __llrb_clear(*tree); *tree = NULL; }

@@ -73,6 +73,13 @@ extern void llrb_insert(struct llrb_node **restrict tree, const void *restrict k
 extern void llrb_erase(struct llrb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
 
 /**
+ * llrb_clear - empties @tree
+ *
+ * @tree: tree to empty
+ */
+extern void llrb_clear(struct llrb_node **restrict tree);
+
+/**
  * llrb_preorder - applies @func to each node of @tree preorderwise
  *
  * @tree: tree to apply @func to each node of

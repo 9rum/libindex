@@ -34,6 +34,20 @@ static inline void btree_free(struct btree_node *restrict node) {
 }
 
 /**
+ * btree_clear - empties @tree
+ *
+ * @tree: tree to empty
+ */
+static inline void btree_clear(struct btree_node *restrict tree) {
+  if (tree != NULL) {
+    if (!tree->type)
+      for (size_t idx = 0; idx <= tree->nmemb; ++idx)
+        btree_clear(tree->children[idx]);
+    btree_free(tree);
+  }
+}
+
+/**
  * list_alloc - allocates an external node
  *
  * @order: order of B+-tree
@@ -56,6 +70,21 @@ static inline void list_free(struct list_node *restrict node) {
   free(node->keys);
   free(node->values);
   free(node);
+}
+
+/**
+ * list_clear - empties @list
+ *
+ * @list: list to empty
+ */
+static inline void list_clear(struct list_node *restrict list) {
+  register struct list_node *node;
+
+  while (list != NULL) {
+    node = list;
+    list = list->next;
+    free(node);
+  }
 }
 
 /**
@@ -335,4 +364,11 @@ extern void bplus_erase(struct btree_node **restrict tree, struct list_node **re
   }
 
   if (walk->nmemb == 0) { *tree = walk->type ? NULL : walk->children[0]; btree_free(walk); }
+}
+
+extern void bplus_clear(struct btree_node **restrict tree, struct list_node **restrict list) {
+  btree_clear(*tree);
+  list_clear(*list);
+  *tree = NULL;
+  *list = NULL;
 }

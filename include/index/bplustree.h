@@ -106,6 +106,14 @@ extern void bplus_insert(struct btree_node **restrict tree, struct list_node **r
 extern void bplus_erase(struct btree_node **restrict tree, struct list_node **restrict list, const size_t order, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
 
 /**
+ * bplus_clear - empties @tree and @list
+ *
+ * @tree: tree to empty
+ * @list: list to empty
+ */
+extern void bplus_clear(struct btree_node **restrict tree, struct list_node **restrict list);
+
+/**
  * bplus_for_each - applies @func to each node of @list sequentialwise
  *
  * @list: list to apply @func to each node of

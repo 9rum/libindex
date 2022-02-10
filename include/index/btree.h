@@ -86,6 +86,13 @@ extern void btree_insert(struct btree_node **restrict tree, const size_t order, 
 extern void btree_erase(struct btree_node **restrict tree, const size_t order, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
 
 /**
+ * btree_clear - empties @tree
+ *
+ * @tree: tree to empty
+ */
+extern void btree_clear(struct btree_node **restrict tree);
+
+/**
  * btree_preorder - applies @func to each node of @tree preorderwise
  *
  * @tree: tree to apply @func to each node of

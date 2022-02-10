@@ -32,9 +32,7 @@ CTEST(avltree_test, avl_insert_test) {
   avl_inorder(tree, concat);
   ASSERT_STR("1011202225303340444950556066707780889099", dest);
 
-  for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    avl_erase(&tree, it, less);
-
+  avl_clear(&tree);
   ASSERT_NULL(tree);
 }
 

@@ -87,6 +87,13 @@ extern void avl_insert(struct avl_node **restrict tree, const void *restrict key
 extern void avl_erase(struct avl_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
 
 /**
+ * avl_clear - empties @tree
+ *
+ * @tree: tree to empty
+ */
+extern void avl_clear(struct avl_node **restrict tree);
+
+/**
  * avl_preorder - applies @func to each node of @tree preorderwise
  *
  * @tree: tree to apply @func to each node of
