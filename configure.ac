@@ -4,7 +4,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.71])
 
-AC_INIT([libindex], [1])
+AC_INIT([libindex], [1.1])
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_HEADERS([config.h])
