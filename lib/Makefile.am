@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LGPL-2.1
 
 lib_LIBRARIES        = libindex.a
 libindex_a_SOURCES   = avltree.c rbtree.c llrbtree.c btree.c bplustree.c

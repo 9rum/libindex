@@ -1,6 +1,6 @@
-/* SPDX-License-Identifier: Apache-2.0 */
+/* SPDX-License-Identifier: LGPL-2.1 */
 /*
- * Copyright 2020-2022 9rum
+ * Copyright (C) 2020-2022 9rum
  *
  * bplustree.h - generic B+-tree declaration
  *

@@ -3,10 +3,12 @@ Index library
 
 This directory contains the sources of the Index library.
 
-The Index library is licensed under the Apache License, Version 2.0;
+This is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public License
+as published by the Free Software Foundation;
 the full license text is at:
 
-    https://www.apache.org/licenses/LICENSE-2.0
+    https://opensource.org/licenses/LGPL-2.1
 
 Building the Index library
 --------------------------
@@ -19,8 +21,8 @@ Run the following commands:
 
 Running tests
 -------------
-Run ``make check``.
+Use ``make check``.
 
 Installing the Index library
 ----------------------------
-Run ``make install``.
+Use ``make install``.

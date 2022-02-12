@@ -1,6 +1,6 @@
-/* SPDX-License-Identifier: Apache-2.0 */
+/* SPDX-License-Identifier: LGPL-2.1 */
 /*
- * Copyright 2021-2022 9rum
+ * Copyright (C) 2021-2022 9rum
  *
  * rbtree_test.c - generic red-black tree unit test
  */
