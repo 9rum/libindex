@@ -59,12 +59,12 @@ CTEST(btree_test, btree_insert_odd_test) {
 
 CTEST(btree_test, btree_erase_odd_test) {
         struct btree_node *tree = NULL;
-  const uintptr_t         *it   = testcases + sizeof(testcases)/sizeof(uintptr_t)/2;
+  const uintptr_t         *it   = testcases;
 
-  for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
+  for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
     btree_insert(&tree, 3, it, (uintptr_t *)it, less);
 
-  for (it = testcases + sizeof(testcases)/sizeof(uintptr_t)/2; it < testcases + 99; ++it)
+  for (; it < testcases + 99; ++it)
     btree_erase(&tree, 3, it, less);
 
   btree_erase(&tree, 3, it++, less);
@@ -97,12 +97,12 @@ CTEST(btree_test, btree_insert_even_test) {
 
 CTEST(btree_test, btree_erase_even_test) {
         struct btree_node *tree = NULL;
-  const uintptr_t         *it   = testcases + sizeof(testcases)/sizeof(uintptr_t)/2;
+  const uintptr_t         *it   = testcases;
 
-  for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
+  for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
     btree_insert(&tree, 4, it, (uintptr_t *)it, less);
 
-  for (it = testcases + sizeof(testcases)/sizeof(uintptr_t)/2; it < testcases + 99; ++it)
+  for (; it < testcases + 99; ++it)
     btree_erase(&tree, 4, it, less);
 
   btree_erase(&tree, 4, it++, less);

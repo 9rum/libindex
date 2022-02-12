@@ -62,12 +62,12 @@ CTEST(bplustree_test, bplus_insert_odd_test) {
 CTEST(bplustree_test, bplus_erase_odd_test) {
         struct bplus_internal_node *tree = NULL;
         struct bplus_external_node *list = NULL;
-  const uintptr_t                  *it   = testcases + sizeof(testcases)/sizeof(uintptr_t)/2;
+  const uintptr_t                  *it   = testcases;
 
-  for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
+  for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
     bplus_insert(&tree, &list, 3, it, (uintptr_t *)it, less);
 
-  for (it = testcases + sizeof(testcases)/sizeof(uintptr_t)/2; it < testcases + 99; ++it)
+  for (; it < testcases + 99; ++it)
     bplus_erase(&tree, &list, 3, it, less);
 
   bplus_erase(&tree, &list, 3, it++, less);
@@ -104,12 +104,12 @@ CTEST(bplustree_test, bplus_insert_even_test) {
 CTEST(bplustree_test, bplus_erase_even_test) {
         struct bplus_internal_node *tree = NULL;
         struct bplus_external_node *list = NULL;
-  const uintptr_t                  *it   = testcases + sizeof(testcases)/sizeof(uintptr_t)/2;
+  const uintptr_t                  *it   = testcases;
 
-  for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
+  for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
     bplus_insert(&tree, &list, 4, it, (uintptr_t *)it, less);
 
-  for (it = testcases + sizeof(testcases)/sizeof(uintptr_t)/2; it < testcases + 99; ++it)
+  for (; it < testcases + 99; ++it)
     bplus_erase(&tree, &list, 4, it, less);
 
   bplus_erase(&tree, &list, 4, it++, less);
