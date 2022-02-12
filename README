@@ -23,7 +23,4 @@ Run ``make check``.
 
 Installing the Index library
 ----------------------------
-Run the following commands:
-
-    make install
-    ldconfig
+Run ``make install``.
