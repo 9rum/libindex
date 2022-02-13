@@ -75,9 +75,9 @@ extern void avl_insert(struct avl_node **restrict tree, const void *restrict key
            struct stack    *stack      = NULL;
 
   while (walk != NULL) {
-    if (!(less(key, walk->key) || less(walk->key, key))) { stack_clear(&stack); return; }
-    stack_push(&stack, walk);
-    walk = less(key, walk->key) ? walk->left : walk->right;
+    if (less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
+    else if (less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
+    else                           { stack_clear(&stack); return; }
   }
 
   walk        = avl_alloc();
@@ -138,9 +138,10 @@ extern void avl_erase(struct avl_node **restrict tree, const void *restrict key,
            struct avl_node *unbalanced = NULL;
            struct stack    *stack      = NULL;
 
-  while (walk != NULL && (less(key, walk->key) || less(walk->key, key))) {
-    stack_push(&stack, walk);
-    walk = less(key, walk->key) ? walk->left : walk->right;
+  while (walk != NULL) {
+    if (less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
+    else if (less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
+    else                           break;
   }
 
   if (walk == NULL) { stack_clear(&stack); return; }

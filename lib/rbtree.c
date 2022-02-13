@@ -67,9 +67,9 @@ extern void rb_insert(struct rb_node **restrict tree, const void *restrict key, 
            struct stack   *stack = NULL;
 
   while (walk != NULL) {
-    if (!(less(key, walk->key) || less(walk->key, key))) { stack_clear(&stack); return; }
-    stack_push(&stack, walk);
-    walk = less(key, walk->key) ? walk->left : walk->right;
+    if (less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
+    else if (less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
+    else                           { stack_clear(&stack); return; }
   }
 
   walk        = rb_alloc();
@@ -128,9 +128,10 @@ extern void rb_erase(struct rb_node **restrict tree, const void *restrict key, b
   register struct rb_node *walk  = *tree;
            struct stack   *stack = NULL;
 
-  while (walk != NULL && (less(key, walk->key) || less(walk->key, key))) {
-    stack_push(&stack, walk);
-    walk = less(key, walk->key) ? walk->left : walk->right;
+  while (walk != NULL) {
+    if (less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
+    else if (less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
+    else                           break;
   }
 
   if (walk == NULL) { stack_clear(&stack); return; }
