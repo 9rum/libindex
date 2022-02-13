@@ -76,7 +76,7 @@ extern void rb_insert(struct rb_node **restrict tree, const void *restrict key, 
   walk->key   = key;
   walk->value = value;
 
-  if ((parent = stack_top(stack)) == NULL) *tree         = walk, walk->color = true;
+  if ((parent = stack_top(stack)) == NULL) *tree         = walk;
   else if (less(key, parent->key))         parent->left  = walk;
   else                                     parent->right = walk;
 
@@ -115,11 +115,13 @@ extern void rb_insert(struct rb_node **restrict tree, const void *restrict key, 
       return;
     }
 
-    parent->color = true;                /* case of recoloring */
-    uncle->color  = true;
-    walk          = gparent;
-    walk->color   = stack_empty(stack);
+    parent->color  = true;               /* case of recoloring */
+    uncle->color   = true;
+    gparent->color = false;
+    walk           = gparent;
   }
+
+  (*tree)->color = true;
 }
 
 extern void rb_erase(struct rb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
