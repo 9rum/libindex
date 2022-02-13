@@ -59,7 +59,7 @@ static inline void rb_rotate_right(struct rb_node **restrict root, struct rb_nod
  */
 static inline void __rb_clear(struct rb_node *restrict tree) { if (tree != NULL) { __rb_clear(tree->left); __rb_clear(tree->right); free(tree); } }
 
-extern void rb_insert(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
+extern struct rb_node *rb_insert(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
   register struct rb_node *parent;
   register struct rb_node *gparent;
   register struct rb_node *uncle;
@@ -69,19 +69,20 @@ extern void rb_insert(struct rb_node **restrict tree, const void *restrict key, 
   while (walk != NULL) {
     if (less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
     else if (less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
-    else                           { stack_clear(&stack); return; }
+    else                           { stack_clear(&stack); return NULL; }
   }
 
-  walk        = rb_alloc();
-  walk->key   = key;
-  walk->value = value;
+  struct rb_node *node = rb_alloc();
+  node->key            = key;
+  node->value          = value;
+  walk                 = node;
 
-  if ((parent = stack_top(stack)) == NULL) *tree         = walk;
-  else if (less(key, parent->key))         parent->left  = walk;
-  else                                     parent->right = walk;
+  if ((parent = stack_top(stack)) == NULL) *tree         = node;
+  else if (less(key, parent->key))         parent->left  = node;
+  else                                     parent->right = node;
 
   while (!stack_empty(stack)) {
-    if ((parent = stack_pop(&stack))->color) { stack_clear(&stack); return; }
+    if ((parent = stack_pop(&stack))->color) { stack_clear(&stack); return node; }
 
     gparent = stack_pop(&stack);
     uncle   = gparent->right == parent ? gparent->left : gparent->right;
@@ -112,7 +113,7 @@ extern void rb_insert(struct rb_node **restrict tree, const void *restrict key, 
       }
 
       stack_clear(&stack);
-      return;
+      return node;
     }
 
     parent->color  = true;               /* case of recoloring */
@@ -122,9 +123,10 @@ extern void rb_insert(struct rb_node **restrict tree, const void *restrict key, 
   }
 
   (*tree)->color = true;
+  return node;
 }
 
-extern void rb_erase(struct rb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
+extern void *rb_erase(struct rb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
   register struct rb_node *parent;
   register struct rb_node *sibling;
   register struct rb_node *walk  = *tree;
@@ -136,7 +138,9 @@ extern void rb_erase(struct rb_node **restrict tree, const void *restrict key, b
     else                           break;
   }
 
-  if (walk == NULL) { stack_clear(&stack); return; }
+  if (walk == NULL) { stack_clear(&stack); return NULL; }
+
+  void *erased = walk->value;
 
   if (walk->left != NULL && walk->right != NULL) {                          /* case of degree 2 */
     parent = walk;
@@ -164,13 +168,13 @@ extern void rb_erase(struct rb_node **restrict tree, const void *restrict key, b
     }
   }
 
-  if (!walk->color) { free(walk); stack_clear(&stack); return; }
+  if (!walk->color) { free(walk); stack_clear(&stack); return erased; }
 
   parent = walk;
   walk   = parent->right == NULL ? parent->left : parent->right;
   free(parent);
 
-  if (walk != NULL && !walk->color) { walk->color = true; stack_clear(&stack); return; }
+  if (walk != NULL && !walk->color) { walk->color = true; stack_clear(&stack); return erased; }
 
   while (!stack_empty(stack)) {
     parent  = stack_pop(&stack);
@@ -211,13 +215,15 @@ extern void rb_erase(struct rb_node **restrict tree, const void *restrict key, b
       }
 
       stack_clear(&stack);
-      return;
+      return erased;
     }
 
     sibling->color = false;                                                 /* case of recoloring */
-    if (!parent->color) { parent->color = true; stack_clear(&stack); return; }
+    if (!parent->color) { parent->color = true; stack_clear(&stack); return erased; }
     walk = parent;
   }
+
+  return erased;
 }
 
 extern void rb_clear(struct rb_node **restrict tree) { __rb_clear(*tree); *tree = NULL; }

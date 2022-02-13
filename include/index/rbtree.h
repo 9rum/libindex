@@ -75,7 +75,7 @@ struct rb_node {
  * @value: the value to insert
  * @less:  operator defining the (partial) node order
  */
-extern void rb_insert(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
+extern struct rb_node *rb_insert(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
 
 /**
  * rb_erase - erases @key from @tree
@@ -84,7 +84,7 @@ extern void rb_insert(struct rb_node **restrict tree, const void *restrict key, 
  * @key:  the key to erase
  * @less: operator defining the (partial) node order
  */
-extern void rb_erase(struct rb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
+extern void *rb_erase(struct rb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
 
 /**
  * rb_clear - empties @tree
