@@ -115,7 +115,7 @@ static inline struct llrb_node *llrb_move_red_right(struct llrb_node **restrict 
  */
 static inline void __llrb_clear(struct llrb_node *restrict tree) { if (tree != NULL) { __llrb_clear(tree->left); __llrb_clear(tree->right); free(tree); } }
 
-extern void llrb_insert(struct llrb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
+extern struct llrb_node *llrb_insert(struct llrb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
   register struct llrb_node *parent;
   register struct llrb_node *walk  = *tree;
            struct stack     *stack = NULL;
@@ -123,16 +123,16 @@ extern void llrb_insert(struct llrb_node **restrict tree, const void *restrict k
   while (walk != NULL) {
     if (less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
     else if (less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
-    else                           { stack_clear(&stack); return; }
+    else                           { stack_clear(&stack); return NULL; }
   }
 
-  walk        = llrb_alloc();
-  walk->key   = key;
-  walk->value = value;
+  struct llrb_node *node = llrb_alloc();
+  node->key              = key;
+  node->value            = value;
 
-  if ((parent = stack_top(stack)) == NULL) *tree         = walk;
-  else if (less(key, parent->key))         parent->left  = walk;
-  else                                     parent->right = walk;
+  if ((parent = stack_top(stack)) == NULL) *tree         = node;
+  else if (less(key, parent->key))         parent->left  = node;
+  else                                     parent->right = node;
 
   while (!stack_empty(stack)) {
     walk   = stack_pop(&stack);
@@ -144,12 +144,14 @@ extern void llrb_insert(struct llrb_node **restrict tree, const void *restrict k
   }
 
   (*tree)->color = true;
+  return node;
 }
 
-extern void llrb_erase(struct llrb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
+extern void *llrb_erase(struct llrb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
   register struct llrb_node *parent;
-  register struct llrb_node *walk  = *tree;
-           struct stack     *stack = NULL;
+  register struct llrb_node *walk   = *tree;
+           struct stack     *stack  = NULL;
+           void             *erased = NULL;
 
   while (walk != NULL) {
     if (less(key, walk->key)) {
@@ -160,6 +162,7 @@ extern void llrb_erase(struct llrb_node **restrict tree, const void *restrict ke
       if (llrb_is_red(walk->left)) walk = llrb_rotate_right(tree, walk, stack_top(stack));
 
       if (!less(walk->key, key) && walk->right == NULL) {
+        erased = walk->value;
         if ((parent = stack_top(stack)) == NULL) *tree         = NULL;                                          /* case of root */
         else if (parent->left == walk)           parent->left  = NULL;
         else                                     parent->right = NULL;
@@ -170,6 +173,7 @@ extern void llrb_erase(struct llrb_node **restrict tree, const void *restrict ke
       if (llrb_is_black(walk->right) && llrb_is_black(walk->right->left)) walk = llrb_move_red_right(tree, walk, stack_top(stack));
 
       if (!less(walk->key, key)) {
+        erased = walk->value;
         parent = walk;
         stack_push(&stack, walk);
 
@@ -202,6 +206,7 @@ extern void llrb_erase(struct llrb_node **restrict tree, const void *restrict ke
   }
 
   if (*tree != NULL) (*tree)->color = true;
+  return erased;
 }
 
 extern void llrb_clear(struct llrb_node **restrict tree) { __llrb_clear(*tree); *tree = NULL; }

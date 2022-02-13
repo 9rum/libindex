@@ -26,7 +26,7 @@ CTEST(llrbtree_test, llrb_insert_test) {
   struct llrb_node *tree = NULL;
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    llrb_insert(&tree, it, NULL, less);
+    ASSERT_NOT_NULL(llrb_insert(&tree, it, NULL, less));
 
   memset(dest, 0, sizeof(dest));
   llrb_inorder(tree, concat);
@@ -43,7 +43,7 @@ CTEST(llrbtree_test, llrb_erase_test) {
     llrb_insert(&tree, it, (uintptr_t *)it, less);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    llrb_erase(&tree, it, less);
+    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), llrb_erase(&tree, it, less), sizeof(uintptr_t));
 
   ASSERT_NULL(tree);
 }
@@ -55,7 +55,7 @@ CTEST(llrbtree_test, llrb_erase_reverse_test) {
     llrb_insert(&tree, it, (uintptr_t *)it, less);
 
   for (const uintptr_t *it = testcases + sizeof(testcases)/sizeof(uintptr_t) - 1; testcases <= it; --it)
-    llrb_erase(&tree, it, less);
+    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), llrb_erase(&tree, it, less), sizeof(uintptr_t));
 
   ASSERT_NULL(tree);
 }

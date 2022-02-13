@@ -61,7 +61,7 @@ struct llrb_node {
  * @value: the value to insert
  * @less:  operator defining the (partial) node order
  */
-extern void llrb_insert(struct llrb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
+extern struct llrb_node *llrb_insert(struct llrb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
 
 /**
  * llrb_erase - erases @key from @tree
@@ -70,7 +70,7 @@ extern void llrb_insert(struct llrb_node **restrict tree, const void *restrict k
  * @key:  the key to erase
  * @less: operator defining the (partial) node order
  */
-extern void llrb_erase(struct llrb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
+extern void *llrb_erase(struct llrb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
 
 /**
  * llrb_clear - empties @tree
