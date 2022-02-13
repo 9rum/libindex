@@ -3,9 +3,7 @@ Index library
 
 This directory contains the sources of the Index library.
 
-This is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public License
-as published by the Free Software Foundation;
+This library is free software;
 the full license text is at:
 
     https://opensource.org/licenses/LGPL-2.1
