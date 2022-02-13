@@ -75,7 +75,7 @@ struct avl_node {
  * @value: the value to insert
  * @less:  operator defining the (partial) node order
  */
-extern void avl_insert(struct avl_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
+extern struct avl_node *avl_insert(struct avl_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
 
 /**
  * avl_erase - erases @key from @tree
@@ -84,7 +84,7 @@ extern void avl_insert(struct avl_node **restrict tree, const void *restrict key
  * @key:  the key to erase
  * @less: operator defining the (partial) node order
  */
-extern void avl_erase(struct avl_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
+extern void *avl_erase(struct avl_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
 
 /**
  * avl_clear - empties @tree

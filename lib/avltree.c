@@ -68,7 +68,7 @@ static inline void avl_rotate_right(struct avl_node **restrict root, struct avl_
  */
 static inline void __avl_clear(struct avl_node *restrict tree) { if (tree != NULL) { __avl_clear(tree->left); __avl_clear(tree->right); free(tree); } }
 
-extern void avl_insert(struct avl_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
+extern struct avl_node *avl_insert(struct avl_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
            struct avl_node *parent;
   register struct avl_node *walk       = *tree;
            struct avl_node *unbalanced = NULL;
@@ -77,16 +77,16 @@ extern void avl_insert(struct avl_node **restrict tree, const void *restrict key
   while (walk != NULL) {
     if (less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
     else if (less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
-    else                           { stack_clear(&stack); return; }
+    else                           { stack_clear(&stack); return NULL; }
   }
 
-  walk        = avl_alloc();
-  walk->key   = key;
-  walk->value = value;
+  struct avl_node *node = avl_alloc();
+  node->key             = key;
+  node->value           = value;
 
-  if ((parent = stack_top(stack)) == NULL) *tree         = walk;
-  else if (less(key, parent->key))         parent->left  = walk;
-  else                                     parent->right = walk;
+  if ((parent = stack_top(stack)) == NULL) *tree         = node;
+  else if (less(key, parent->key))         parent->left  = node;
+  else                                     parent->right = node;
 
   while (!stack_empty(stack)) {
     walk         = stack_pop(&stack);
@@ -130,9 +130,11 @@ extern void avl_insert(struct avl_node **restrict tree, const void *restrict key
       walk->height = 1 + max(avl_height(walk->left), avl_height(walk->right));
     }
   }
+
+  return node;
 }
 
-extern void avl_erase(struct avl_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
+extern void *avl_erase(struct avl_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
            struct avl_node *parent;
   register struct avl_node *walk       = *tree;
            struct avl_node *unbalanced = NULL;
@@ -144,7 +146,9 @@ extern void avl_erase(struct avl_node **restrict tree, const void *restrict key,
     else                           break;
   }
 
-  if (walk == NULL) { stack_clear(&stack); return; }
+  if (walk == NULL) { stack_clear(&stack); return NULL; }
+
+  void *erased = walk->value;
 
   if (walk->left != NULL && walk->right != NULL) {                                      /* case of degree 2 */
     parent = walk;
@@ -217,6 +221,8 @@ extern void avl_erase(struct avl_node **restrict tree, const void *restrict key,
       walk->height = 1 + max(avl_height(walk->left), avl_height(walk->right));
     }
   }
+
+  return erased;
 }
 
 extern void avl_clear(struct avl_node **restrict tree) { __avl_clear(*tree); *tree = NULL; }

@@ -26,7 +26,7 @@ CTEST(avltree_test, avl_insert_test) {
   struct avl_node *tree = NULL;
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    avl_insert(&tree, it, NULL, less);
+    ASSERT_NOT_NULL(avl_insert(&tree, it, NULL, less));
 
   memset(dest, 0, sizeof(dest));
   avl_inorder(tree, concat);
@@ -43,7 +43,7 @@ CTEST(avltree_test, avl_erase_test) {
     avl_insert(&tree, it, (uintptr_t *)it, less);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    avl_erase(&tree, it, less);
+    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), avl_erase(&tree, it, less), sizeof(uintptr_t));
 
   ASSERT_NULL(tree);
 }
@@ -55,7 +55,7 @@ CTEST(avltree_test, avl_erase_reverse_test) {
     avl_insert(&tree, it, (uintptr_t *)it, less);
 
   for (const uintptr_t *it = testcases + sizeof(testcases)/sizeof(uintptr_t) - 1; testcases <= it; --it)
-    avl_erase(&tree, it, less);
+    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), avl_erase(&tree, it, less), sizeof(uintptr_t));
 
   ASSERT_NULL(tree);
 }
