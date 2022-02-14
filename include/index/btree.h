@@ -73,7 +73,7 @@ struct btree_node {
  * @value: the value to insert
  * @less:  operator defining the (partial) node order
  */
-extern void btree_insert(struct btree_node **restrict tree, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
+extern struct btree_node *btree_insert(struct btree_node **restrict tree, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
 
 /**
  * btree_erase - erases @key from @tree
@@ -83,7 +83,7 @@ extern void btree_insert(struct btree_node **restrict tree, const size_t order, 
  * @key:   the key to erase
  * @less:  operator defining the (partial) node order
  */
-extern void btree_erase(struct btree_node **restrict tree, const size_t order, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
+extern void *btree_erase(struct btree_node **restrict tree, const size_t order, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
 
 /**
  * btree_clear - empties @tree

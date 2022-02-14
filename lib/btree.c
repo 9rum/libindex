@@ -70,7 +70,7 @@ static inline size_t __bsearch(const void *restrict key, const void **restrict b
   return lo;
 }
 
-extern void btree_insert(struct btree_node **restrict tree, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
+extern struct btree_node *btree_insert(struct btree_node **restrict tree, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
   register size_t            idx;
   register struct btree_node *tmp;
   register struct btree_node *walk    = *tree;
@@ -79,11 +79,13 @@ extern void btree_insert(struct btree_node **restrict tree, const size_t order, 
 
   while (walk != NULL) {
     if ((idx = __bsearch(key, walk->keys, walk->nmemb, less)) < walk->nmemb &&
-        !(less(key, walk->keys[idx]) || less(walk->keys[idx], key))) { stack_clear(&stack); return; }
+        !(less(key, walk->keys[idx]) || less(walk->keys[idx], key))) { stack_clear(&stack); return NULL; }
     stack_push(&stack, walk);
     stack_push(&stack, (void *)idx);
     walk = walk->children[idx];
   }
+
+  register struct btree_node *node = NULL;
 
   while (!stack_empty(stack)) {
     idx  = (size_t)stack_pop(&stack);
@@ -97,7 +99,7 @@ extern void btree_insert(struct btree_node **restrict tree, const size_t order, 
       walk->values[idx]     = value;
       walk->children[idx+1] = sibling;
       stack_clear(&stack);
-      return;
+      return node == NULL ? walk : node;
     }
 
     tmp = btree_alloc(order+1);
@@ -114,6 +116,10 @@ extern void btree_insert(struct btree_node **restrict tree, const size_t order, 
     sibling        = btree_alloc(order);
     sibling->nmemb = (order-1)>>1;
     walk->nmemb    = order>>1;
+    node           = node != NULL       ? node
+                   : idx == walk->nmemb ? node
+                   : idx < walk->nmemb  ? walk
+                                        : sibling;
     memcpy(walk->keys, tmp->keys, __SIZEOF_POINTER__*walk->nmemb);
     memcpy(sibling->keys, &tmp->keys[walk->nmemb+1], __SIZEOF_POINTER__*sibling->nmemb);
     memcpy(walk->values, tmp->values, __SIZEOF_POINTER__*walk->nmemb);
@@ -125,15 +131,18 @@ extern void btree_insert(struct btree_node **restrict tree, const size_t order, 
     btree_free(tmp);
   }
 
-  *tree                = btree_alloc(order);
-  (*tree)->keys[0]     = key;
-  (*tree)->values[0]   = value;
-  (*tree)->children[0] = walk;
-  (*tree)->children[1] = sibling;
-  (*tree)->nmemb       = 1;
+  tmp              = btree_alloc(order);
+  tmp->keys[0]     = key;
+  tmp->values[0]   = value;
+  tmp->children[0] = walk;
+  tmp->children[1] = sibling;
+  tmp->nmemb       = 1;
+  *tree            = tmp;
+
+  return node == NULL ? tmp : node;
 }
 
-extern void btree_erase(struct btree_node **restrict tree, const size_t order, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
+extern void *btree_erase(struct btree_node **restrict tree, const size_t order, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
   register size_t            idx;
   register struct btree_node *parent;
   register struct btree_node *sibling;
@@ -148,7 +157,9 @@ extern void btree_erase(struct btree_node **restrict tree, const size_t order, c
     walk = walk->children[idx];
   }
 
-  if (walk == NULL) { stack_clear(&stack); return; }
+  if (walk == NULL) { stack_clear(&stack); return NULL; }
+
+  void *erased = walk->values[idx];
 
   if (walk->children[idx] != NULL) {
     parent = walk;
@@ -167,7 +178,7 @@ extern void btree_erase(struct btree_node **restrict tree, const size_t order, c
   memcpy(&walk->values[idx], &walk->values[idx+1], __SIZEOF_POINTER__*(walk->nmemb-idx));
 
   while (!stack_empty(stack)) {
-    if ((order-1)>>1 <= walk->nmemb) { stack_clear(&stack); return; }
+    if ((order-1)>>1 <= walk->nmemb) { stack_clear(&stack); return erased; }
 
     idx     = (size_t)stack_pop(&stack);
     parent  = stack_pop(&stack);
@@ -196,7 +207,7 @@ extern void btree_erase(struct btree_node **restrict tree, const size_t order, c
         memcpy(sibling->values, &sibling->values[1], __SIZEOF_POINTER__*sibling->nmemb);
       }
       stack_clear(&stack);
-      return;
+      return erased;
     }
 
     if (sibling == parent->children[idx-1]) { /* case of node merge */
@@ -226,6 +237,8 @@ extern void btree_erase(struct btree_node **restrict tree, const size_t order, c
   }
 
   if (walk->nmemb == 0) { *tree = walk->children[0]; btree_free(walk); }
+
+  return erased;
 }
 
 extern void btree_clear(struct btree_node **restrict tree) { __btree_clear(*tree); *tree = NULL; }

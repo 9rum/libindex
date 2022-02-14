@@ -42,12 +42,12 @@ CTEST(btree_test, btree_insert_odd_test) {
   const uintptr_t         *it   = testcases;
 
   for (; it < testcases + 39; ++it)
-    btree_insert(&tree, 3, it, NULL, less);
+    ASSERT_NOT_NULL(btree_insert(&tree, 3, it, NULL, less));
 
-  btree_insert(&tree, 3, it++, NULL, less);
+  ASSERT_NULL(btree_insert(&tree, 3, it++, NULL, less));
 
   for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
-    btree_insert(&tree, 3, it, NULL, less);
+    ASSERT_NOT_NULL(btree_insert(&tree, 3, it, NULL, less));
 
   memset(dest, 0, sizeof(dest));
   btree_inorder(tree, concat);
@@ -65,12 +65,12 @@ CTEST(btree_test, btree_erase_odd_test) {
     btree_insert(&tree, 3, it, (uintptr_t *)it, less);
 
   for (; it < testcases + 99; ++it)
-    btree_erase(&tree, 3, it, less);
+    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), btree_erase(&tree, 3, it, less), sizeof(uintptr_t));
 
-  btree_erase(&tree, 3, it++, less);
+  ASSERT_NULL(btree_erase(&tree, 3, it++, less));
 
   for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    btree_erase(&tree, 3, it, less);
+    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), btree_erase(&tree, 3, it, less), sizeof(uintptr_t));
 
   ASSERT_NULL(tree);
 }
@@ -80,12 +80,12 @@ CTEST(btree_test, btree_insert_even_test) {
   const uintptr_t         *it   = testcases;
 
   for (; it < testcases + 39; ++it)
-    btree_insert(&tree, 4, it, NULL, less);
+    ASSERT_NOT_NULL(btree_insert(&tree, 4, it, NULL, less));
 
-  btree_insert(&tree, 4, it++, NULL, less);
+  ASSERT_NULL(btree_insert(&tree, 4, it++, NULL, less));
 
   for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
-    btree_insert(&tree, 4, it, NULL, less);
+    ASSERT_NOT_NULL(btree_insert(&tree, 4, it, NULL, less));
 
   memset(dest, 0, sizeof(dest));
   btree_inorder(tree, concat);
@@ -103,12 +103,12 @@ CTEST(btree_test, btree_erase_even_test) {
     btree_insert(&tree, 4, it, (uintptr_t *)it, less);
 
   for (; it < testcases + 99; ++it)
-    btree_erase(&tree, 4, it, less);
+    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), btree_erase(&tree, 4, it, less), sizeof(uintptr_t));
 
-  btree_erase(&tree, 4, it++, less);
+  ASSERT_NULL(btree_erase(&tree, 4, it++, less));
 
   for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    btree_erase(&tree, 4, it, less);
+    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), btree_erase(&tree, 4, it, less), sizeof(uintptr_t));
 
   ASSERT_NULL(tree);
 }
