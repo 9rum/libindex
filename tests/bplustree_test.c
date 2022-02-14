@@ -43,12 +43,12 @@ CTEST(bplustree_test, bplus_insert_odd_test) {
   const uintptr_t                  *it   = testcases;
 
   for (; it < testcases + 39; ++it)
-    bplus_insert(&tree, &list, 3, it, NULL, less);
+    ASSERT_NOT_NULL(bplus_insert(&tree, &list, 3, it, NULL, less));
 
-  bplus_insert(&tree, &list, 3, it++, NULL, less);
+  ASSERT_NULL(bplus_insert(&tree, &list, 3, it++, NULL, less));
 
   for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
-    bplus_insert(&tree, &list, 3, it, NULL, less);
+    ASSERT_NOT_NULL(bplus_insert(&tree, &list, 3, it, NULL, less));
 
   memset(dest, 0, sizeof(dest));
   bplus_for_each(list, concat);
@@ -68,12 +68,12 @@ CTEST(bplustree_test, bplus_erase_odd_test) {
     bplus_insert(&tree, &list, 3, it, (uintptr_t *)it, less);
 
   for (; it < testcases + 99; ++it)
-    bplus_erase(&tree, &list, 3, it, less);
+    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), bplus_erase(&tree, &list, 3, it, less), sizeof(uintptr_t));
 
-  bplus_erase(&tree, &list, 3, it++, less);
+  ASSERT_NULL(bplus_erase(&tree, &list, 3, it++, less));
 
   for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    bplus_erase(&tree, &list, 3, it, less);
+    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), bplus_erase(&tree, &list, 3, it, less), sizeof(uintptr_t));
 
   ASSERT_NULL(tree);
   ASSERT_NULL(list);
@@ -85,12 +85,12 @@ CTEST(bplustree_test, bplus_insert_even_test) {
   const uintptr_t                  *it   = testcases;
 
   for (; it < testcases + 39; ++it)
-    bplus_insert(&tree, &list, 4, it, NULL, less);
+    ASSERT_NOT_NULL(bplus_insert(&tree, &list, 4, it, NULL, less));
 
-  bplus_insert(&tree, &list, 4, it++, NULL, less);
+  ASSERT_NULL(bplus_insert(&tree, &list, 4, it++, NULL, less));
 
   for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
-    bplus_insert(&tree, &list, 4, it, NULL, less);
+    ASSERT_NOT_NULL(bplus_insert(&tree, &list, 4, it, NULL, less));
 
   memset(dest, 0, sizeof(dest));
   bplus_for_each(list, concat);
@@ -110,12 +110,12 @@ CTEST(bplustree_test, bplus_erase_even_test) {
     bplus_insert(&tree, &list, 4, it, (uintptr_t *)it, less);
 
   for (; it < testcases + 99; ++it)
-    bplus_erase(&tree, &list, 4, it, less);
+    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), bplus_erase(&tree, &list, 4, it, less), sizeof(uintptr_t));
 
-  bplus_erase(&tree, &list, 4, it++, less);
+  ASSERT_NULL(bplus_erase(&tree, &list, 4, it++, less));
 
   for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    bplus_erase(&tree, &list, 4, it, less);
+    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), bplus_erase(&tree, &list, 4, it, less), sizeof(uintptr_t));
 
   ASSERT_NULL(tree);
   ASSERT_NULL(list);

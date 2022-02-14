@@ -92,7 +92,7 @@ struct bplus_external_node {
  * @value: the value to insert
  * @less:  operator defining the (partial) node order
  */
-extern void bplus_insert(struct bplus_internal_node **restrict tree, struct bplus_external_node **restrict list, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
+extern struct bplus_external_node *bplus_insert(struct bplus_internal_node **restrict tree, struct bplus_external_node **restrict list, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
 
 /**
  * bplus_erase - erases @key from @tree and @list
@@ -103,7 +103,7 @@ extern void bplus_insert(struct bplus_internal_node **restrict tree, struct bplu
  * @key:   the key to erase
  * @less:  operator defining the (partial) node order
  */
-extern void bplus_erase(struct bplus_internal_node **restrict tree, struct bplus_external_node **restrict list, const size_t order, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
+extern void *bplus_erase(struct bplus_internal_node **restrict tree, struct bplus_external_node **restrict list, const size_t order, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
 
 /**
  * bplus_clear - empties @tree and @list
