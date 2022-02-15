@@ -83,6 +83,16 @@ struct bplus_external_node {
  */
 
 /**
+ * bplus_find - finds element from @tree and @list with @key
+ *
+ * @tree: tree to find element from
+ * @list: list to find element from
+ * @key:  the key to search for
+ * @less: operator defining the (partial) node order
+ */
+extern void *bplus_find(const struct bplus_internal_node *restrict tree, const struct bplus_external_node *restrict list, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
+
+/**
  * bplus_insert - inserts @key and @value into @tree and @list
  *
  * @tree:  tree to insert @key and @value into
@@ -93,6 +103,18 @@ struct bplus_external_node {
  * @less:  operator defining the (partial) node order
  */
 extern struct bplus_external_node *bplus_insert(struct bplus_internal_node **restrict tree, struct bplus_external_node **restrict list, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
+
+/**
+ * bplus_insert_or_assign - inserts @key and @value into @tree and @list or assigns @value if @key already exists
+ *
+ * @tree:  tree to insert @key and @value into
+ * @list:  list to insert @key and @value into
+ * @order: order of B+-tree
+ * @key:   the key to insert if not found
+ * @value: the value to insert or assign
+ * @less:  operator defining the (partial) node order
+ */
+extern struct bplus_external_node *bplus_insert_or_assign(struct bplus_internal_node **restrict tree, struct bplus_external_node **restrict list, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
 
 /**
  * bplus_erase - erases @key from @tree and @list
@@ -106,10 +128,10 @@ extern struct bplus_external_node *bplus_insert(struct bplus_internal_node **res
 extern void *bplus_erase(struct bplus_internal_node **restrict tree, struct bplus_external_node **restrict list, const size_t order, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
 
 /**
- * bplus_clear - empties @tree and @list
+ * bplus_clear - clears @tree and @list
  *
- * @tree: tree to empty
- * @list: list to empty
+ * @tree: tree to clear
+ * @list: list to clear
  */
 extern void bplus_clear(struct bplus_internal_node **restrict tree, struct bplus_external_node **restrict list);
 
