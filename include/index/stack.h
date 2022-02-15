@@ -73,9 +73,9 @@ static inline void *stack_pop(struct stack **restrict stack) {
 }
 
 /**
- * stack_clear - empties @stack
+ * stack_clear - clears @stack
  *
- * @stack: stack to empty
+ * @stack: stack to clear
  */
 static inline void stack_clear(struct stack **restrict stack) {
   register struct stack *top;

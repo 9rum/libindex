@@ -68,6 +68,25 @@ struct avl_node {
  */
 
 /**
+ * avl_find - finds element from @tree with @key
+ *
+ * @tree: tree to find element from
+ * @key:  the key to search for
+ * @less: operator defining the (partial) node order
+ */
+static inline void *avl_find(const struct avl_node *restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
+  register const struct avl_node *walk = tree;
+
+  while (walk != NULL) {
+    if (less(key, walk->key))      walk = walk->left;
+    else if (less(walk->key, key)) walk = walk->right;
+    else                           return walk->value;
+  }
+
+  return NULL;
+}
+
+/**
  * avl_insert - inserts @key and @value into @tree
  *
  * @tree:  tree to insert @key and @value into
@@ -76,6 +95,16 @@ struct avl_node {
  * @less:  operator defining the (partial) node order
  */
 extern struct avl_node *avl_insert(struct avl_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
+
+/**
+ * avl_insert_or_assign - inserts @key and @value into @tree or assigns @value if @key already exists
+ *
+ * @tree:  tree to insert @key and @value into
+ * @key:   the key to insert if not found
+ * @value: the value to insert or assign
+ * @less:  operator defining the (partial) node order
+ */
+extern struct avl_node *avl_insert_or_assign(struct avl_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
 
 /**
  * avl_erase - erases @key from @tree
@@ -87,9 +116,9 @@ extern struct avl_node *avl_insert(struct avl_node **restrict tree, const void *
 extern void *avl_erase(struct avl_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
 
 /**
- * avl_clear - empties @tree
+ * avl_clear - clears @tree
  *
- * @tree: tree to empty
+ * @tree: tree to clear
  */
 extern void avl_clear(struct avl_node **restrict tree);
 

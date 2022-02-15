@@ -62,9 +62,9 @@ static inline void avl_rotate_right(struct avl_node **restrict root, struct avl_
 }
 
 /**
- * __avl_clear - empties @tree
+ * __avl_clear - clears @tree
  *
- * @tree: tree to empty
+ * @tree: tree to clear
  */
 static inline void __avl_clear(struct avl_node *restrict tree) { if (tree != NULL) { __avl_clear(tree->left); __avl_clear(tree->right); free(tree); } }
 
@@ -78,6 +78,72 @@ extern struct avl_node *avl_insert(struct avl_node **restrict tree, const void *
     if (less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
     else if (less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
     else                           { stack_clear(&stack); return NULL; }
+  }
+
+  struct avl_node *node = avl_alloc();
+  node->key             = key;
+  node->value           = value;
+
+  if ((parent = stack_top(stack)) == NULL) *tree         = node;
+  else if (less(key, parent->key))         parent->left  = node;
+  else                                     parent->right = node;
+
+  while (!stack_empty(stack)) {
+    walk         = stack_pop(&stack);
+    walk->height = 1 + max(avl_height(walk->left), avl_height(walk->right));
+    if (1 + avl_height(walk->right) < avl_height(walk->left) || 1 + avl_height(walk->left) < avl_height(walk->right)) {
+      unbalanced = walk;
+      parent     = stack_top(stack);
+      break;
+    }
+  }
+
+  if (unbalanced != NULL) {
+    if (1 + avl_height(unbalanced->right) < avl_height(unbalanced->left)) {
+      if (avl_height(unbalanced->left->left) < avl_height(unbalanced->left->right)) {   /* case of Left Right */
+        stack_push(&stack, unbalanced->left->right);
+        stack_push(&stack, unbalanced->left);
+        stack_push(&stack, unbalanced);
+        avl_rotate_left(tree, unbalanced->left, unbalanced);
+        avl_rotate_right(tree, unbalanced, parent);
+      } else {                                                                          /* case of Left Left */
+        stack_push(&stack, unbalanced->left);
+        stack_push(&stack, unbalanced);
+        avl_rotate_right(tree, unbalanced, parent);
+      }
+    } else {
+      if (avl_height(unbalanced->right->right) < avl_height(unbalanced->right->left)) { /* case of Right Left */
+        stack_push(&stack, unbalanced->right->left);
+        stack_push(&stack, unbalanced->right);
+        stack_push(&stack, unbalanced);
+        avl_rotate_right(tree, unbalanced->right, unbalanced);
+        avl_rotate_left(tree, unbalanced, parent);
+      } else {                                                                          /* case of Right Right */
+        stack_push(&stack, unbalanced->right);
+        stack_push(&stack, unbalanced);
+        avl_rotate_left(tree, unbalanced, parent);
+      }
+    }
+
+    while (!stack_empty(stack)) {
+      walk         = stack_pop(&stack);
+      walk->height = 1 + max(avl_height(walk->left), avl_height(walk->right));
+    }
+  }
+
+  return node;
+}
+
+extern struct avl_node *avl_insert_or_assign(struct avl_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
+           struct avl_node *parent;
+  register struct avl_node *walk       = *tree;
+           struct avl_node *unbalanced = NULL;
+           struct stack    *stack      = NULL;
+
+  while (walk != NULL) {
+    if (less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
+    else if (less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
+    else                           { stack_clear(&stack); walk->value = value; return walk; }
   }
 
   struct avl_node *node = avl_alloc();

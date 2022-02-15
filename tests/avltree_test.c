@@ -22,11 +22,41 @@ bool less(const void *restrict a, const void *restrict b) { return *(uintptr_t *
 
 void concat(const void *restrict key, void *restrict value) { sprintf(src, "%" PRIuPTR, *(uintptr_t *)key); strcat(dest, src); }
 
+CTEST(avltree_test, avl_find_test) {
+  struct avl_node *tree = NULL;
+
+  for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
+    avl_insert(&tree, it, (uintptr_t *)it, less);
+
+  for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
+    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), avl_find(tree, it, less), sizeof(uintptr_t));
+
+  avl_clear(&tree);
+  ASSERT_NULL(tree);
+}
+
 CTEST(avltree_test, avl_insert_test) {
   struct avl_node *tree = NULL;
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
     ASSERT_NOT_NULL(avl_insert(&tree, it, NULL, less));
+
+  memset(dest, 0, sizeof(dest));
+  avl_inorder(tree, concat);
+  ASSERT_STR("1011202225303340444950556066707780889099", dest);
+
+  avl_clear(&tree);
+  ASSERT_NULL(tree);
+}
+
+CTEST(avltree_test, avl_insert_or_assign_test) {
+  struct avl_node *tree = NULL;
+
+  for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
+    ASSERT_NOT_NULL(avl_insert_or_assign(&tree, it, NULL, less));
+
+  for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
+    ASSERT_NOT_NULL(avl_insert_or_assign(&tree, it, (uintptr_t *)it, less));
 
   memset(dest, 0, sizeof(dest));
   avl_inorder(tree, concat);
