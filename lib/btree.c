@@ -35,9 +35,9 @@ static inline void btree_free(struct btree_node *restrict node) {
 }
 
 /**
- * __btree_clear - empties @tree
+ * __btree_clear - clears @tree
  *
- * @tree: tree to empty
+ * @tree: tree to clear
  */
 static inline void __btree_clear(struct btree_node *restrict tree) {
   if (tree != NULL) {
@@ -70,6 +70,19 @@ static inline size_t __bsearch(const void *restrict key, const void **restrict b
   return lo;
 }
 
+extern void *btree_find(const struct btree_node *restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
+  register       size_t            idx;
+  register const struct btree_node *walk = tree;
+
+  while (walk != NULL) {
+    if ((idx = __bsearch(key, walk->keys, walk->nmemb, less)) < walk->nmemb &&
+        !(less(key, walk->keys[idx]) || less(walk->keys[idx], key))) return walk->values[idx];
+    walk = walk->children[idx];
+  }
+
+  return NULL;
+}
+
 extern struct btree_node *btree_insert(struct btree_node **restrict tree, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
   register size_t            idx;
   register struct btree_node *tmp;
@@ -80,6 +93,78 @@ extern struct btree_node *btree_insert(struct btree_node **restrict tree, const 
   while (walk != NULL) {
     if ((idx = __bsearch(key, walk->keys, walk->nmemb, less)) < walk->nmemb &&
         !(less(key, walk->keys[idx]) || less(walk->keys[idx], key))) { stack_clear(&stack); return NULL; }
+    stack_push(&stack, walk);
+    stack_push(&stack, (void *)idx);
+    walk = walk->children[idx];
+  }
+
+  register struct btree_node *node = NULL;
+
+  while (!stack_empty(stack)) {
+    idx  = (size_t)stack_pop(&stack);
+    walk = stack_pop(&stack);
+
+    if (walk->nmemb < order-1) {
+      memcpy(&walk->keys[idx+1], &walk->keys[idx], __SIZEOF_POINTER__*(walk->nmemb-idx));
+      memcpy(&walk->values[idx+1], &walk->values[idx], __SIZEOF_POINTER__*(walk->nmemb-idx));
+      memcpy(&walk->children[idx+2], &walk->children[idx+1], __SIZEOF_POINTER__*(walk->nmemb++-idx));
+      walk->keys[idx]       = key;
+      walk->values[idx]     = value;
+      walk->children[idx+1] = sibling;
+      stack_clear(&stack);
+      return node == NULL ? walk : node;
+    }
+
+    tmp = btree_alloc(order+1);
+    memcpy(tmp->keys, walk->keys, __SIZEOF_POINTER__*idx);
+    memcpy(&tmp->keys[idx+1], &walk->keys[idx], __SIZEOF_POINTER__*(walk->nmemb-idx));
+    memcpy(tmp->values, walk->values, __SIZEOF_POINTER__*idx);
+    memcpy(&tmp->values[idx+1], &walk->values[idx], __SIZEOF_POINTER__*(walk->nmemb-idx));
+    memcpy(tmp->children, walk->children, __SIZEOF_POINTER__*(idx+1));
+    memcpy(&tmp->children[idx+2], &walk->children[idx+1], __SIZEOF_POINTER__*(walk->nmemb-idx));
+    tmp->keys[idx]       = key;
+    tmp->values[idx]     = value;
+    tmp->children[idx+1] = sibling;
+
+    sibling        = btree_alloc(order);
+    sibling->nmemb = (order-1)>>1;
+    walk->nmemb    = order>>1;
+    node           = node != NULL       ? node
+                   : idx == walk->nmemb ? node
+                   : idx < walk->nmemb  ? walk
+                                        : sibling;
+    memcpy(walk->keys, tmp->keys, __SIZEOF_POINTER__*walk->nmemb);
+    memcpy(sibling->keys, &tmp->keys[walk->nmemb+1], __SIZEOF_POINTER__*sibling->nmemb);
+    memcpy(walk->values, tmp->values, __SIZEOF_POINTER__*walk->nmemb);
+    memcpy(sibling->values, &tmp->values[walk->nmemb+1], __SIZEOF_POINTER__*sibling->nmemb);
+    memcpy(walk->children, tmp->children, __SIZEOF_POINTER__*(walk->nmemb+1));
+    memcpy(sibling->children, &tmp->children[walk->nmemb+1], __SIZEOF_POINTER__*(sibling->nmemb+1));
+    key   = tmp->keys[walk->nmemb];
+    value = tmp->values[walk->nmemb];
+    btree_free(tmp);
+  }
+
+  tmp              = btree_alloc(order);
+  tmp->keys[0]     = key;
+  tmp->values[0]   = value;
+  tmp->children[0] = walk;
+  tmp->children[1] = sibling;
+  tmp->nmemb       = 1;
+  *tree            = tmp;
+
+  return node == NULL ? tmp : node;
+}
+
+extern struct btree_node *btree_insert_or_assign(struct btree_node **restrict tree, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
+  register size_t            idx;
+  register struct btree_node *tmp;
+  register struct btree_node *walk    = *tree;
+  register struct btree_node *sibling = NULL;
+           struct stack      *stack   = NULL;
+
+  while (walk != NULL) {
+    if ((idx = __bsearch(key, walk->keys, walk->nmemb, less)) < walk->nmemb &&
+        !(less(key, walk->keys[idx]) || less(walk->keys[idx], key))) { stack_clear(&stack); walk->values[idx] = value; return walk; }
     stack_push(&stack, walk);
     stack_push(&stack, (void *)idx);
     walk = walk->children[idx];

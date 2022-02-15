@@ -65,6 +65,15 @@ struct btree_node {
  */
 
 /**
+ * btree_find - finds element from @tree with @key
+ *
+ * @tree: tree to find element from
+ * @key:  the key to search for
+ * @less: operator defining the (partial) node order
+ */
+extern void *btree_find(const struct btree_node *restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
+
+/**
  * btree_insert - inserts @key and @value into @tree
  *
  * @tree:  tree to insert @key and @value into
@@ -74,6 +83,17 @@ struct btree_node {
  * @less:  operator defining the (partial) node order
  */
 extern struct btree_node *btree_insert(struct btree_node **restrict tree, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
+
+/**
+ * btree_insert_or_assign - inserts @key and @value into @tree or assigns @value if @key already exists
+ *
+ * @tree:  tree to insert @key and @value into
+ * @order: order of B-tree
+ * @key:   the key to insert if not found
+ * @value: the value to insert or assign
+ * @less:  operator defining the (partial) node order
+ */
+extern struct btree_node *btree_insert_or_assign(struct btree_node **restrict tree, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
 
 /**
  * btree_erase - erases @key from @tree
@@ -86,9 +106,9 @@ extern struct btree_node *btree_insert(struct btree_node **restrict tree, const 
 extern void *btree_erase(struct btree_node **restrict tree, const size_t order, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
 
 /**
- * btree_clear - empties @tree
+ * btree_clear - clears @tree
  *
- * @tree: tree to empty
+ * @tree: tree to clear
  */
 extern void btree_clear(struct btree_node **restrict tree);
 
