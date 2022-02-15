@@ -53,9 +53,9 @@ static inline void rb_rotate_right(struct rb_node **restrict root, struct rb_nod
 }
 
 /**
- * __rb_clear - empties @tree
+ * __rb_clear - clears @tree
  *
- * @tree: tree to empty
+ * @tree: tree to clear
  */
 static inline void __rb_clear(struct rb_node *restrict tree) { if (tree != NULL) { __rb_clear(tree->left); __rb_clear(tree->right); free(tree); } }
 
@@ -123,6 +123,75 @@ extern struct rb_node *rb_insert(struct rb_node **restrict tree, const void *res
   }
 
   (*tree)->color = true;
+
+  return node;
+}
+
+extern struct rb_node *rb_insert_or_assign(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
+  register struct rb_node *parent;
+  register struct rb_node *gparent;
+  register struct rb_node *uncle;
+  register struct rb_node *walk  = *tree;
+           struct stack   *stack = NULL;
+
+  while (walk != NULL) {
+    if (less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
+    else if (less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
+    else                           { stack_clear(&stack); walk->value = value; return walk; }
+  }
+
+  struct rb_node *node = rb_alloc();
+  node->key            = key;
+  node->value          = value;
+  walk                 = node;
+
+  if ((parent = stack_top(stack)) == NULL) *tree         = node;
+  else if (less(key, parent->key))         parent->left  = node;
+  else                                     parent->right = node;
+
+  while (!stack_empty(stack)) {
+    if ((parent = stack_pop(&stack))->color) { stack_clear(&stack); return node; }
+
+    gparent = stack_pop(&stack);
+    uncle   = gparent->right == parent ? gparent->left : gparent->right;
+
+    if (uncle == NULL || uncle->color) { /* case of rearranging */
+      if (gparent->left == parent) {
+        if (parent->left == walk) {      /* case of Left Left */
+          parent->color  = true;
+          gparent->color = false;
+          rb_rotate_right(tree, gparent, stack_top(stack));
+        } else {                         /* case of Left Right */
+          walk->color    = true;
+          gparent->color = false;
+          rb_rotate_left(tree, parent, gparent);
+          rb_rotate_right(tree, gparent, stack_top(stack));
+        }
+      } else {
+        if (parent->left == walk) {      /* case of Right Left */
+          walk->color    = true;
+          gparent->color = false;
+          rb_rotate_right(tree, parent, gparent);
+          rb_rotate_left(tree, gparent, stack_top(stack));
+        } else {                         /* case of Right Right */
+          parent->color  = true;
+          gparent->color = false;
+          rb_rotate_left(tree, gparent, stack_top(stack));
+        }
+      }
+
+      stack_clear(&stack);
+      return node;
+    }
+
+    parent->color  = true;               /* case of recoloring */
+    uncle->color   = true;
+    gparent->color = false;
+    walk           = gparent;
+  }
+
+  (*tree)->color = true;
+
   return node;
 }
 

@@ -68,6 +68,25 @@ struct rb_node {
  */
 
 /**
+ * rb_find - finds element from @tree with @key
+ *
+ * @tree: tree to find element from
+ * @key:  the key to search for
+ * @less: operator defining the (partial) node order
+ */
+static inline void *rb_find(const struct rb_node *restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
+  register const struct rb_node *walk = tree;
+
+  while (walk != NULL) {
+    if (less(key, walk->key))      walk = walk->left;
+    else if (less(walk->key, key)) walk = walk->right;
+    else                           return walk->value;
+  }
+
+  return NULL;
+}
+
+/**
  * rb_insert - inserts @key and @value into @tree
  *
  * @tree:  tree to insert @key and @value into
@@ -76,6 +95,16 @@ struct rb_node {
  * @less:  operator defining the (partial) node order
  */
 extern struct rb_node *rb_insert(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
+
+/**
+ * rb_insert_or_assign - inserts @key and @value into @tree or assigns @value if @key already exists
+ *
+ * @tree:  tree to insert @key and @value into
+ * @key:   the key to insert if not found
+ * @value: the value to insert or assign
+ * @less:  operator defining the (partial) node order
+ */
+extern struct rb_node *rb_insert_or_assign(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
 
 /**
  * rb_erase - erases @key from @tree
@@ -87,9 +116,9 @@ extern struct rb_node *rb_insert(struct rb_node **restrict tree, const void *res
 extern void *rb_erase(struct rb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
 
 /**
- * rb_clear - empties @tree
+ * rb_clear - clears @tree
  *
- * @tree: tree to empty
+ * @tree: tree to clear
  */
 extern void rb_clear(struct rb_node **restrict tree);
 

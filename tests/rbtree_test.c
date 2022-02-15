@@ -22,11 +22,41 @@ bool less(const void *restrict a, const void *restrict b) { return *(uintptr_t *
 
 void concat(const void *restrict key, void *restrict value) { sprintf(src, "%" PRIuPTR, *(uintptr_t *)key); strcat(dest, src); }
 
+CTEST(rbtree_test, rb_find_test) {
+  struct rb_node *tree = NULL;
+
+  for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
+    rb_insert(&tree, it, (uintptr_t *)it, less);
+
+  for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
+    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), rb_find(tree, it, less), sizeof(uintptr_t));
+
+  rb_clear(&tree);
+  ASSERT_NULL(tree);
+}
+
 CTEST(rbtree_test, rb_insert_test) {
   struct rb_node *tree = NULL;
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
     ASSERT_NOT_NULL(rb_insert(&tree, it, NULL, less));
+
+  memset(dest, 0, sizeof(dest));
+  rb_inorder(tree, concat);
+  ASSERT_STR("1011202225303340444950556066707780889099", dest);
+
+  rb_clear(&tree);
+  ASSERT_NULL(tree);
+}
+
+CTEST(rbtree_test, rb_insert_or_assign_test) {
+  struct rb_node *tree = NULL;
+
+  for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
+    ASSERT_NOT_NULL(rb_insert_or_assign(&tree, it, NULL, less));
+
+  for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
+    ASSERT_NOT_NULL(rb_insert_or_assign(&tree, it, (uintptr_t *)it, less));
 
   memset(dest, 0, sizeof(dest));
   rb_inorder(tree, concat);
