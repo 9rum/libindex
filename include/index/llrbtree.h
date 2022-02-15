@@ -54,6 +54,25 @@ struct llrb_node {
  */
 
 /**
+ * llrb_find - finds element from @tree with @key
+ *
+ * @tree: tree to find element from
+ * @key:  the key to search for
+ * @less: operator defining the (partial) node order
+ */
+static inline void *llrb_find(const struct llrb_node *restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
+  register const struct llrb_node *walk = tree;
+
+  while (walk != NULL) {
+    if (less(key, walk->key))      walk = walk->left;
+    else if (less(walk->key, key)) walk = walk->right;
+    else                           return walk->value;
+  }
+
+  return NULL;
+}
+
+/**
  * llrb_insert - inserts @key and @value into @tree
  *
  * @tree:  tree to insert @key and @value into
@@ -62,6 +81,16 @@ struct llrb_node {
  * @less:  operator defining the (partial) node order
  */
 extern struct llrb_node *llrb_insert(struct llrb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
+
+/**
+ * llrb_insert_or_assign - inserts @key and @value into @tree or assigns @value if @key already exists
+ *
+ * @tree:  tree to insert @key and @value into
+ * @key:   the key to insert if not found
+ * @value: the value to insert or assign
+ * @less:  operator defining the (partial) node order
+ */
+extern struct llrb_node *llrb_insert_or_assign(struct llrb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
 
 /**
  * llrb_erase - erases @key from @tree
@@ -73,9 +102,9 @@ extern struct llrb_node *llrb_insert(struct llrb_node **restrict tree, const voi
 extern void *llrb_erase(struct llrb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
 
 /**
- * llrb_clear - empties @tree
+ * llrb_clear - clears @tree
  *
- * @tree: tree to empty
+ * @tree: tree to clear
  */
 extern void llrb_clear(struct llrb_node **restrict tree);
 

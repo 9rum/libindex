@@ -109,9 +109,9 @@ static inline struct llrb_node *llrb_move_red_right(struct llrb_node **restrict 
 }
 
 /**
- * __llrb_clear - empties @tree
+ * __llrb_clear - clears @tree
  *
- * @tree: tree to empty
+ * @tree: tree to clear
  */
 static inline void __llrb_clear(struct llrb_node *restrict tree) { if (tree != NULL) { __llrb_clear(tree->left); __llrb_clear(tree->right); free(tree); } }
 
@@ -144,6 +144,40 @@ extern struct llrb_node *llrb_insert(struct llrb_node **restrict tree, const voi
   }
 
   (*tree)->color = true;
+
+  return node;
+}
+
+extern struct llrb_node *llrb_insert_or_assign(struct llrb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
+  register struct llrb_node *parent;
+  register struct llrb_node *walk  = *tree;
+           struct stack     *stack = NULL;
+
+  while (walk != NULL) {
+    if (less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
+    else if (less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
+    else                           { stack_clear(&stack); walk->value = value; return walk; }
+  }
+
+  struct llrb_node *node = llrb_alloc();
+  node->key              = key;
+  node->value            = value;
+
+  if ((parent = stack_top(stack)) == NULL) *tree         = node;
+  else if (less(key, parent->key))         parent->left  = node;
+  else                                     parent->right = node;
+
+  while (!stack_empty(stack)) {
+    walk   = stack_pop(&stack);
+    parent = stack_top(stack);
+
+    if (llrb_is_red(walk->right))                                 walk = llrb_rotate_left(tree, walk, parent);  /* case of right-leaning red */
+    if (llrb_is_red(walk->left) && llrb_is_red(walk->left->left)) walk = llrb_rotate_right(tree, walk, parent); /* case of double reds */
+    if (llrb_is_red(walk->left) && llrb_is_red(walk->right))      llrb_flip(walk);                              /* case of 4-node */
+  }
+
+  (*tree)->color = true;
+
   return node;
 }
 
@@ -206,6 +240,7 @@ extern void *llrb_erase(struct llrb_node **restrict tree, const void *restrict k
   }
 
   if (*tree != NULL) (*tree)->color = true;
+
   return erased;
 }
 
