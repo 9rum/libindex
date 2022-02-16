@@ -11,40 +11,46 @@ This library is a stack-based in-memory implementation of five widely-used balan
 
 Building the Index library
 --------------------------
-You should have `GNU Autotools`_ already installed on your machine, before generating Makefile.
+
+| You should have `GNU Autotools`_ already installed on your machine, before generating Makefile.
+| Run the following commands:
+
+.. code-block::
+
+  $ autoreconf --install
+  $ ./configure
+  $ make
 
 .. _`GNU Autotools`: https://www.gnu.org/software/automake/manual/html_node/index.html
 
-Run the following commands::
-
-    $ autoreconf --install
-    $ ./configure
-    $ make
-
 Running tests
 -------------
+
 Use ``make check``.
 
 Installing the Index library
 ----------------------------
+
 Use ``make install``.
 
 Documentation
 -------------
+
 There are several guides for users. Please read `doc/README.rst`_ first.
 
 .. _`doc/README.rst`: https://github.com/9rum/libindex/blob/master/doc/README.rst
 
 License
 -------
-The Index library is distributed under the terms of the GNU Lesser General Public License, version 2.1;
 
-see `COPYING`_ for the full license text.
+| The Index library is distributed under the terms of the GNU Lesser General Public License, version 2.1;
+| see `COPYING`_ for the full license text.
 
 .. _`COPYING`: https://github.com/9rum/libindex/blob/master/COPYING
 
 References
 ----------
+
 * `Keller, Stack und automatisches Gedächtnis – eine Struktur mit Potenzial`_
 * `An algorithm for the organization of information`_
 * `Symmetric Binary B-Trees: Data Structure and Algorithms for Random and Sequential Information Processing`_
