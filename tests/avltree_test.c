@@ -4,6 +4,10 @@
  *
  * avltree_test.c - generic AVL tree unit test
  */
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200809L
+#endif
+
 #define CTEST_MAIN
 #define CTEST_SEGFAULT
 #define CTEST_COLOR_OK
