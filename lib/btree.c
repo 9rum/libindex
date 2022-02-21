@@ -71,13 +71,12 @@ static inline size_t __bsearch(const void *restrict key, const void **restrict b
 }
 
 extern void *btree_find(const struct btree_node *restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
-  register       size_t            idx;
-  register const struct btree_node *walk = tree;
+  register size_t idx;
 
-  while (walk != NULL) {
-    if ((idx = __bsearch(key, walk->keys, walk->nmemb, less)) < walk->nmemb &&
-        !(less(key, walk->keys[idx]) || less(walk->keys[idx], key))) return walk->values[idx];
-    walk = walk->children[idx];
+  while (tree != NULL) {
+    if ((idx = __bsearch(key, tree->keys, tree->nmemb, less)) < tree->nmemb &&
+        !(less(key, tree->keys[idx]) || less(tree->keys[idx], key))) return tree->values[idx];
+    tree = tree->children[idx];
   }
 
   return NULL;

@@ -111,20 +111,18 @@ static inline size_t __bsearch(const void *restrict key, const void **restrict b
 }
 
 extern void *bplus_find(const struct bplus_internal_node *restrict tree, const struct bplus_external_node *restrict list, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
-  register       size_t                     idx;
-  register const struct bplus_internal_node *walk = tree;
-           const struct bplus_external_node *node = list;
+  register size_t idx;
 
-  while (walk != NULL) {
-    idx = __bsearch(key, walk->keys, walk->nmemb, less);
-    if (walk->type) node = walk->children[idx], walk = NULL;
-    else            walk = walk->children[idx];
+  while (tree != NULL) {
+    idx = __bsearch(key, tree->keys, tree->nmemb, less);
+    if (tree->type) list = tree->children[idx], tree = NULL;
+    else            tree = tree->children[idx];
   }
 
-  if (node == NULL) return NULL;
+  if (list == NULL) return NULL;
 
-  if ((idx = __bsearch(key, node->keys, node->nmemb, less)) < node->nmemb &&
-      !(less(key, node->keys[idx]) || less(node->keys[idx], key))) return node->values[idx];
+  if ((idx = __bsearch(key, list->keys, list->nmemb, less)) < list->nmemb &&
+      !(less(key, list->keys[idx]) || less(list->keys[idx], key))) return list->values[idx];
 
   return NULL;
 }
