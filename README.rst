@@ -1,7 +1,7 @@
 Index library
 =============
 
-This library is a stack-based in-memory implementation of five widely-used balanced search trees for making efficient data index. *i.e.*
+This library is a stack-based in-memory implementation of five widely-used search trees for making efficient data index. *i.e.*
 
 * AVL tree
 * Red-black tree
