@@ -75,12 +75,10 @@ struct avl_node {
  * @less: operator defining the (partial) node order
  */
 static inline void *avl_find(const struct avl_node *restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
-  register const struct avl_node *walk = tree;
-
-  while (walk != NULL) {
-    if (less(key, walk->key))      walk = walk->left;
-    else if (less(walk->key, key)) walk = walk->right;
-    else                           return walk->value;
+  while (tree != NULL) {
+    if (less(key, tree->key))      tree = tree->left;
+    else if (less(tree->key, key)) tree = tree->right;
+    else                           return tree->value;
   }
 
   return NULL;

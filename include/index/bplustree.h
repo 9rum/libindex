@@ -142,9 +142,9 @@ extern void bplus_clear(struct bplus_internal_node **restrict tree, struct bplus
  * @func: function to apply to each node of @list
  */
 static inline void bplus_for_each(const struct bplus_external_node *restrict list, void (*func)(const void *restrict, void *restrict)) {
-  for (const struct bplus_external_node *node = list; node != NULL; node = node->next)
-    for (size_t idx = 0; idx < node->nmemb; ++idx)
-      func(node->keys[idx], node->values[idx]);
+  for (; list != NULL; list = list->next)
+    for (size_t idx = 0; idx < list->nmemb; ++idx)
+      func(list->keys[idx], list->values[idx]);
 }
 
 #endif /* _INDEX_BPLUSTREE_H */
