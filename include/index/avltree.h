@@ -52,6 +52,12 @@ struct avl_node {
         size_t          height;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
+struct avl_root {
+  struct avl_node *root;
+  bool           (*less)(const void *restrict, const void *restrict);
+  size_t          size;
+} __attribute__((aligned(__SIZEOF_POINTER__)));
+
 /*
  * The below functions use the operator with 3 different
  * calling conventions. The operator denotes:
@@ -66,6 +72,20 @@ struct avl_node {
  *  - if both less(a, b) and less(b, c) are true, then less(a, c) must be true as well
  *  - if both less(a, b) and less(b, c) are false, then less(a, c) must be false as well
  */
+
+/**
+ * avl_init - initializes an empty tree with @less
+ *
+ * @less: operator defining the (partial) node order
+ */
+static inline struct avl_root avl_init(bool (*less)(const void *restrict, const void *restrict)) {
+  struct avl_root tree = {
+    .root = NULL,
+    .less = less,
+    .size = 0,
+  };
+  return tree;
+}
 
 /**
  * avl_find - finds element from @tree with @key
