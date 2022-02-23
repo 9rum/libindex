@@ -37,7 +37,7 @@ const uintptr_t testcases[] = {
   61, 62, 64, 69, 67, 65, 54, 59, 58, 51,
 };
 
-bool less(const void *restrict a, const void *restrict b) { return *(uintptr_t *)a < *(uintptr_t *)b; }
+bool less(const void *restrict lhs, const void *restrict rhs) { return *(uintptr_t *)lhs < *(uintptr_t *)rhs; }
 
 void concat(const void *restrict key, void *restrict value) { sprintf(src, "%" PRIuPTR, *(uintptr_t *)key); strcat(dest, src); }
 
