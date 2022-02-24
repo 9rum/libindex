@@ -20,7 +20,7 @@
 
     ``struct avl_node`` and ``struct avl_root``
 
-        | These data structures represent a node and the metadata of AVL tree respectively.
+        | These structures represent a node and the root of an AVL tree respectively.
 
     The below function uses the operator with 3 different calling conventions. The operator denotes:
 

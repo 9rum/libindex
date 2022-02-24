@@ -21,7 +21,7 @@
 
     ``struct rb_node`` and ``struct rb_root``
 
-        | These data structures represent a node and the metadata of red-black tree respectively.
+        | These structures represent a node and the root of a red-black tree respectively.
 
     The below function uses the operator with 3 different calling conventions. The operator denotes:
 
