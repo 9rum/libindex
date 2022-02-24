@@ -8,10 +8,15 @@
 #include <index/stack.h>
 
 /**
- * llrb_alloc - allocates a node
+ * llrb_alloc - allocates a node with @key and @value
+ *
+ * @key:   the key of the node
+ * @value: the value of the node
  */
-static inline struct llrb_node *llrb_alloc(void) {
+static inline struct llrb_node *llrb_alloc(const void *restrict key, void *restrict value) {
   struct llrb_node *node = malloc(sizeof(struct llrb_node));
+  node->key              = key;
+  node->value            = value;
   node->left             = NULL;
   node->right            = NULL;
   node->color            = false;
@@ -108,111 +113,113 @@ static inline struct llrb_node *llrb_move_red_right(struct llrb_node **restrict 
   return node;
 }
 
-/**
- * __llrb_clear - clears @tree
- *
- * @tree: tree to clear
- */
 static inline void __llrb_clear(struct llrb_node *restrict tree) { if (tree != NULL) { __llrb_clear(tree->left); __llrb_clear(tree->right); free(tree); } }
 
-extern struct llrb_node *llrb_insert(struct llrb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
+static inline void __llrb_preorder(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { func(tree->key, tree->value); __llrb_preorder(tree->left, func); __llrb_preorder(tree->right, func); } }
+
+static inline void __llrb_inorder(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __llrb_inorder(tree->left, func); func(tree->key, tree->value); __llrb_inorder(tree->right, func); } }
+
+static inline void __llrb_postorder(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __llrb_postorder(tree->left, func); __llrb_postorder(tree->right, func); func(tree->key, tree->value); } }
+
+extern struct llrb_node *llrb_insert(struct llrb_root *restrict tree, const void *restrict key, void *restrict value) {
   register struct llrb_node *parent;
-  register struct llrb_node *walk  = *tree;
+  register struct llrb_node *walk  = tree->root;
            struct stack     *stack = NULL;
 
   while (walk != NULL) {
-    if (less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
-    else if (less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
-    else                           { stack_clear(&stack); return NULL; }
+    if (tree->less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
+    else if (tree->less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
+    else                                 { stack_clear(&stack); return NULL; }
   }
 
-  struct llrb_node *node = llrb_alloc();
-  node->key              = key;
-  node->value            = value;
+  struct llrb_node *node = llrb_alloc(key, value);
 
-  if ((parent = stack_top(stack)) == NULL) *tree         = node;
-  else if (less(key, parent->key))         parent->left  = node;
+  if ((parent = stack_top(stack)) == NULL) tree->root    = node;
+  else if (tree->less(key, parent->key))   parent->left  = node;
   else                                     parent->right = node;
+
+  ++tree->size;
 
   while (!stack_empty(stack)) {
     walk   = stack_pop(&stack);
     parent = stack_top(stack);
 
-    if (llrb_is_red(walk->right))                                 walk = llrb_rotate_left(tree, walk, parent);  /* case of right-leaning red */
-    if (llrb_is_red(walk->left) && llrb_is_red(walk->left->left)) walk = llrb_rotate_right(tree, walk, parent); /* case of double reds */
-    if (llrb_is_red(walk->left) && llrb_is_red(walk->right))      llrb_flip(walk);                              /* case of 4-node */
+    if (llrb_is_red(walk->right))                                 walk = llrb_rotate_left(&tree->root, walk, parent);  /* case of right-leaning red */
+    if (llrb_is_red(walk->left) && llrb_is_red(walk->left->left)) walk = llrb_rotate_right(&tree->root, walk, parent); /* case of double reds */
+    if (llrb_is_red(walk->left) && llrb_is_red(walk->right))      llrb_flip(walk);                                     /* case of 4-node */
   }
 
-  (*tree)->color = true;
+  tree->root->color = true;
 
   return node;
 }
 
-extern struct llrb_node *llrb_insert_or_assign(struct llrb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
+extern struct llrb_node *llrb_insert_or_assign(struct llrb_root *restrict tree, const void *restrict key, void *restrict value) {
   register struct llrb_node *parent;
-  register struct llrb_node *walk  = *tree;
+  register struct llrb_node *walk  = tree->root;
            struct stack     *stack = NULL;
 
   while (walk != NULL) {
-    if (less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
-    else if (less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
-    else                           { stack_clear(&stack); walk->value = value; return walk; }
+    if (tree->less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
+    else if (tree->less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
+    else                                 { stack_clear(&stack); walk->value = value; return walk; }
   }
 
-  struct llrb_node *node = llrb_alloc();
-  node->key              = key;
-  node->value            = value;
+  struct llrb_node *node = llrb_alloc(key, value);
 
-  if ((parent = stack_top(stack)) == NULL) *tree         = node;
-  else if (less(key, parent->key))         parent->left  = node;
+  if ((parent = stack_top(stack)) == NULL) tree->root    = node;
+  else if (tree->less(key, parent->key))   parent->left  = node;
   else                                     parent->right = node;
+
+  ++tree->size;
 
   while (!stack_empty(stack)) {
     walk   = stack_pop(&stack);
     parent = stack_top(stack);
 
-    if (llrb_is_red(walk->right))                                 walk = llrb_rotate_left(tree, walk, parent);  /* case of right-leaning red */
-    if (llrb_is_red(walk->left) && llrb_is_red(walk->left->left)) walk = llrb_rotate_right(tree, walk, parent); /* case of double reds */
-    if (llrb_is_red(walk->left) && llrb_is_red(walk->right))      llrb_flip(walk);                              /* case of 4-node */
+    if (llrb_is_red(walk->right))                                 walk = llrb_rotate_left(&tree->root, walk, parent);  /* case of right-leaning red */
+    if (llrb_is_red(walk->left) && llrb_is_red(walk->left->left)) walk = llrb_rotate_right(&tree->root, walk, parent); /* case of double reds */
+    if (llrb_is_red(walk->left) && llrb_is_red(walk->right))      llrb_flip(walk);                                     /* case of 4-node */
   }
 
-  (*tree)->color = true;
+  tree->root->color = true;
 
   return node;
 }
 
-extern void *llrb_erase(struct llrb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
+extern void *llrb_erase(struct llrb_root *restrict tree, const void *restrict key) {
   register struct llrb_node *parent;
-  register struct llrb_node *walk   = *tree;
+  register struct llrb_node *walk   = tree->root;
            struct stack     *stack  = NULL;
            void             *erased = NULL;
 
   while (walk != NULL) {
-    if (less(key, walk->key)) {
-      if (llrb_is_black(walk->left) && llrb_is_black(walk->left->left)) walk = llrb_move_red_left(tree, walk, stack_top(stack));
+    if (tree->less(key, walk->key)) {
+      if (llrb_is_black(walk->left) && llrb_is_black(walk->left->left)) walk = llrb_move_red_left(&tree->root, walk, stack_top(stack));
       stack_push(&stack, walk);
       walk = walk->left;
     } else {
-      if (llrb_is_red(walk->left)) walk = llrb_rotate_right(tree, walk, stack_top(stack));
+      if (llrb_is_red(walk->left)) walk = llrb_rotate_right(&tree->root, walk, stack_top(stack));
 
-      if (!less(walk->key, key) && walk->right == NULL) {
+      if (!tree->less(walk->key, key) && walk->right == NULL) {
         erased = walk->value;
-        if ((parent = stack_top(stack)) == NULL) *tree         = NULL;                                          /* case of root */
+        if ((parent = stack_top(stack)) == NULL) tree->root    = NULL;                                                 /* case of root */
         else if (parent->left == walk)           parent->left  = NULL;
         else                                     parent->right = NULL;
+        --tree->size;
         free(walk);
         break;
       }
 
-      if (llrb_is_black(walk->right) && llrb_is_black(walk->right->left)) walk = llrb_move_red_right(tree, walk, stack_top(stack));
+      if (llrb_is_black(walk->right) && llrb_is_black(walk->right->left)) walk = llrb_move_red_right(&tree->root, walk, stack_top(stack));
 
-      if (!less(walk->key, key)) {
+      if (!tree->less(walk->key, key)) {
         erased = walk->value;
         parent = walk;
         stack_push(&stack, walk);
 
         for (walk = walk->right; walk->left != NULL; walk = walk->left) {
-          if (llrb_is_black(walk->left) && llrb_is_black(walk->left->left)) walk = llrb_move_red_left(tree, walk, stack_top(stack));
+          if (llrb_is_black(walk->left) && llrb_is_black(walk->left->left)) walk = llrb_move_red_left(&tree->root, walk, stack_top(stack));
           stack_push(&stack, walk);
         }
 
@@ -221,6 +228,7 @@ extern void *llrb_erase(struct llrb_node **restrict tree, const void *restrict k
 
         if ((parent = stack_top(stack))->left == walk) parent->left  = NULL;
         else                                           parent->right = NULL;
+        --tree->size;
         free(walk);
         break;
       } else {
@@ -234,14 +242,24 @@ extern void *llrb_erase(struct llrb_node **restrict tree, const void *restrict k
     walk   = stack_pop(&stack);
     parent = stack_top(stack);
 
-    if (llrb_is_red(walk->right))                                 walk = llrb_rotate_left(tree, walk, parent);  /* case of right-leaning red */
-    if (llrb_is_red(walk->left) && llrb_is_red(walk->left->left)) walk = llrb_rotate_right(tree, walk, parent); /* case of double reds */
-    if (llrb_is_red(walk->left) && llrb_is_red(walk->right))      llrb_flip(walk);                              /* case of 4-node */
+    if (llrb_is_red(walk->right))                                 walk = llrb_rotate_left(&tree->root, walk, parent);  /* case of right-leaning red */
+    if (llrb_is_red(walk->left) && llrb_is_red(walk->left->left)) walk = llrb_rotate_right(&tree->root, walk, parent); /* case of double reds */
+    if (llrb_is_red(walk->left) && llrb_is_red(walk->right))      llrb_flip(walk);                                     /* case of 4-node */
   }
 
-  if (*tree != NULL) (*tree)->color = true;
+  if (tree->root != NULL) tree->root->color = true;
 
   return erased;
 }
 
-extern void llrb_clear(struct llrb_node **restrict tree) { __llrb_clear(*tree); *tree = NULL; }
+extern void llrb_clear(struct llrb_root *restrict tree) {
+  __llrb_clear(tree->root);
+  tree->root = NULL;
+  tree->size = 0;
+}
+
+extern void llrb_preorder(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict)) { __llrb_preorder(tree.root, func); }
+
+extern void llrb_inorder(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict)) { __llrb_inorder(tree.root, func); }
+
+extern void llrb_postorder(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict)) { __llrb_postorder(tree.root, func); }
