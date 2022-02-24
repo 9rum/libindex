@@ -52,6 +52,12 @@ struct rb_node {
         bool           color;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
+struct rb_root {
+  struct rb_node *root;
+  bool          (*less)(const void *restrict, const void *restrict);
+  size_t         size;
+} __attribute__((aligned(__SIZEOF_POINTER__)));
+
 /*
  * The below functions use the operator with 3 different
  * calling conventions. The operator denotes:
@@ -68,17 +74,32 @@ struct rb_node {
  */
 
 /**
+ * rb_init - initializes an empty tree with @less
+ *
+ * @less: operator defining the (partial) node order
+ */
+static inline struct rb_root rb_init(bool (*less)(const void *restrict, const void *restrict)) {
+  struct rb_root tree = {
+    .root = NULL,
+    .less = less,
+    .size = 0,
+  };
+  return tree;
+}
+
+/**
  * rb_find - finds element from @tree with @key
  *
  * @tree: tree to find element from
  * @key:  the key to search for
- * @less: operator defining the (partial) node order
  */
-static inline void *rb_find(const struct rb_node *restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
-  while (tree != NULL) {
-    if (less(key, tree->key))      tree = tree->left;
-    else if (less(tree->key, key)) tree = tree->right;
-    else                           return tree->value;
+static inline void *rb_find(const struct rb_root tree, const void *restrict key) {
+  register const struct rb_node *walk = tree.root;
+
+  while (walk != NULL) {
+    if (tree.less(key, walk->key))      walk = walk->left;
+    else if (tree.less(walk->key, key)) walk = walk->right;
+    else                                return walk->value;
   }
 
   return NULL;
@@ -90,9 +111,8 @@ static inline void *rb_find(const struct rb_node *restrict tree, const void *res
  * @tree:  tree to insert @key and @value into
  * @key:   the key to insert
  * @value: the value to insert
- * @less:  operator defining the (partial) node order
  */
-extern struct rb_node *rb_insert(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
+extern struct rb_node *rb_insert(struct rb_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
  * rb_insert_or_assign - inserts @key and @value into @tree or assigns @value if @key already exists
@@ -100,25 +120,23 @@ extern struct rb_node *rb_insert(struct rb_node **restrict tree, const void *res
  * @tree:  tree to insert @key and @value into
  * @key:   the key to insert if not found
  * @value: the value to insert or assign
- * @less:  operator defining the (partial) node order
  */
-extern struct rb_node *rb_insert_or_assign(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
+extern struct rb_node *rb_insert_or_assign(struct rb_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
  * rb_erase - erases @key from @tree
  *
  * @tree: tree to erase @key from
  * @key:  the key to erase
- * @less: operator defining the (partial) node order
  */
-extern void *rb_erase(struct rb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
+extern void *rb_erase(struct rb_root *restrict tree, const void *restrict key);
 
 /**
  * rb_clear - clears @tree
  *
  * @tree: tree to clear
  */
-extern void rb_clear(struct rb_node **restrict tree);
+extern void rb_clear(struct rb_root *restrict tree);
 
 /**
  * rb_preorder - applies @func to each node of @tree preorderwise
@@ -126,7 +144,7 @@ extern void rb_clear(struct rb_node **restrict tree);
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-static inline void rb_preorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { func(tree->key, tree->value); rb_preorder(tree->left, func); rb_preorder(tree->right, func); } }
+extern void rb_preorder(const struct rb_root tree, void (*func)(const void *restrict, void *restrict));
 
 /**
  * rb_inorder - applies @func to each node of @tree inorderwise
@@ -134,7 +152,7 @@ static inline void rb_preorder(const struct rb_node *restrict tree, void (*func)
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-static inline void rb_inorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { rb_inorder(tree->left, func); func(tree->key, tree->value); rb_inorder(tree->right, func); } }
+extern void rb_inorder(const struct rb_root tree, void (*func)(const void *restrict, void *restrict));
 
 /**
  * rb_postorder - applies @func to each node of @tree postorderwise
@@ -142,6 +160,6 @@ static inline void rb_inorder(const struct rb_node *restrict tree, void (*func)(
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-static inline void rb_postorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { rb_postorder(tree->left, func); rb_postorder(tree->right, func); func(tree->key, tree->value); } }
+extern void rb_postorder(const struct rb_root tree, void (*func)(const void *restrict, void *restrict));
 
 #endif /* _INDEX_RBTREE_H */

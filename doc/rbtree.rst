@@ -19,16 +19,11 @@
 
 3. The C API
 
-    ``struct rb_node``
+    ``struct rb_node`` and ``struct rb_root``
 
-    | This data structure represents a node in red-black tree.
-    | To initialize an empty tree, declare a pointer of type ``struct rb_node *`` to ``NULL``.
+        | These data structures represent a node and the metadata of red-black tree respectively.
 
-    .. code-block::
-
-      struct rb_node *tree = NULL;
-
-    The below functions use the operator with 3 different calling conventions. The operator denotes:
+    The below function uses the operator with 3 different calling conventions. The operator denotes:
 
     .. code-block::
 
@@ -42,44 +37,48 @@
         * if both ``less(a, b)`` and ``less(b, c)`` are ``true``, then ``less(a, c)`` must be ``true`` as well
         * if both ``less(a, b)`` and ``less(b, c)`` are ``false``, then ``less(a, c)`` must be ``false`` as well
 
-    ``void *rb_find(const struct rb_node *tree, const void *key, bool (*less)(const void *, const void *))``
+    ``struct rb_root rb_init(bool (*less)(const void *, const void *))``
 
-        | This function finds element from tree *tree* with specified key *key* using operator *less*.
+        | This function initializes an empty tree with operator *less*.
+
+    ``void *rb_find(const struct rb_root tree, const void *key)``
+
+        | This function finds element from tree *tree* with specified key *key*.
         | It returns the value of element with matched key.
         | If *key* is not found in *tree*, it returns ``NULL``.
 
-    ``struct rb_node *rb_insert(struct rb_node **tree, const void *key, void *value, bool (*less)(const void *, const void *))``
+    ``struct rb_node *rb_insert(struct rb_root *tree, const void *key, void *value)``
 
-        | This function inserts key *key* and value *value* into tree *tree* using operator *less*.
+        | This function inserts key *key* and value *value* into tree *tree*.
         | It returns the pointer to the inserted element.
         | If *key* already exists in *tree*, it returns ``NULL`` without insertion.
 
-    ``struct rb_node *rb_insert_or_assign(struct rb_node **tree, const void *key, void *value, bool (*less)(const void *, const void *))``
+    ``struct rb_node *rb_insert_or_assign(struct rb_root *tree, const void *key, void *value)``
 
-        | This function inserts key *key* and value *value* into tree *tree* using operator *less*.
+        | This function inserts key *key* and value *value* into tree *tree*.
         | Unlike ``rb_insert``, it assigns *value* if *key* already exists in *tree*.
         | It returns the pointer to the inserted/updated element.
 
-    ``void *rb_erase(struct rb_node **tree, const void *key, bool (*less)(const void *, const void *))``
+    ``void *rb_erase(struct rb_root *tree, const void *key)``
 
-        | This function erases element from tree *tree* with specified key *key* using operator *less*.
+        | This function erases element from tree *tree* with specified key *key*.
         | It returns the value of element with matched key.
         | If *key* does not exist in *tree*, it returns ``NULL`` without deletion.
 
-    ``void rb_clear(struct rb_node **tree)``
+    ``void rb_clear(struct rb_root *tree)``
 
         | This function clears tree *tree*.
         | If you inserted element using ``rb_insert`` or ``rb_insert_or_assign`` and did not erase the entire element, you must clear the tree using this function, or memory leak would occur.
-        | After calling this function, *tree* becomes ``NULL``.
+        | After calling this function, ``rb_size`` returns zero.
 
-    ``void rb_preorder(const struct rb_node *tree, void (*func)(const void *, void *))``
+    ``void rb_preorder(const struct rb_root tree, void (*func)(const void *, void *))``
 
         | This function applies function *func* to each element of tree *tree* preorderwise.
 
-    ``void rb_inorder(const struct rb_node *tree, void (*func)(const void *, void *))``
+    ``void rb_inorder(const struct rb_root tree, void (*func)(const void *, void *))``
 
         | This function applies function *func* to each element of tree *tree* inorderwise.
 
-    ``void rb_postorder(const struct rb_node *tree, void (*func)(const void *, void *))``
+    ``void rb_postorder(const struct rb_root tree, void (*func)(const void *, void *))``
 
         | This function applies function *func* to each element of tree *tree* postorderwise.

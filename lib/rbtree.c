@@ -8,10 +8,15 @@
 #include <index/stack.h>
 
 /**
- * rb_alloc - allocates a node
+ * rb_alloc - allocates a node with @key and @value
+ *
+ * @key:   the key of the node
+ * @value: the value of the node
  */
-static inline struct rb_node *rb_alloc(void) {
+static inline struct rb_node *rb_alloc(const void *restrict key, void *restrict value) {
   struct rb_node *node = malloc(sizeof(struct rb_node));
+  node->key            = key;
+  node->value          = value;
   node->left           = NULL;
   node->right          = NULL;
   node->color          = false;
@@ -52,34 +57,35 @@ static inline void rb_rotate_right(struct rb_node **restrict root, struct rb_nod
   else                           parent->right = lchild;
 }
 
-/**
- * __rb_clear - clears @tree
- *
- * @tree: tree to clear
- */
 static inline void __rb_clear(struct rb_node *restrict tree) { if (tree != NULL) { __rb_clear(tree->left); __rb_clear(tree->right); free(tree); } }
 
-extern struct rb_node *rb_insert(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
+static inline void __rb_preorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { func(tree->key, tree->value); __rb_preorder(tree->left, func); __rb_preorder(tree->right, func); } }
+
+static inline void __rb_inorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __rb_inorder(tree->left, func); func(tree->key, tree->value); __rb_inorder(tree->right, func); } }
+
+static inline void __rb_postorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __rb_postorder(tree->left, func); __rb_postorder(tree->right, func); func(tree->key, tree->value); } }
+
+extern struct rb_node *rb_insert(struct rb_root *restrict tree, const void *restrict key, void *restrict value) {
   register struct rb_node *parent;
   register struct rb_node *gparent;
   register struct rb_node *uncle;
-  register struct rb_node *walk  = *tree;
+  register struct rb_node *walk  = tree->root;
            struct stack   *stack = NULL;
 
   while (walk != NULL) {
-    if (less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
-    else if (less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
-    else                           { stack_clear(&stack); return NULL; }
+    if (tree->less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
+    else if (tree->less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
+    else                                 { stack_clear(&stack); return NULL; }
   }
 
-  struct rb_node *node = rb_alloc();
-  node->key            = key;
-  node->value          = value;
+  struct rb_node *node = rb_alloc(key, value);
   walk                 = node;
 
-  if ((parent = stack_top(stack)) == NULL) *tree         = node;
-  else if (less(key, parent->key))         parent->left  = node;
+  if ((parent = stack_top(stack)) == NULL) tree->root    = node;
+  else if (tree->less(key, parent->key))   parent->left  = node;
   else                                     parent->right = node;
+
+  ++tree->size;
 
   while (!stack_empty(stack)) {
     if ((parent = stack_pop(&stack))->color) { stack_clear(&stack); return node; }
@@ -92,23 +98,23 @@ extern struct rb_node *rb_insert(struct rb_node **restrict tree, const void *res
         if (parent->left == walk) {      /* case of Left Left */
           parent->color  = true;
           gparent->color = false;
-          rb_rotate_right(tree, gparent, stack_top(stack));
+          rb_rotate_right(&tree->root, gparent, stack_top(stack));
         } else {                         /* case of Left Right */
           walk->color    = true;
           gparent->color = false;
-          rb_rotate_left(tree, parent, gparent);
-          rb_rotate_right(tree, gparent, stack_top(stack));
+          rb_rotate_left(&tree->root, parent, gparent);
+          rb_rotate_right(&tree->root, gparent, stack_top(stack));
         }
       } else {
         if (parent->left == walk) {      /* case of Right Left */
           walk->color    = true;
           gparent->color = false;
-          rb_rotate_right(tree, parent, gparent);
-          rb_rotate_left(tree, gparent, stack_top(stack));
+          rb_rotate_right(&tree->root, parent, gparent);
+          rb_rotate_left(&tree->root, gparent, stack_top(stack));
         } else {                         /* case of Right Right */
           parent->color  = true;
           gparent->color = false;
-          rb_rotate_left(tree, gparent, stack_top(stack));
+          rb_rotate_left(&tree->root, gparent, stack_top(stack));
         }
       }
 
@@ -122,31 +128,29 @@ extern struct rb_node *rb_insert(struct rb_node **restrict tree, const void *res
     walk           = gparent;
   }
 
-  (*tree)->color = true;
+  tree->root->color = true;
 
   return node;
 }
 
-extern struct rb_node *rb_insert_or_assign(struct rb_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict)) {
+extern struct rb_node *rb_insert_or_assign(struct rb_root *restrict tree, const void *restrict key, void *restrict value) {
   register struct rb_node *parent;
   register struct rb_node *gparent;
   register struct rb_node *uncle;
-  register struct rb_node *walk  = *tree;
+  register struct rb_node *walk  = tree->root;
            struct stack   *stack = NULL;
 
   while (walk != NULL) {
-    if (less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
-    else if (less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
-    else                           { stack_clear(&stack); walk->value = value; return walk; }
+    if (tree->less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
+    else if (tree->less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
+    else                                 { stack_clear(&stack); walk->value = value; return walk; }
   }
 
-  struct rb_node *node = rb_alloc();
-  node->key            = key;
-  node->value          = value;
+  struct rb_node *node = rb_alloc(key, value);
   walk                 = node;
 
-  if ((parent = stack_top(stack)) == NULL) *tree         = node;
-  else if (less(key, parent->key))         parent->left  = node;
+  if ((parent = stack_top(stack)) == NULL) tree->root    = node;
+  else if (tree->less(key, parent->key))   parent->left  = node;
   else                                     parent->right = node;
 
   while (!stack_empty(stack)) {
@@ -160,23 +164,23 @@ extern struct rb_node *rb_insert_or_assign(struct rb_node **restrict tree, const
         if (parent->left == walk) {      /* case of Left Left */
           parent->color  = true;
           gparent->color = false;
-          rb_rotate_right(tree, gparent, stack_top(stack));
+          rb_rotate_right(&tree->root, gparent, stack_top(stack));
         } else {                         /* case of Left Right */
           walk->color    = true;
           gparent->color = false;
-          rb_rotate_left(tree, parent, gparent);
-          rb_rotate_right(tree, gparent, stack_top(stack));
+          rb_rotate_left(&tree->root, parent, gparent);
+          rb_rotate_right(&tree->root, gparent, stack_top(stack));
         }
       } else {
         if (parent->left == walk) {      /* case of Right Left */
           walk->color    = true;
           gparent->color = false;
-          rb_rotate_right(tree, parent, gparent);
-          rb_rotate_left(tree, gparent, stack_top(stack));
+          rb_rotate_right(&tree->root, parent, gparent);
+          rb_rotate_left(&tree->root, gparent, stack_top(stack));
         } else {                         /* case of Right Right */
           parent->color  = true;
           gparent->color = false;
-          rb_rotate_left(tree, gparent, stack_top(stack));
+          rb_rotate_left(&tree->root, gparent, stack_top(stack));
         }
       }
 
@@ -190,21 +194,21 @@ extern struct rb_node *rb_insert_or_assign(struct rb_node **restrict tree, const
     walk           = gparent;
   }
 
-  (*tree)->color = true;
+  tree->root->color = true;
 
   return node;
 }
 
-extern void *rb_erase(struct rb_node **restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict)) {
+extern void *rb_erase(struct rb_root *restrict tree, const void *restrict key) {
   register struct rb_node *parent;
   register struct rb_node *sibling;
-  register struct rb_node *walk  = *tree;
+  register struct rb_node *walk  = tree->root;
            struct stack   *stack = NULL;
 
   while (walk != NULL) {
-    if (less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
-    else if (less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
-    else                           break;
+    if (tree->less(key, walk->key))      { stack_push(&stack, walk); walk = walk->left; }
+    else if (tree->less(walk->key, key)) { stack_push(&stack, walk); walk = walk->right; }
+    else                                 break;
   }
 
   if (walk == NULL) { stack_clear(&stack); return NULL; }
@@ -222,21 +226,22 @@ extern void *rb_erase(struct rb_node **restrict tree, const void *restrict key, 
   }
 
   if (walk->left == NULL && walk->right == NULL) {                          /* case of degree 0 */
-    if ((parent = stack_top(stack)) == NULL)   *tree         = NULL;        /* case of root */
+    if ((parent = stack_top(stack)) == NULL)   tree->root    = NULL;        /* case of root */
     else if (parent->left == walk)             parent->left  = NULL;
     else                                       parent->right = NULL;
   } else {                                                                  /* case of degree 1 */
     if (walk->left != NULL) {
-      if ((parent = stack_top(stack)) == NULL) *tree         = walk->left;  /* case of root */
+      if ((parent = stack_top(stack)) == NULL) tree->root    = walk->left;  /* case of root */
       else if (parent->left == walk)           parent->left  = walk->left;
       else                                     parent->right = walk->left;
     } else {
-      if ((parent = stack_top(stack)) == NULL) *tree         = walk->right; /* case of root */
+      if ((parent = stack_top(stack)) == NULL) tree->root    = walk->right; /* case of root */
       else if (parent->left == walk)           parent->left  = walk->right;
       else                                     parent->right = walk->right;
     }
   }
 
+  --tree->size;
   if (!walk->color) { free(walk); stack_clear(&stack); return erased; }
 
   parent = walk;
@@ -252,7 +257,7 @@ extern void *rb_erase(struct rb_node **restrict tree, const void *restrict key, 
     if (!sibling->color) {                                                  /* case of rearranging */
       sibling->color = true;
       parent->color  = false;
-      parent->left == walk ? rb_rotate_left(tree, parent, stack_top(stack)) : rb_rotate_right(tree, parent, stack_top(stack));
+      parent->left == walk ? rb_rotate_left(&tree->root, parent, stack_top(stack)) : rb_rotate_right(&tree->root, parent, stack_top(stack));
       stack_push(&stack, sibling);
       sibling = parent->right == walk ? parent->left : parent->right;
     }
@@ -263,24 +268,24 @@ extern void *rb_erase(struct rb_node **restrict tree, const void *restrict key, 
         if (sibling->right != NULL && !sibling->right->color) {             /* case of Left Right */
           sibling->right->color = true;
           sibling->color        = false;
-          rb_rotate_left(tree, sibling, parent);
+          rb_rotate_left(&tree->root, sibling, parent);
           sibling = parent->left;
         }
         sibling->left->color = true;                                        /* case of Left Left */
         sibling->color       = parent->color;
         parent->color        = true;
-        rb_rotate_right(tree, parent, stack_top(stack));
+        rb_rotate_right(&tree->root, parent, stack_top(stack));
       } else {
         if (sibling->left != NULL && !sibling->left->color) {               /* case of Right Left */
           sibling->left->color = true;
           sibling->color       = false;
-          rb_rotate_right(tree, sibling, parent);
+          rb_rotate_right(&tree->root, sibling, parent);
           sibling = parent->right;
         }
         sibling->right->color = true;                                       /* case of Right Right */
         sibling->color        = parent->color;
         parent->color         = true;
-        rb_rotate_left(tree, parent, stack_top(stack));
+        rb_rotate_left(&tree->root, parent, stack_top(stack));
       }
 
       stack_clear(&stack);
@@ -295,4 +300,14 @@ extern void *rb_erase(struct rb_node **restrict tree, const void *restrict key, 
   return erased;
 }
 
-extern void rb_clear(struct rb_node **restrict tree) { __rb_clear(*tree); *tree = NULL; }
+extern void rb_clear(struct rb_root *restrict tree) {
+  __rb_clear(tree->root);
+  tree->root = NULL;
+  tree->size = 0;
+}
+
+extern void rb_preorder(const struct rb_root tree, void (*func)(const void *restrict, void *restrict)) { __rb_preorder(tree.root, func); }
+
+extern void rb_inorder(const struct rb_root tree, void (*func)(const void *restrict, void *restrict)) { __rb_inorder(tree.root, func); }
+
+extern void rb_postorder(const struct rb_root tree, void (*func)(const void *restrict, void *restrict)) { __rb_postorder(tree.root, func); }
