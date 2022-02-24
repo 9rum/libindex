@@ -153,6 +153,8 @@ extern struct rb_node *rb_insert_or_assign(struct rb_root *restrict tree, const 
   else if (tree->less(key, parent->key))   parent->left  = node;
   else                                     parent->right = node;
 
+  ++tree->size;
+
   while (!stack_empty(stack)) {
     if ((parent = stack_pop(&stack))->color) { stack_clear(&stack); return node; }
 
