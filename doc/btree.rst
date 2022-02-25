@@ -54,7 +54,7 @@
     ``void *btree_find(const struct btree_root tree, const void *key)``
 
         | This function finds element from tree *tree* with specified key *key*.
-        | It returns the value of element with matched key.
+        | It returns the value of the element with the equivalent key.
         | If *key* is not found in *tree*, it returns ``NULL``.
 
     ``bool btree_contains(const struct btree_root tree, const void *key)``
@@ -63,26 +63,26 @@
 
     ``struct btree_node *btree_insert(struct btree_root *tree, const void *key, void *value)``
 
-        | This function inserts key *key* and value *value* into tree *tree*.
-        | It returns the pointer to the inserted element.
+        | This function inserts an element with key *key* and value *value* into tree *tree*.
+        | It returns the address of the inserted element.
         | If *key* already exists in *tree*, it returns ``NULL`` without insertion.
 
     ``struct btree_node *btree_insert_or_assign(struct btree_root *tree, const void *key, void *value)``
 
-        | This function inserts key *key* and value *value* into tree *tree*.
+        | This function inserts an element with key *key* and value *value* into tree *tree*.
         | Unlike ``btree_insert``, it assigns *value* if *key* already exists in *tree*.
-        | It returns the pointer to the inserted/updated element.
+        | It returns the address of the inserted/assigned element.
 
     ``void *btree_erase(struct btree_root *tree, const void *key)``
 
-        | This function erases element from tree *tree* with specified key *key*.
-        | It returns the value of element with matched key.
-        | If *key* does not exist in *tree*, it returns ``NULL`` without deletion.
+        | This function removes the element from tree *tree* with specified key *key*.
+        | It returns the value of the element with the equivalent key.
+        | If *key* does not exist in *tree*, it returns ``NULL`` without removal.
 
     ``void btree_clear(struct btree_root *tree)``
 
-        | This function clears tree *tree*.
-        | If you inserted element using ``btree_insert`` or ``btree_insert_or_assign`` and did not erase the entire element, you must clear the tree using this function, or memory leak would occur.
+        | This function erases all elements from tree *tree*.
+        | If you inserted elements using ``btree_insert`` or ``btree_insert_or_assign`` and did not erase all the elements, you must clear the tree using this function, or memory leak would occur.
         | After calling this function, ``btree_size`` returns zero.
 
     ``void btree_preorder(const struct btree_root tree, void (*func)(const void *, void *))``
