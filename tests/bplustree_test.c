@@ -51,6 +51,7 @@ CTEST(bplustree_test, bplus_find_test) {
     ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), bplus_find(tree, it), sizeof(uintptr_t));
 
   bplus_clear(&tree);
+  ASSERT_TRUE(bplus_empty(tree));
   ASSERT_NULL(tree.root);
   ASSERT_NULL(tree.head);
 }
@@ -70,8 +71,10 @@ CTEST(bplustree_test, bplus_insert_odd_test) {
   memset(dest, 0, sizeof(dest));
   bplus_for_each(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
+  ASSERT_EQUAL(sizeof(testcases)/sizeof(uintptr_t)/2-1, bplus_size(tree));
 
   bplus_clear(&tree);
+  ASSERT_TRUE(bplus_empty(tree));
   ASSERT_NULL(tree.root);
   ASSERT_NULL(tree.head);
 }
@@ -88,8 +91,10 @@ CTEST(bplustree_test, bplus_insert_or_assign_odd_test) {
   memset(dest, 0, sizeof(dest));
   bplus_for_each(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
+  ASSERT_EQUAL(sizeof(testcases)/sizeof(uintptr_t)/2-1, bplus_size(tree));
 
   bplus_clear(&tree);
+  ASSERT_TRUE(bplus_empty(tree));
   ASSERT_NULL(tree.root);
   ASSERT_NULL(tree.head);
 }
@@ -109,6 +114,7 @@ CTEST(bplustree_test, bplus_erase_odd_test) {
   for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
     ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), bplus_erase(&tree, it), sizeof(uintptr_t));
 
+  ASSERT_TRUE(bplus_empty(tree));
   ASSERT_NULL(tree.root);
   ASSERT_NULL(tree.head);
 }
@@ -128,8 +134,10 @@ CTEST(bplustree_test, bplus_insert_even_test) {
   memset(dest, 0, sizeof(dest));
   bplus_for_each(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
+  ASSERT_EQUAL(sizeof(testcases)/sizeof(uintptr_t)/2-1, bplus_size(tree));
 
   bplus_clear(&tree);
+  ASSERT_TRUE(bplus_empty(tree));
   ASSERT_NULL(tree.root);
   ASSERT_NULL(tree.head);
 }
@@ -146,8 +154,10 @@ CTEST(bplustree_test, bplus_insert_or_assign_even_test) {
   memset(dest, 0, sizeof(dest));
   bplus_for_each(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
+  ASSERT_EQUAL(sizeof(testcases)/sizeof(uintptr_t)/2-1, bplus_size(tree));
 
   bplus_clear(&tree);
+  ASSERT_TRUE(bplus_empty(tree));
   ASSERT_NULL(tree.root);
   ASSERT_NULL(tree.head);
 }
@@ -167,6 +177,7 @@ CTEST(bplustree_test, bplus_erase_even_test) {
   for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
     ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), bplus_erase(&tree, it), sizeof(uintptr_t));
 
+  ASSERT_TRUE(bplus_empty(tree));
   ASSERT_NULL(tree.root);
   ASSERT_NULL(tree.head);
 }

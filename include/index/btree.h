@@ -75,7 +75,7 @@ struct btree_root {
  * btree_init - initializes an empty tree of @order with @less
  *
  * @order: the order of tree
- * @less:  operator defining the (partial) node order
+ * @less:  operator defining the (partial) element order
  */
 static inline struct btree_root btree_init(const size_t order, bool (*less)(const void *restrict, const void *restrict)) {
   struct btree_root tree = {
@@ -88,6 +88,20 @@ static inline struct btree_root btree_init(const size_t order, bool (*less)(cons
 }
 
 /**
+ * btree_size - returns the number of elements in @tree
+ *
+ * @tree: tree to get the number of elements
+ */
+static inline size_t btree_size(const struct btree_root tree) { return tree.size; }
+
+/**
+ * btree_empty - checks whether @tree is empty
+ *
+ * @tree: tree to check
+ */
+static inline bool btree_empty(const struct btree_root tree) { return btree_size(tree) == 0; }
+
+/**
  * btree_find - finds element from @tree with @key
  *
  * @tree: tree to find element from
@@ -96,59 +110,67 @@ static inline struct btree_root btree_init(const size_t order, bool (*less)(cons
 extern void *btree_find(const struct btree_root tree, const void *restrict key);
 
 /**
- * btree_insert - inserts @key and @value into @tree
+ * btree_contains - checks if @tree contains element with @key
  *
- * @tree:  tree to insert @key and @value into
- * @key:   the key to insert
- * @value: the value to insert
+ * @tree: tree to check
+ * @key:  the key to search for
+ */
+extern bool btree_contains(const struct btree_root tree, const void *restrict key);
+
+/**
+ * btree_insert - inserts an element into @tree
+ *
+ * @tree:  tree to insert element into
+ * @key:   the key of the element to insert
+ * @value: the value of the element to insert
  */
 extern struct btree_node *btree_insert(struct btree_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
- * btree_insert_or_assign - inserts @key and @value into @tree or assigns @value if @key already exists
+ * btree_insert_or_assign - inserts an element or assigns @value if @key already exists
  *
- * @tree:  tree to insert @key and @value into
- * @key:   the key to insert if not found
- * @value: the value to insert or assign
+ * @tree:  tree to insert element into
+ * @key:   the key of the element to insert if not found
+ * @value: the value of the element to insert or assign
  */
 extern struct btree_node *btree_insert_or_assign(struct btree_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
- * btree_erase - erases @key from @tree
+ * btree_erase - removes the element with @key from @tree
  *
- * @tree:  tree to erase @key from
- * @key:   the key to erase
+ * @tree: tree to remove the element from
+ * @key:  the key of the element to remove
  */
 extern void *btree_erase(struct btree_root *restrict tree, const void *restrict key);
 
 /**
- * btree_clear - clears @tree
+ * btree_clear - erases all elements from @tree
  *
- * @tree: tree to clear
+ * @tree: tree to erase all elements
  */
 extern void btree_clear(struct btree_root *restrict tree);
 
 /**
- * btree_preorder - applies @func to each node of @tree preorderwise
+ * btree_preorder - applies @func to each element of @tree preorderwise
  *
- * @tree: tree to apply @func to each node of
- * @func: function to apply to each node of @tree
+ * @tree: tree to apply @func to each element of
+ * @func: function to apply to each element of @tree
  */
 extern void btree_preorder(const struct btree_root tree, void (*func)(const void *restrict, void *restrict));
 
 /**
- * btree_inorder - applies @func to each node of @tree inorderwise
+ * btree_inorder - applies @func to each element of @tree inorderwise
  *
- * @tree: tree to apply @func to each node of
- * @func: function to apply to each node of @tree
+ * @tree: tree to apply @func to each element of
+ * @func: function to apply to each element of @tree
  */
 extern void btree_inorder(const struct btree_root tree, void (*func)(const void *restrict, void *restrict));
 
 /**
- * btree_postorder - applies @func to each node of @tree postorderwise
+ * btree_postorder - applies @func to each element of @tree postorderwise
  *
- * @tree: tree to apply @func to each node of
- * @func: function to apply to each node of @tree
+ * @tree: tree to apply @func to each element of
+ * @func: function to apply to each element of @tree
  */
 extern void btree_postorder(const struct btree_root tree, void (*func)(const void *restrict, void *restrict));
 

@@ -129,6 +129,25 @@ extern void *bplus_find(const struct bplus_root tree, const void *restrict key) 
   return NULL;
 }
 
+extern bool bplus_contains(const struct bplus_root tree, const void *restrict key) {
+  register       size_t                     idx;
+  register const struct bplus_internal_node *walk = tree.root;
+           const struct bplus_external_node *node = tree.head;
+
+  while (walk != NULL) {
+    idx = __bsearch(key, walk->keys, walk->nmemb, tree.less);
+    if (walk->type) node = walk->children[idx], walk = NULL;
+    else            walk = walk->children[idx];
+  }
+
+  if (node == NULL) return NULL;
+
+  if ((idx = __bsearch(key, node->keys, node->nmemb, tree.less)) < node->nmemb &&
+      !(tree.less(key, node->keys[idx]) || tree.less(node->keys[idx], key))) return true;
+
+  return false;
+}
+
 extern struct bplus_external_node *bplus_insert(struct bplus_root *restrict tree, const void *restrict key, void *restrict value) {
   register size_t                     idx;
   register struct bplus_internal_node *tmp;

@@ -76,7 +76,7 @@ struct rb_root {
 /**
  * rb_init - initializes an empty tree with @less
  *
- * @less: operator defining the (partial) node order
+ * @less: operator defining the (partial) element order
  */
 static inline struct rb_root rb_init(bool (*less)(const void *restrict, const void *restrict)) {
   struct rb_root tree = {
@@ -86,6 +86,20 @@ static inline struct rb_root rb_init(bool (*less)(const void *restrict, const vo
   };
   return tree;
 }
+
+/**
+ * rb_size - returns the number of elements in @tree
+ *
+ * @tree: tree to get the number of elements
+ */
+static inline size_t rb_size(const struct rb_root tree) { return tree.size; }
+
+/**
+ * rb_empty - checks whether @tree is empty
+ *
+ * @tree: tree to check
+ */
+static inline bool rb_empty(const struct rb_root tree) { return rb_size(tree) == 0; }
 
 /**
  * rb_find - finds element from @tree with @key
@@ -106,59 +120,77 @@ static inline void *rb_find(const struct rb_root tree, const void *restrict key)
 }
 
 /**
- * rb_insert - inserts @key and @value into @tree
+ * rb_contains - checks if @tree contains element with @key
  *
- * @tree:  tree to insert @key and @value into
- * @key:   the key to insert
- * @value: the value to insert
+ * @tree: tree to check
+ * @key:  the key to search for
+ */
+static inline bool rb_contains(const struct rb_root tree, const void *restrict key) {
+  register const struct rb_node *walk = tree.root;
+
+  while (walk != NULL) {
+    if (tree.less(key, walk->key))      walk = walk->left;
+    else if (tree.less(walk->key, key)) walk = walk->right;
+    else                                return true;
+  }
+
+  return false;
+}
+
+/**
+ * rb_insert - inserts an element into @tree
+ *
+ * @tree:  tree to insert element into
+ * @key:   the key of the element to insert
+ * @value: the value of the element to insert
  */
 extern struct rb_node *rb_insert(struct rb_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
- * rb_insert_or_assign - inserts @key and @value into @tree or assigns @value if @key already exists
+ * rb_insert_or_assign - inserts an element or assigns @value if @key already exists
  *
- * @tree:  tree to insert @key and @value into
- * @key:   the key to insert if not found
- * @value: the value to insert or assign
+ * @tree:  tree to insert element into
+ * @key:   the key of the element to insert if not found
+ * @value: the value of the element to insert or assign
  */
 extern struct rb_node *rb_insert_or_assign(struct rb_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
- * rb_erase - erases @key from @tree
+ * rb_erase - removes the element with @key from @tree
  *
- * @tree: tree to erase @key from
- * @key:  the key to erase
+ * @tree: tree to remove the element from
+ * @key:  the key of the element to remove
  */
 extern void *rb_erase(struct rb_root *restrict tree, const void *restrict key);
 
 /**
- * rb_clear - clears @tree
+ * rb_clear - erases all elements from @tree
  *
- * @tree: tree to clear
+ * @tree: tree to erase all elements
  */
 extern void rb_clear(struct rb_root *restrict tree);
 
 /**
- * rb_preorder - applies @func to each node of @tree preorderwise
+ * rb_preorder - applies @func to each element of @tree preorderwise
  *
- * @tree: tree to apply @func to each node of
- * @func: function to apply to each node of @tree
+ * @tree: tree to apply @func to each element of
+ * @func: function to apply to each element of @tree
  */
 extern void rb_preorder(const struct rb_root tree, void (*func)(const void *restrict, void *restrict));
 
 /**
- * rb_inorder - applies @func to each node of @tree inorderwise
+ * rb_inorder - applies @func to each element of @tree inorderwise
  *
- * @tree: tree to apply @func to each node of
- * @func: function to apply to each node of @tree
+ * @tree: tree to apply @func to each element of
+ * @func: function to apply to each element of @tree
  */
 extern void rb_inorder(const struct rb_root tree, void (*func)(const void *restrict, void *restrict));
 
 /**
- * rb_postorder - applies @func to each node of @tree postorderwise
+ * rb_postorder - applies @func to each element of @tree postorderwise
  *
- * @tree: tree to apply @func to each node of
- * @func: function to apply to each node of @tree
+ * @tree: tree to apply @func to each element of
+ * @func: function to apply to each element of @tree
  */
 extern void rb_postorder(const struct rb_root tree, void (*func)(const void *restrict, void *restrict));
 

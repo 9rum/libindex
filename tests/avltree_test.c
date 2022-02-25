@@ -36,6 +36,7 @@ CTEST(avltree_test, avl_find_test) {
     ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), avl_find(tree, it), sizeof(uintptr_t));
 
   avl_clear(&tree);
+  ASSERT_TRUE(avl_empty(tree));
   ASSERT_NULL(tree.root);
 }
 
@@ -48,8 +49,10 @@ CTEST(avltree_test, avl_insert_test) {
   memset(dest, 0, sizeof(dest));
   avl_inorder(tree, concat);
   ASSERT_STR("1011202225303340444950556066707780889099", dest);
+  ASSERT_EQUAL(sizeof(testcases)/sizeof(uintptr_t), avl_size(tree));
 
   avl_clear(&tree);
+  ASSERT_TRUE(avl_empty(tree));
   ASSERT_NULL(tree.root);
 }
 
@@ -65,8 +68,10 @@ CTEST(avltree_test, avl_insert_or_assign_test) {
   memset(dest, 0, sizeof(dest));
   avl_inorder(tree, concat);
   ASSERT_STR("1011202225303340444950556066707780889099", dest);
+  ASSERT_EQUAL(sizeof(testcases)/sizeof(uintptr_t), avl_size(tree));
 
   avl_clear(&tree);
+  ASSERT_TRUE(avl_empty(tree));
   ASSERT_NULL(tree.root);
 }
 
@@ -79,6 +84,7 @@ CTEST(avltree_test, avl_erase_test) {
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
     ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), avl_erase(&tree, it), sizeof(uintptr_t));
 
+  ASSERT_TRUE(avl_empty(tree));
   ASSERT_NULL(tree.root);
 }
 
@@ -91,6 +97,7 @@ CTEST(avltree_test, avl_erase_reverse_test) {
   for (const uintptr_t *it = testcases + sizeof(testcases)/sizeof(uintptr_t) - 1; testcases <= it; --it)
     ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), avl_erase(&tree, it), sizeof(uintptr_t));
 
+  ASSERT_TRUE(avl_empty(tree));
   ASSERT_NULL(tree.root);
 }
 

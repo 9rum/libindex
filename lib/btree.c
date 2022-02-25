@@ -108,6 +108,19 @@ extern void *btree_find(const struct btree_root tree, const void *restrict key) 
   return NULL;
 }
 
+extern bool btree_contains(const struct btree_root tree, const void *restrict key) {
+  register       size_t            idx;
+  register const struct btree_node *walk = tree.root;
+
+  while (walk != NULL) {
+    if ((idx = __bsearch(key, walk->keys, walk->nmemb, tree.less)) < walk->nmemb &&
+        !(tree.less(key, walk->keys[idx]) || tree.less(walk->keys[idx], key))) return true;
+    walk = walk->children[idx];
+  }
+
+  return false;
+}
+
 extern struct btree_node *btree_insert(struct btree_root *restrict tree, const void *restrict key, void *restrict value) {
   register size_t            idx;
   register struct btree_node *tmp;

@@ -41,11 +41,23 @@
 
         | This function initializes an empty tree with operator *less*.
 
+    ``size_t rb_size(const struct rb_root tree)``
+
+        | This function returns the number of elements in tree *tree*.
+
+    ``bool rb_empty(const struct rb_root tree)``
+
+        | This function checks whether tree *tree* is empty.
+
     ``void *rb_find(const struct rb_root tree, const void *key)``
 
         | This function finds element from tree *tree* with specified key *key*.
         | It returns the value of element with matched key.
         | If *key* is not found in *tree*, it returns ``NULL``.
+
+    ``bool rb_contains(const struct rb_root tree, const void *key)``
+
+        | This function checks if tree *tree* contains element with specified key *key*.
 
     ``struct rb_node *rb_insert(struct rb_root *tree, const void *key, void *value)``
 

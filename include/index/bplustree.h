@@ -94,7 +94,7 @@ struct bplus_root {
  * bplus_init - initializes an empty tree of @order with @less
  *
  * @order: the order of tree
- * @less:  operator defining the (partial) node order
+ * @less:  operator defining the (partial) element order
  */
 static inline struct bplus_root bplus_init(const size_t order, bool (*less)(const void *restrict, const void *restrict)) {
   struct bplus_root tree = {
@@ -108,6 +108,20 @@ static inline struct bplus_root bplus_init(const size_t order, bool (*less)(cons
 }
 
 /**
+ * bplus_size - returns the number of elements in @tree
+ *
+ * @tree: tree to get the number of elements
+ */
+static inline size_t bplus_size(const struct bplus_root tree) { return tree.size; }
+
+/**
+ * bplus_empty - checks whether @tree is empty
+ *
+ * @tree: tree to check
+ */
+static inline bool bplus_empty(const struct bplus_root tree) { return bplus_size(tree) == 0; }
+
+/**
  * bplus_find - finds element from @tree with @key
  *
  * @tree: tree to find element from
@@ -116,43 +130,51 @@ static inline struct bplus_root bplus_init(const size_t order, bool (*less)(cons
 extern void *bplus_find(const struct bplus_root tree, const void *restrict key);
 
 /**
- * bplus_insert - inserts @key and @value into @tree
+ * bplus_contains - checks if @tree contains element with @key
  *
- * @tree:  tree to insert @key and @value into
- * @key:   the key to insert
- * @value: the value to insert
+ * @tree: tree to check
+ * @key:  the key to search for
+ */
+extern bool bplus_contains(const struct bplus_root tree, const void *restrict key);
+
+/**
+ * bplus_insert - inserts an element into @tree
+ *
+ * @tree:  tree to insert element into
+ * @key:   the key of the element to insert
+ * @value: the value of the element to insert
  */
 extern struct bplus_external_node *bplus_insert(struct bplus_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
- * bplus_insert_or_assign - inserts @key and @value into @tree or assigns @value if @key already exists
+ * bplus_insert_or_assign - inserts an element or assigns @value if @key already exists
  *
- * @tree:  tree to insert @key and @value into
- * @key:   the key to insert if not found
- * @value: the value to insert or assign
+ * @tree:  tree to insert element into
+ * @key:   the key of the element to insert if not found
+ * @value: the value of the element to insert or assign
  */
 extern struct bplus_external_node *bplus_insert_or_assign(struct bplus_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
- * bplus_erase - erases @key from @tree
+ * bplus_erase - removes the element with @key from @tree
  *
- * @tree: tree to erase @key from
- * @key:  the key to erase
+ * @tree: tree to remove the element from
+ * @key:  the key of the element to remove
  */
 extern void *bplus_erase(struct bplus_root *restrict tree, const void *restrict key);
 
 /**
- * bplus_clear - clears @tree
+ * bplus_clear - erases all elements from @tree
  *
- * @tree: tree to clear
+ * @tree: tree to erase all elements
  */
 extern void bplus_clear(struct bplus_root *restrict tree);
 
 /**
- * bplus_for_each - applies @func to each node of @tree sequentialwise
+ * bplus_for_each - applies @func to each element of @tree sequentialwise
  *
- * @tree: tree to apply @func to each node of
- * @func: function to apply to each node of @tree
+ * @tree: tree to apply @func to each element of
+ * @func: function to apply to each element of @tree
  */
 static inline void bplus_for_each(const struct bplus_root tree, void (*func)(const void *restrict, void *restrict)) {
   for (register const struct bplus_external_node *node = tree.head; node != NULL; node = node->next)

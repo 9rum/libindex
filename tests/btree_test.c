@@ -51,6 +51,7 @@ CTEST(btree_test, btree_find_test) {
     ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), btree_find(tree, it), sizeof(uintptr_t));
 
   btree_clear(&tree);
+  ASSERT_TRUE(btree_empty(tree));
   ASSERT_NULL(tree.root);
 }
 
@@ -69,8 +70,10 @@ CTEST(btree_test, btree_insert_odd_test) {
   memset(dest, 0, sizeof(dest));
   btree_inorder(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
+  ASSERT_EQUAL(sizeof(testcases)/sizeof(uintptr_t)/2-1, btree_size(tree));
 
   btree_clear(&tree);
+  ASSERT_TRUE(btree_empty(tree));
   ASSERT_NULL(tree.root);
 }
 
@@ -86,8 +89,10 @@ CTEST(btree_test, btree_insert_or_assign_odd_test) {
   memset(dest, 0, sizeof(dest));
   btree_inorder(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
+  ASSERT_EQUAL(sizeof(testcases)/sizeof(uintptr_t)/2-1, btree_size(tree));
 
   btree_clear(&tree);
+  ASSERT_TRUE(btree_empty(tree));
   ASSERT_NULL(tree.root);
 }
 
@@ -106,6 +111,7 @@ CTEST(btree_test, btree_erase_odd_test) {
   for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
     ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), btree_erase(&tree, it), sizeof(uintptr_t));
 
+  ASSERT_TRUE(btree_empty(tree));
   ASSERT_NULL(tree.root);
 }
 
@@ -124,8 +130,10 @@ CTEST(btree_test, btree_insert_even_test) {
   memset(dest, 0, sizeof(dest));
   btree_inorder(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
+  ASSERT_EQUAL(sizeof(testcases)/sizeof(uintptr_t)/2-1, btree_size(tree));
 
   btree_clear(&tree);
+  ASSERT_TRUE(btree_empty(tree));
   ASSERT_NULL(tree.root);
 }
 
@@ -141,8 +149,10 @@ CTEST(btree_test, btree_insert_or_assign_even_test) {
   memset(dest, 0, sizeof(dest));
   btree_inorder(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
+  ASSERT_EQUAL(sizeof(testcases)/sizeof(uintptr_t)/2-1, btree_size(tree));
 
   btree_clear(&tree);
+  ASSERT_TRUE(btree_empty(tree));
   ASSERT_NULL(tree.root);
 }
 
@@ -161,6 +171,7 @@ CTEST(btree_test, btree_erase_even_test) {
   for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
     ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), btree_erase(&tree, it), sizeof(uintptr_t));
 
+  ASSERT_TRUE(btree_empty(tree));
   ASSERT_NULL(tree.root);
 }
 

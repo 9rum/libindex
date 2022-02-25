@@ -62,7 +62,7 @@ struct llrb_root {
 /**
  * llrb_init - initializes an empty tree with @less
  *
- * @less: operator defining the (partial) node order
+ * @less: operator defining the (partial) element order
  */
 static inline struct llrb_root llrb_init(bool (*less)(const void *restrict, const void *restrict)) {
   struct llrb_root tree = {
@@ -72,6 +72,20 @@ static inline struct llrb_root llrb_init(bool (*less)(const void *restrict, cons
   };
   return tree;
 }
+
+/**
+ * llrb_size - returns the number of elements in @tree
+ *
+ * @tree: tree to get the number of elements
+ */
+static inline size_t llrb_size(const struct llrb_root tree) { return tree.size; }
+
+/**
+ * llrb_empty - checks whether @tree is empty
+ *
+ * @tree: tree to check
+ */
+static inline bool llrb_empty(const struct llrb_root tree) { return llrb_size(tree) == 0; }
 
 /**
  * llrb_find - finds element from @tree with @key
@@ -92,59 +106,77 @@ static inline void *llrb_find(const struct llrb_root tree, const void *restrict 
 }
 
 /**
- * llrb_insert - inserts @key and @value into @tree
+ * llrb_contains - checks if @tree contains element with @key
  *
- * @tree:  tree to insert @key and @value into
- * @key:   the key to insert
- * @value: the value to insert
+ * @tree: tree to check
+ * @key:  the key to search for
+ */
+static inline bool llrb_contains(const struct llrb_root tree, const void *restrict key) {
+  register const struct llrb_node *walk = tree.root;
+
+  while (walk != NULL) {
+    if (tree.less(key, walk->key))      walk = walk->left;
+    else if (tree.less(walk->key, key)) walk = walk->right;
+    else                                return true;
+  }
+
+  return false;
+}
+
+/**
+ * llrb_insert - inserts an element into @tree
+ *
+ * @tree:  tree to insert element into
+ * @key:   the key of the element to insert
+ * @value: the value of the element to insert
  */
 extern struct llrb_node *llrb_insert(struct llrb_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
- * llrb_insert_or_assign - inserts @key and @value into @tree or assigns @value if @key already exists
+ * llrb_insert_or_assign - inserts an element or assigns @value if @key already exists
  *
- * @tree:  tree to insert @key and @value into
- * @key:   the key to insert if not found
- * @value: the value to insert or assign
+ * @tree:  tree to insert element into
+ * @key:   the key of the element to insert if not found
+ * @value: the value of the element to insert or assign
  */
 extern struct llrb_node *llrb_insert_or_assign(struct llrb_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
- * llrb_erase - erases @key from @tree
+ * llrb_erase - removes the element with @key from @tree
  *
- * @tree: tree to erase @key from
- * @key:  the key to erase
+ * @tree: tree to remove the element from
+ * @key:  the key of the element to remove
  */
 extern void *llrb_erase(struct llrb_root *restrict tree, const void *restrict key);
 
 /**
- * llrb_clear - clears @tree
+ * llrb_clear - erases all elements from @tree
  *
- * @tree: tree to clear
+ * @tree: tree to erase all elements
  */
 extern void llrb_clear(struct llrb_root *restrict tree);
 
 /**
- * llrb_preorder - applies @func to each node of @tree preorderwise
+ * llrb_preorder - applies @func to each element of @tree preorderwise
  *
- * @tree: tree to apply @func to each node of
- * @func: function to apply to each node of @tree
+ * @tree: tree to apply @func to each element of
+ * @func: function to apply to each element of @tree
  */
 extern void llrb_preorder(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict));
 
 /**
- * llrb_inorder - applies @func to each node of @tree inorderwise
+ * llrb_inorder - applies @func to each element of @tree inorderwise
  *
- * @tree: tree to apply @func to each node of
- * @func: function to apply to each node of @tree
+ * @tree: tree to apply @func to each element of
+ * @func: function to apply to each element of @tree
  */
 extern void llrb_inorder(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict));
 
 /**
- * llrb_postorder - applies @func to each node of @tree postorderwise
+ * llrb_postorder - applies @func to each element of @tree postorderwise
  *
- * @tree: tree to apply @func to each node of
- * @func: function to apply to each node of @tree
+ * @tree: tree to apply @func to each element of
+ * @func: function to apply to each element of @tree
  */
 extern void llrb_postorder(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict));
 
