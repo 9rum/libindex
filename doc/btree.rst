@@ -21,16 +21,11 @@
 
 3. The C API
 
-    ``struct btree_node``
+    ``struct btree_node`` and ``struct btree_root``
 
-    | This data structure represents a node in B-tree.
-    | To initialize an empty tree, declare a pointer of type ``struct btree_node *`` to ``NULL``.
+        | These structures represent a node and the root of a B-tree respectively.
 
-    .. code-block::
-
-      struct btree_node *tree = NULL;
-
-    The below functions use the operator with 3 different calling conventions. The operator denotes:
+    The below function uses the operator with 3 different calling conventions. The operator denotes:
 
     .. code-block::
 
@@ -44,44 +39,48 @@
         * if both ``less(a, b)`` and ``less(b, c)`` are ``true``, then ``less(a, c)`` must be ``true`` as well
         * if both ``less(a, b)`` and ``less(b, c)`` are ``false``, then ``less(a, c)`` must be ``false`` as well
 
-    ``void *btree_find(const struct btree_node *tree, const void *key, bool (*less)(const void *, const void *))``
+    ``struct btree_root btree_init(const size_t order, bool (*less)(const void *, const void *))``
 
-        | This function finds element from tree *tree* with specified key *key* using operator *less*.
+        | This function initializes an empty tree of order *order* with operator *less*.
+
+    ``void *btree_find(const struct btree_root tree, const void *key)``
+
+        | This function finds element from tree *tree* with specified key *key*.
         | It returns the value of element with matched key.
         | If *key* is not found in *tree*, it returns ``NULL``.
 
-    ``struct btree_node *btree_insert(struct btree_node **tree, const size_t order, const void *key, void *value, bool (*less)(const void *, const void *))``
+    ``struct btree_node *btree_insert(struct btree_root *tree, const void *key, void *value)``
 
-        | This function inserts key *key* and value *value* into tree *tree* of order *order* using operator *less*.
+        | This function inserts key *key* and value *value* into tree *tree*.
         | It returns the pointer to the inserted element.
         | If *key* already exists in *tree*, it returns ``NULL`` without insertion.
 
-    ``struct btree_node *btree_insert_or_assign(struct btree_node **tree, const size_t order, const void *key, void *value, bool (*less)(const void *, const void *))``
+    ``struct btree_node *btree_insert_or_assign(struct btree_root *tree, const void *key, void *value)``
 
-        | This function inserts key *key* and value *value* into tree *tree* of order *order* using operator *less*.
+        | This function inserts key *key* and value *value* into tree *tree*.
         | Unlike ``btree_insert``, it assigns *value* if *key* already exists in *tree*.
         | It returns the pointer to the inserted/updated element.
 
-    ``void *btree_erase(struct btree_node **tree, const size_t order, const void *key, bool (*less)(const void *, const void *))``
+    ``void *btree_erase(struct btree_root *tree, const void *key)``
 
-        | This function erases element from tree *tree* of order *order* with specified key *key* using operator *less*.
+        | This function erases element from tree *tree* with specified key *key*.
         | It returns the value of element with matched key.
         | If *key* does not exist in *tree*, it returns ``NULL`` without deletion.
 
-    ``void btree_clear(struct btree_node **tree)``
+    ``void btree_clear(struct btree_root *tree)``
 
         | This function clears tree *tree*.
         | If you inserted element using ``btree_insert`` or ``btree_insert_or_assign`` and did not erase the entire element, you must clear the tree using this function, or memory leak would occur.
-        | After calling this function, *tree* becomes ``NULL``.
+        | After calling this function, ``btree_size`` returns zero.
 
-    ``void btree_preorder(const struct btree_node *tree, void (*func)(const void *, void *))``
+    ``void btree_preorder(const struct btree_root tree, void (*func)(const void *, void *))``
 
         | This function applies function *func* to each element of tree *tree* preorderwise.
 
-    ``void btree_inorder(const struct btree_node *tree, void (*func)(const void *, void *))``
+    ``void btree_inorder(const struct btree_root tree, void (*func)(const void *, void *))``
 
         | This function applies function *func* to each element of tree *tree* inorderwise.
 
-    ``void btree_postorder(const struct btree_node *tree, void (*func)(const void *, void *))``
+    ``void btree_postorder(const struct btree_root tree, void (*func)(const void *, void *))``
 
         | This function applies function *func* to each element of tree *tree* postorderwise.
