@@ -27,17 +27,11 @@
 
 3. The C API
 
-    ``struct bplus_internal_node`` and ``struct bplus_external_node``
+    ``struct bplus_internal_node``, ``struct bplus_external_node`` and ``struct bplus_root``
 
-    | These data structures represent an internal and external node in B+-tree respectively.
-    | To initialize an empty tree, declare pointers of type ``struct bplus_internal_node *`` and ``struct bplus_external_node *`` to ``NULL``.
+        | These structures represent an internal, external node and the root of a B+-tree respectively.
 
-    .. code-block::
-
-      struct bplus_internal_node *tree = NULL;
-      struct bplus_external_node *list = NULL;
-
-    The below functions use the operator with 3 different calling conventions. The operator denotes:
+    The below function uses the operator with 3 different calling conventions. The operator denotes:
 
     .. code-block::
 
@@ -51,36 +45,40 @@
         * if both ``less(a, b)`` and ``less(b, c)`` are ``true``, then ``less(a, c)`` must be ``true`` as well
         * if both ``less(a, b)`` and ``less(b, c)`` are ``false``, then ``less(a, c)`` must be ``false`` as well
 
-    ``void *bplus_find(const struct bplus_internal_node *tree, const struct bplus_external_node *list, const void *key, bool (*less)(const void *, const void *))``
+    ``struct bplus_root bplus_init(const size_t order, bool (*less)(const void *, const void *))``
 
-        | This function finds element from tree *tree* and list *list* with specified key *key* using operator *less*.
+        | This function initializes an empty tree of order *order* with operator *less*.
+
+    ``void *bplus_find(const struct bplus_root tree, const void *key)``
+
+        | This function finds element from tree *tree* with specified key *key*.
         | It returns the value of element with matched key.
-        | If *key* is not found in *list*, it returns ``NULL``.
+        | If *key* is not found in *tree*, it returns ``NULL``.
 
-    ``struct bplus_external_node *bplus_insert(struct bplus_internal_node **tree, struct bplus_external_node **list, const size_t order, const void *key, void *value, bool (*less)(const void *, const void *))``
+    ``struct bplus_external_node *bplus_insert(struct bplus_root *tree, const void *key, void *value)``
 
-        | This function inserts key *key* and value *value* into tree *tree* and list *list* of order *order* using operator *less*.
+        | This function inserts key *key* and value *value* into tree *tree*.
         | It returns the pointer to the inserted element.
-        | If *key* already exists in *list*, it returns ``NULL`` without insertion.
+        | If *key* already exists in *tree*, it returns ``NULL`` without insertion.
 
-    ``struct bplus_external_node *bplus_insert_or_assign(struct bplus_internal_node **tree, struct bplus_external_node **list, const size_t order, const void *key, void *value, bool (*less)(const void *, const void *))``
+    ``struct bplus_external_node *bplus_insert_or_assign(struct bplus_root *tree, const void *key, void *value)``
 
-        | This function inserts key *key* and value *value* into tree *tree* and list *list* of order *order* using operator *less*.
-        | Unlike ``bplus_insert``, it assigns *value* if *key* already exists in *list*.
+        | This function inserts key *key* and value *value* into tree *tree*.
+        | Unlike ``bplus_insert``, it assigns *value* if *key* already exists in *tree*.
         | It returns the pointer to the inserted/updated element.
 
-    ``void *bplus_erase(struct bplus_internal_node **tree, struct bplus_external_node **list, const size_t order, const void *key, bool (*less)(const void *, const void *))``
+    ``void *bplus_erase(struct bplus_root *tree, const void *key)``
 
-        | This function erases element from tree *tree* and list *list* of order *order* with specified key *key* using operator *less*.
+        | This function erases element from tree *tree* with specified key *key*.
         | It returns the value of element with matched key.
-        | If *key* does not exist in *list*, it returns ``NULL`` without deletion.
+        | If *key* does not exist in *tree*, it returns ``NULL`` without deletion.
 
-    ``void bplus_clear(struct bplus_internal_node **tree, struct bplus_external_node **list)``
+    ``void bplus_clear(struct bplus_root *tree)``
 
-        | This function clears tree *tree* and list *list*.
-        | If you inserted element using ``bplus_insert`` or ``bplus_insert_or_assign`` and did not erase the entire element, you must clear the tree and list using this function, or memory leak would occur.
-        | After calling this function, *tree* and *list* becomes ``NULL``.
+        | This function clears tree *tree*.
+        | If you inserted element using ``bplus_insert`` or ``bplus_insert_or_assign`` and did not erase the entire element, you must clear the tree using this function, or memory leak would occur.
+        | After calling this function, ``bplus_size`` returns zero.
 
-    ``void bplus_for_each(const struct bplus_external_node *list, void (*func)(const void *, void *))``
+    ``void bplus_for_each(const struct bplus_root tree, void (*func)(const void *, void *))``
 
-        | This function applies function *func* to each element of list *list* sequentialwise.
+        | This function applies function *func* to each element of tree *tree* sequentialwise.
