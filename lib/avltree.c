@@ -249,8 +249,8 @@ extern void *avl_erase(struct avl_root *restrict tree, const void *restrict key)
     }
   }
 
-  --tree->size;
   free(walk);
+  --tree->size;
 
   while (!stack_empty(stack)) {
     walk         = stack_pop(&stack);

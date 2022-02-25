@@ -206,8 +206,8 @@ extern void *llrb_erase(struct llrb_root *restrict tree, const void *restrict ke
         if ((parent = stack_top(stack)) == NULL) tree->root    = NULL;                                                 /* case of root */
         else if (parent->left == walk)           parent->left  = NULL;
         else                                     parent->right = NULL;
-        --tree->size;
         free(walk);
+        --tree->size;
         break;
       }
 
@@ -228,8 +228,8 @@ extern void *llrb_erase(struct llrb_root *restrict tree, const void *restrict ke
 
         if ((parent = stack_top(stack))->left == walk) parent->left  = NULL;
         else                                           parent->right = NULL;
-        --tree->size;
         free(walk);
+        --tree->size;
         break;
       } else {
         stack_push(&stack, walk);

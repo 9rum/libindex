@@ -49,6 +49,13 @@ struct btree_node {
         size_t            nmemb;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
+struct btree_root {
+        struct btree_node *root;
+        bool             (*less)(const void *restrict, const void *restrict);
+        size_t            size;
+  const size_t            order;
+} __attribute__((aligned(__SIZEOF_POINTER__)));
+
 /*
  * The below functions use the operator with 3 different
  * calling conventions. The operator denotes:
@@ -65,52 +72,61 @@ struct btree_node {
  */
 
 /**
+ * btree_init - initializes an empty tree of @order with @less
+ *
+ * @order: the order of tree
+ * @less:  operator defining the (partial) node order
+ */
+static inline struct btree_root btree_init(const size_t order, bool (*less)(const void *restrict, const void *restrict)) {
+  struct btree_root tree = {
+    .root  = NULL,
+    .less  = less,
+    .size  = 0,
+    .order = order,
+  };
+  return tree;
+}
+
+/**
  * btree_find - finds element from @tree with @key
  *
  * @tree: tree to find element from
  * @key:  the key to search for
- * @less: operator defining the (partial) node order
  */
-extern void *btree_find(const struct btree_node *restrict tree, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
+extern void *btree_find(const struct btree_root tree, const void *restrict key);
 
 /**
  * btree_insert - inserts @key and @value into @tree
  *
  * @tree:  tree to insert @key and @value into
- * @order: order of B-tree
  * @key:   the key to insert
  * @value: the value to insert
- * @less:  operator defining the (partial) node order
  */
-extern struct btree_node *btree_insert(struct btree_node **restrict tree, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
+extern struct btree_node *btree_insert(struct btree_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
  * btree_insert_or_assign - inserts @key and @value into @tree or assigns @value if @key already exists
  *
  * @tree:  tree to insert @key and @value into
- * @order: order of B-tree
  * @key:   the key to insert if not found
  * @value: the value to insert or assign
- * @less:  operator defining the (partial) node order
  */
-extern struct btree_node *btree_insert_or_assign(struct btree_node **restrict tree, const size_t order, const void *restrict key, void *restrict value, bool (*less)(const void *restrict, const void *restrict));
+extern struct btree_node *btree_insert_or_assign(struct btree_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
  * btree_erase - erases @key from @tree
  *
  * @tree:  tree to erase @key from
- * @order: order of B-tree
  * @key:   the key to erase
- * @less:  operator defining the (partial) node order
  */
-extern void *btree_erase(struct btree_node **restrict tree, const size_t order, const void *restrict key, bool (*less)(const void *restrict, const void *restrict));
+extern void *btree_erase(struct btree_root *restrict tree, const void *restrict key);
 
 /**
  * btree_clear - clears @tree
  *
  * @tree: tree to clear
  */
-extern void btree_clear(struct btree_node **restrict tree);
+extern void btree_clear(struct btree_root *restrict tree);
 
 /**
  * btree_preorder - applies @func to each node of @tree preorderwise
@@ -118,15 +134,7 @@ extern void btree_clear(struct btree_node **restrict tree);
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-static inline void btree_preorder(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
-  if (tree != NULL) {
-    for (size_t idx = 0; idx < tree->nmemb; ++idx) {
-      func(tree->keys[idx], tree->values[idx]);
-      btree_preorder(tree->children[idx], func);
-    }
-    btree_preorder(tree->children[tree->nmemb], func);
-  }
-}
+extern void btree_preorder(const struct btree_root tree, void (*func)(const void *restrict, void *restrict));
 
 /**
  * btree_inorder - applies @func to each node of @tree inorderwise
@@ -134,15 +142,7 @@ static inline void btree_preorder(const struct btree_node *restrict tree, void (
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-static inline void btree_inorder(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
-  if (tree != NULL) {
-    for (size_t idx = 0; idx < tree->nmemb; ++idx) {
-      btree_inorder(tree->children[idx], func);
-      func(tree->keys[idx], tree->values[idx]);
-    }
-    btree_inorder(tree->children[tree->nmemb], func);
-  }
-}
+extern void btree_inorder(const struct btree_root tree, void (*func)(const void *restrict, void *restrict));
 
 /**
  * btree_postorder - applies @func to each node of @tree postorderwise
@@ -150,14 +150,6 @@ static inline void btree_inorder(const struct btree_node *restrict tree, void (*
  * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
-static inline void btree_postorder(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
-  if (tree != NULL) {
-    btree_postorder(tree->children[0], func);
-    for (size_t idx = 0; idx < tree->nmemb; ++idx) {
-      btree_postorder(tree->children[idx+1], func);
-      func(tree->keys[idx], tree->values[idx]);
-    }
-  }
-}
+extern void btree_postorder(const struct btree_root tree, void (*func)(const void *restrict, void *restrict));
 
 #endif /* _INDEX_BTREE_H */
