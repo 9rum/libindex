@@ -146,7 +146,7 @@ extern void *btree_erase(struct btree_root *restrict tree, const void *restrict 
 /**
  * btree_clear - erases all elements from @tree
  *
- * @tree: tree to erase all elements
+ * @tree: tree to erase all elements from
  */
 extern void btree_clear(struct btree_root *restrict tree);
 

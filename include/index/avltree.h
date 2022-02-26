@@ -26,10 +26,10 @@
 /**
  * struct avl_node - a node in AVL tree
  *
- * @key:    the key of the node
- * @value:  the value of the node
- * @left:   the pointer to the left subtree
- * @right:  the pointer to the right subtree
+ * @key:    the key of the element
+ * @value:  the value of the element
+ * @left:   the address of the left subtree
+ * @right:  the address of the right subtree
  * @height: the height of the subtree rooted with the node
  *
  * In a binary tree, the balance factor of a node X is defined
@@ -166,7 +166,7 @@ extern void *avl_erase(struct avl_root *restrict tree, const void *restrict key)
 /**
  * avl_clear - erases all elements from @tree
  *
- * @tree: tree to erase all elements
+ * @tree: tree to erase all elements from
  */
 extern void avl_clear(struct avl_root *restrict tree);
 

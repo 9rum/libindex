@@ -19,10 +19,10 @@
 /**
  * struct llrb_node - a node in left-leaning red-black tree
  *
- * @key:   the key of the node
- * @value: the value of the node
- * @left:  the pointer to the left subtree
- * @right: the pointer to the right subtree
+ * @key:   the key of the element
+ * @value: the value of the element
+ * @left:  the address of the left subtree
+ * @right: the address of the right subtree
  * @color: the color of the node
  *
  * The traditional red-black tree represents 2-3-4 tree as a binary search tree
@@ -152,7 +152,7 @@ extern void *llrb_erase(struct llrb_root *restrict tree, const void *restrict ke
 /**
  * llrb_clear - erases all elements from @tree
  *
- * @tree: tree to erase all elements
+ * @tree: tree to erase all elements from
  */
 extern void llrb_clear(struct llrb_root *restrict tree);
 

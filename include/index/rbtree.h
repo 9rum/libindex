@@ -28,10 +28,10 @@
 /**
  * struct rb_node - a node in red-black tree
  *
- * @key:   the key of the node
- * @value: the value of the node
- * @left:  the pointer to the left subtree
- * @right: the pointer to the right subtree
+ * @key:   the key of the element
+ * @value: the value of the element
+ * @left:  the address of the left subtree
+ * @right: the address of the right subtree
  * @color: the color of the node
  *
  * In addition to the requirements imposed on a binary search tree,
@@ -166,7 +166,7 @@ extern void *rb_erase(struct rb_root *restrict tree, const void *restrict key);
 /**
  * rb_clear - erases all elements from @tree
  *
- * @tree: tree to erase all elements
+ * @tree: tree to erase all elements from
  */
 extern void rb_clear(struct rb_root *restrict tree);
 

@@ -57,7 +57,7 @@ struct bplus_internal_node {
  *
  * @keys:   the ordered set of keys of the node
  * @values: the ordered set of values of the node
- * @next:   the pointer to the next node
+ * @next:   the address of the next node
  * @nmemb:  the number of the keys of the node
  */
 struct bplus_external_node {
@@ -166,7 +166,7 @@ extern void *bplus_erase(struct bplus_root *restrict tree, const void *restrict 
 /**
  * bplus_clear - erases all elements from @tree
  *
- * @tree: tree to erase all elements
+ * @tree: tree to erase all elements from
  */
 extern void bplus_clear(struct bplus_root *restrict tree);
 

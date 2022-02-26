@@ -22,7 +22,7 @@
  * struct stack - generic stack
  *
  * @value: the value of the element
- * @next:  the pointer to the next element
+ * @next:  the address of the next element
  */
 struct stack {
   void         *value;
@@ -44,9 +44,9 @@ static inline bool stack_empty(const struct stack *restrict stack) { return stac
 static inline void *stack_top(const struct stack *restrict stack) { return stack_empty(stack) ? NULL : stack->value; }
 
 /**
- * stack_push - inserts @value at the top of @stack
+ * stack_push - inserts an element at the top of @stack
  *
- * @stack: stack to insert @value
+ * @stack: stack to insert element
  * @value: the value of the element to insert
  */
 static inline void stack_push(struct stack **restrict stack, void *restrict value) {
@@ -73,9 +73,9 @@ static inline void *stack_pop(struct stack **restrict stack) {
 }
 
 /**
- * stack_clear - clears @stack
+ * stack_clear - erases all elements from @stack
  *
- * @stack: stack to clear
+ * @stack: stack to erase all elements from
  */
 static inline void stack_clear(struct stack **restrict stack) {
   register struct stack *top;
