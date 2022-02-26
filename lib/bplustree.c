@@ -34,14 +34,14 @@ static inline void bplus_internal_free(struct bplus_internal_node *restrict node
 }
 
 /**
- * bplus_internal_clear - clears @tree
+ * bplus_internal_clear - erases all elements from @tree
  *
- * @tree: tree to clear
+ * @tree: tree to erase all elements from
  */
 static inline void bplus_internal_clear(struct bplus_internal_node *restrict tree) {
   if (tree != NULL) {
     if (!tree->type)
-      for (size_t idx = 0; idx <= tree->nmemb; ++idx)
+      for (register size_t idx = 0; idx <= tree->nmemb; ++idx)
         bplus_internal_clear(tree->children[idx]);
     bplus_internal_free(tree);
   }
@@ -73,9 +73,9 @@ static inline void bplus_external_free(struct bplus_external_node *restrict node
 }
 
 /**
- * bplus_external_clear - clears @list
+ * bplus_external_clear - erases all elements from @list
  *
- * @list: list to clear
+ * @list: list to erase all elements from
  */
 static inline void bplus_external_clear(struct bplus_external_node *restrict list) {
   register struct bplus_external_node *node;

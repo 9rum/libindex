@@ -59,7 +59,7 @@ static inline size_t __bsearch(const void *restrict key, const void **restrict b
 
 static inline void __btree_clear(struct btree_node *restrict tree) {
   if (tree != NULL) {
-    for (size_t idx = 0; idx <= tree->nmemb; ++idx)
+    for (register size_t idx = 0; idx <= tree->nmemb; ++idx)
       __btree_clear(tree->children[idx]);
     btree_free(tree);
   }
@@ -67,7 +67,7 @@ static inline void __btree_clear(struct btree_node *restrict tree) {
 
 static inline void __btree_preorder(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
   if (tree != NULL) {
-    for (size_t idx = 0; idx < tree->nmemb; ++idx) {
+    for (register size_t idx = 0; idx < tree->nmemb; ++idx) {
       func(tree->keys[idx], tree->values[idx]);
       __btree_preorder(tree->children[idx], func);
     }
@@ -77,7 +77,7 @@ static inline void __btree_preorder(const struct btree_node *restrict tree, void
 
 static inline void __btree_inorder(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
   if (tree != NULL) {
-    for (size_t idx = 0; idx < tree->nmemb; ++idx) {
+    for (register size_t idx = 0; idx < tree->nmemb; ++idx) {
       __btree_inorder(tree->children[idx], func);
       func(tree->keys[idx], tree->values[idx]);
     }
@@ -88,7 +88,7 @@ static inline void __btree_inorder(const struct btree_node *restrict tree, void 
 static inline void __btree_postorder(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
   if (tree != NULL) {
     __btree_postorder(tree->children[0], func);
-    for (size_t idx = 0; idx < tree->nmemb; ++idx) {
+    for (register size_t idx = 0; idx < tree->nmemb; ++idx) {
       __btree_postorder(tree->children[idx+1], func);
       func(tree->keys[idx], tree->values[idx]);
     }
