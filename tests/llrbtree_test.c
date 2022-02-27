@@ -14,7 +14,7 @@
 
 #include <ctest.h>
 #include <index/llrbtree.h>
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -37,7 +37,6 @@ CTEST(llrbtree_test, llrb_find_test) {
 
   llrb_clear(&tree);
   ASSERT_TRUE(llrb_empty(tree));
-  ASSERT_NULL(tree.root);
 }
 
 CTEST(llrbtree_test, llrb_insert_test) {
@@ -53,7 +52,6 @@ CTEST(llrbtree_test, llrb_insert_test) {
 
   llrb_clear(&tree);
   ASSERT_TRUE(llrb_empty(tree));
-  ASSERT_NULL(tree.root);
 }
 
 CTEST(llrbtree_test, llrb_insert_or_assign_test) {
@@ -72,7 +70,6 @@ CTEST(llrbtree_test, llrb_insert_or_assign_test) {
 
   llrb_clear(&tree);
   ASSERT_TRUE(llrb_empty(tree));
-  ASSERT_NULL(tree.root);
 }
 
 CTEST(llrbtree_test, llrb_erase_test) {
@@ -85,7 +82,6 @@ CTEST(llrbtree_test, llrb_erase_test) {
     ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), llrb_erase(&tree, it), sizeof(uintptr_t));
 
   ASSERT_TRUE(llrb_empty(tree));
-  ASSERT_NULL(tree.root);
 }
 
 CTEST(llrbtree_test, llrb_erase_reverse_test) {
@@ -98,7 +94,6 @@ CTEST(llrbtree_test, llrb_erase_reverse_test) {
     ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), llrb_erase(&tree, it), sizeof(uintptr_t));
 
   ASSERT_TRUE(llrb_empty(tree));
-  ASSERT_NULL(tree.root);
 }
 
 int main(int argc, const char **argv) { return ctest_main(argc, argv); }

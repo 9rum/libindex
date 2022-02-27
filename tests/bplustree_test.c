@@ -14,7 +14,7 @@
 
 #include <ctest.h>
 #include <index/bplustree.h>
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -52,8 +52,6 @@ CTEST(bplustree_test, bplus_find_test) {
 
   bplus_clear(&tree);
   ASSERT_TRUE(bplus_empty(tree));
-  ASSERT_NULL(tree.root);
-  ASSERT_NULL(tree.head);
 }
 
 CTEST(bplustree_test, bplus_insert_odd_test) {
@@ -75,8 +73,6 @@ CTEST(bplustree_test, bplus_insert_odd_test) {
 
   bplus_clear(&tree);
   ASSERT_TRUE(bplus_empty(tree));
-  ASSERT_NULL(tree.root);
-  ASSERT_NULL(tree.head);
 }
 
 CTEST(bplustree_test, bplus_insert_or_assign_odd_test) {
@@ -95,8 +91,6 @@ CTEST(bplustree_test, bplus_insert_or_assign_odd_test) {
 
   bplus_clear(&tree);
   ASSERT_TRUE(bplus_empty(tree));
-  ASSERT_NULL(tree.root);
-  ASSERT_NULL(tree.head);
 }
 
 CTEST(bplustree_test, bplus_erase_odd_test) {
@@ -115,8 +109,6 @@ CTEST(bplustree_test, bplus_erase_odd_test) {
     ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), bplus_erase(&tree, it), sizeof(uintptr_t));
 
   ASSERT_TRUE(bplus_empty(tree));
-  ASSERT_NULL(tree.root);
-  ASSERT_NULL(tree.head);
 }
 
 CTEST(bplustree_test, bplus_insert_even_test) {
@@ -138,8 +130,6 @@ CTEST(bplustree_test, bplus_insert_even_test) {
 
   bplus_clear(&tree);
   ASSERT_TRUE(bplus_empty(tree));
-  ASSERT_NULL(tree.root);
-  ASSERT_NULL(tree.head);
 }
 
 CTEST(bplustree_test, bplus_insert_or_assign_even_test) {
@@ -158,8 +148,6 @@ CTEST(bplustree_test, bplus_insert_or_assign_even_test) {
 
   bplus_clear(&tree);
   ASSERT_TRUE(bplus_empty(tree));
-  ASSERT_NULL(tree.root);
-  ASSERT_NULL(tree.head);
 }
 
 CTEST(bplustree_test, bplus_erase_even_test) {
@@ -178,8 +166,6 @@ CTEST(bplustree_test, bplus_erase_even_test) {
     ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), bplus_erase(&tree, it), sizeof(uintptr_t));
 
   ASSERT_TRUE(bplus_empty(tree));
-  ASSERT_NULL(tree.root);
-  ASSERT_NULL(tree.head);
 }
 
 int main(int argc, const char **argv) { return ctest_main(argc, argv); }

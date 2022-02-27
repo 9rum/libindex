@@ -14,7 +14,7 @@
 
 #include <ctest.h>
 #include <index/rbtree.h>
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -37,7 +37,6 @@ CTEST(rbtree_test, rb_find_test) {
 
   rb_clear(&tree);
   ASSERT_TRUE(rb_empty(tree));
-  ASSERT_NULL(tree.root);
 }
 
 CTEST(rbtree_test, rb_insert_test) {
@@ -53,7 +52,6 @@ CTEST(rbtree_test, rb_insert_test) {
 
   rb_clear(&tree);
   ASSERT_TRUE(rb_empty(tree));
-  ASSERT_NULL(tree.root);
 }
 
 CTEST(rbtree_test, rb_insert_or_assign_test) {
@@ -72,7 +70,6 @@ CTEST(rbtree_test, rb_insert_or_assign_test) {
 
   rb_clear(&tree);
   ASSERT_TRUE(rb_empty(tree));
-  ASSERT_NULL(tree.root);
 }
 
 CTEST(rbtree_test, rb_erase_test) {
@@ -85,7 +82,6 @@ CTEST(rbtree_test, rb_erase_test) {
     ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), rb_erase(&tree, it), sizeof(uintptr_t));
 
   ASSERT_TRUE(rb_empty(tree));
-  ASSERT_NULL(tree.root);
 }
 
 CTEST(rbtree_test, rb_erase_reverse_test) {
@@ -98,7 +94,6 @@ CTEST(rbtree_test, rb_erase_reverse_test) {
     ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), rb_erase(&tree, it), sizeof(uintptr_t));
 
   ASSERT_TRUE(rb_empty(tree));
-  ASSERT_NULL(tree.root);
 }
 
 int main(int argc, const char **argv) { return ctest_main(argc, argv); }
