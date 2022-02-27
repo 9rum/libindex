@@ -37,18 +37,18 @@ const uintptr_t testcases[] = {
   61, 62, 64, 69, 67, 65, 54, 59, 58, 51,
 };
 
-bool less(const void *restrict lhs, const void *restrict rhs) { return *(uintptr_t *)lhs < *(uintptr_t *)rhs; }
+bool less(const void *restrict lhs, const void *restrict rhs) { return (uintptr_t)lhs < (uintptr_t)rhs; }
 
-void concat(const void *restrict key, void *restrict value) { sprintf(src, "%" PRIuPTR, *(uintptr_t *)key); strcat(dest, src); }
+void concat(const void *restrict key, void *restrict value) { sprintf(src, "%" PRIuPTR, (uintptr_t)key); strcat(dest, src); }
 
 CTEST(btree_test, btree_find_test) {
   struct btree_root tree = btree_init(3, less);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
-    btree_insert(&tree, it, (uintptr_t *)it);
+    btree_insert(&tree, (void *)*it, (void *)*it);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
-    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), btree_find(tree, it), sizeof(uintptr_t));
+    ASSERT_EQUAL_U(*it, (uintptr_t)btree_find(tree, (void *)*it));
 
   btree_clear(&tree);
   ASSERT_TRUE(btree_empty(tree));
@@ -59,17 +59,17 @@ CTEST(btree_test, btree_insert_odd_test) {
   const uintptr_t         *it  = testcases;
 
   for (; it < testcases + 39; ++it)
-    ASSERT_NOT_NULL(btree_insert(&tree, it, NULL));
+    ASSERT_NOT_NULL(btree_insert(&tree, (void *)*it, NULL));
 
-  ASSERT_NULL(btree_insert(&tree, it++, NULL));
+  ASSERT_NULL(btree_insert(&tree, (void *)*it, NULL));
 
-  for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
-    ASSERT_NOT_NULL(btree_insert(&tree, it, NULL));
+  for (++it; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
+    ASSERT_NOT_NULL(btree_insert(&tree, (void *)*it, NULL));
 
   memset(dest, 0, sizeof(dest));
   btree_inorder(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
-  ASSERT_EQUAL(sizeof(testcases)/sizeof(uintptr_t)/2-1, btree_size(tree));
+  ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t)/2-1, btree_size(tree));
 
   btree_clear(&tree);
   ASSERT_TRUE(btree_empty(tree));
@@ -79,15 +79,15 @@ CTEST(btree_test, btree_insert_or_assign_odd_test) {
   struct btree_root tree = btree_init(3, less);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
-    ASSERT_NOT_NULL(btree_insert_or_assign(&tree, it, NULL));
+    ASSERT_NOT_NULL(btree_insert_or_assign(&tree, (void *)*it, NULL));
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
-    ASSERT_NOT_NULL(btree_insert_or_assign(&tree, it, (uintptr_t *)it));
+    ASSERT_NOT_NULL(btree_insert_or_assign(&tree, (void *)*it, (void *)*it));
 
   memset(dest, 0, sizeof(dest));
   btree_inorder(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
-  ASSERT_EQUAL(sizeof(testcases)/sizeof(uintptr_t)/2-1, btree_size(tree));
+  ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t)/2-1, btree_size(tree));
 
   btree_clear(&tree);
   ASSERT_TRUE(btree_empty(tree));
@@ -98,15 +98,15 @@ CTEST(btree_test, btree_erase_odd_test) {
   const uintptr_t         *it  = testcases;
 
   for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
-    btree_insert(&tree, it, (uintptr_t *)it);
+    btree_insert(&tree, (void *)*it, (void *)*it);
 
   for (; it < testcases + 99; ++it)
-    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), btree_erase(&tree, it), sizeof(uintptr_t));
+    ASSERT_EQUAL_U(*it, (uintptr_t)btree_erase(&tree, (void *)*it));
 
-  ASSERT_NULL(btree_erase(&tree, it++));
+  ASSERT_NULL(btree_erase(&tree, (void *)*it));
 
-  for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), btree_erase(&tree, it), sizeof(uintptr_t));
+  for (++it; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
+    ASSERT_EQUAL_U(*it, (uintptr_t)btree_erase(&tree, (void *)*it));
 
   ASSERT_TRUE(btree_empty(tree));
 }
@@ -116,17 +116,17 @@ CTEST(btree_test, btree_insert_even_test) {
   const uintptr_t         *it  = testcases;
 
   for (; it < testcases + 39; ++it)
-    ASSERT_NOT_NULL(btree_insert(&tree, it, NULL));
+    ASSERT_NOT_NULL(btree_insert(&tree, (void *)*it, NULL));
 
-  ASSERT_NULL(btree_insert(&tree, it++, NULL));
+  ASSERT_NULL(btree_insert(&tree, (void *)*it, NULL));
 
-  for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
-    ASSERT_NOT_NULL(btree_insert(&tree, it, NULL));
+  for (++it; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
+    ASSERT_NOT_NULL(btree_insert(&tree, (void *)*it, NULL));
 
   memset(dest, 0, sizeof(dest));
   btree_inorder(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
-  ASSERT_EQUAL(sizeof(testcases)/sizeof(uintptr_t)/2-1, btree_size(tree));
+  ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t)/2-1, btree_size(tree));
 
   btree_clear(&tree);
   ASSERT_TRUE(btree_empty(tree));
@@ -136,15 +136,15 @@ CTEST(btree_test, btree_insert_or_assign_even_test) {
   struct btree_root tree = btree_init(4, less);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
-    ASSERT_NOT_NULL(btree_insert_or_assign(&tree, it, NULL));
+    ASSERT_NOT_NULL(btree_insert_or_assign(&tree, (void *)*it, NULL));
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
-    ASSERT_NOT_NULL(btree_insert_or_assign(&tree, it, (uintptr_t *)it));
+    ASSERT_NOT_NULL(btree_insert_or_assign(&tree, (void *)*it, (void *)*it));
 
   memset(dest, 0, sizeof(dest));
   btree_inorder(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
-  ASSERT_EQUAL(sizeof(testcases)/sizeof(uintptr_t)/2-1, btree_size(tree));
+  ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t)/2-1, btree_size(tree));
 
   btree_clear(&tree);
   ASSERT_TRUE(btree_empty(tree));
@@ -155,15 +155,15 @@ CTEST(btree_test, btree_erase_even_test) {
   const uintptr_t         *it  = testcases;
 
   for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
-    btree_insert(&tree, it, (uintptr_t *)it);
+    btree_insert(&tree, (void *)*it, (void *)*it);
 
   for (; it < testcases + 99; ++it)
-    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), btree_erase(&tree, it), sizeof(uintptr_t));
+    ASSERT_EQUAL_U(*it, (uintptr_t)btree_erase(&tree, (void *)*it));
 
-  ASSERT_NULL(btree_erase(&tree, it++));
+  ASSERT_NULL(btree_erase(&tree, (void *)*it));
 
-  for (; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), btree_erase(&tree, it), sizeof(uintptr_t));
+  for (++it; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
+    ASSERT_EQUAL_U(*it, (uintptr_t)btree_erase(&tree, (void *)*it));
 
   ASSERT_TRUE(btree_empty(tree));
 }

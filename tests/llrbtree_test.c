@@ -22,18 +22,18 @@
       char      dest[41];
 const uintptr_t testcases[] = {40, 11, 77, 33, 20, 90, 99, 70, 88, 80, 66, 10, 22, 30, 44, 55, 50, 60, 25, 49};
 
-bool less(const void *restrict lhs, const void *restrict rhs) { return *(uintptr_t *)lhs < *(uintptr_t *)rhs; }
+bool less(const void *restrict lhs, const void *restrict rhs) { return (uintptr_t)lhs < (uintptr_t)rhs; }
 
-void concat(const void *restrict key, void *restrict value) { sprintf(src, "%" PRIuPTR, *(uintptr_t *)key); strcat(dest, src); }
+void concat(const void *restrict key, void *restrict value) { sprintf(src, "%" PRIuPTR, (uintptr_t)key); strcat(dest, src); }
 
 CTEST(llrbtree_test, llrb_find_test) {
   struct llrb_root tree = llrb_init(less);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    llrb_insert(&tree, it, (uintptr_t *)it);
+    llrb_insert(&tree, (void *)*it, (void *)*it);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), llrb_find(tree, it), sizeof(uintptr_t));
+    ASSERT_EQUAL_U(*it, (uintptr_t)llrb_find(tree, (void *)*it));
 
   llrb_clear(&tree);
   ASSERT_TRUE(llrb_empty(tree));
@@ -43,12 +43,12 @@ CTEST(llrbtree_test, llrb_insert_test) {
   struct llrb_root tree = llrb_init(less);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    ASSERT_NOT_NULL(llrb_insert(&tree, it, NULL));
+    ASSERT_NOT_NULL(llrb_insert(&tree, (void *)*it, NULL));
 
   memset(dest, 0, sizeof(dest));
   llrb_inorder(tree, concat);
   ASSERT_STR("1011202225303340444950556066707780889099", dest);
-  ASSERT_EQUAL(sizeof(testcases)/sizeof(uintptr_t), llrb_size(tree));
+  ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t), llrb_size(tree));
 
   llrb_clear(&tree);
   ASSERT_TRUE(llrb_empty(tree));
@@ -58,15 +58,15 @@ CTEST(llrbtree_test, llrb_insert_or_assign_test) {
   struct llrb_root tree = llrb_init(less);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    ASSERT_NOT_NULL(llrb_insert_or_assign(&tree, it, NULL));
+    ASSERT_NOT_NULL(llrb_insert_or_assign(&tree, (void *)*it, NULL));
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    ASSERT_NOT_NULL(llrb_insert_or_assign(&tree, it, (uintptr_t *)it));
+    ASSERT_NOT_NULL(llrb_insert_or_assign(&tree, (void *)*it, (void *)*it));
 
   memset(dest, 0, sizeof(dest));
   llrb_inorder(tree, concat);
   ASSERT_STR("1011202225303340444950556066707780889099", dest);
-  ASSERT_EQUAL(sizeof(testcases)/sizeof(uintptr_t), llrb_size(tree));
+  ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t), llrb_size(tree));
 
   llrb_clear(&tree);
   ASSERT_TRUE(llrb_empty(tree));
@@ -76,10 +76,10 @@ CTEST(llrbtree_test, llrb_erase_test) {
   struct llrb_root tree = llrb_init(less);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    llrb_insert(&tree, it, (uintptr_t *)it);
+    llrb_insert(&tree, (void *)*it, (void *)*it);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), llrb_erase(&tree, it), sizeof(uintptr_t));
+    ASSERT_EQUAL_U(*it, (uintptr_t)llrb_erase(&tree, (void *)*it));
 
   ASSERT_TRUE(llrb_empty(tree));
 }
@@ -88,10 +88,10 @@ CTEST(llrbtree_test, llrb_erase_reverse_test) {
   struct llrb_root tree = llrb_init(less);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    llrb_insert(&tree, it, (uintptr_t *)it);
+    llrb_insert(&tree, (void *)*it, (void *)*it);
 
   for (const uintptr_t *it = testcases + sizeof(testcases)/sizeof(uintptr_t) - 1; testcases <= it; --it)
-    ASSERT_DATA((const unsigned char *)it, sizeof(uintptr_t), llrb_erase(&tree, it), sizeof(uintptr_t));
+    ASSERT_EQUAL_U(*it, (uintptr_t)llrb_erase(&tree, (void *)*it));
 
   ASSERT_TRUE(llrb_empty(tree));
 }
