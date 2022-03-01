@@ -171,27 +171,19 @@ extern void *avl_erase(struct avl_root *restrict tree, const void *restrict key)
 extern void avl_clear(struct avl_root *restrict tree);
 
 /**
- * avl_preorder - applies @func to each element of @tree preorderwise
+ * avl_for_each - applies @func to each element of @tree in ascending order
  *
  * @tree: tree to apply @func to each element of
  * @func: function to apply to each element of @tree
  */
-extern void avl_preorder(const struct avl_root tree, void (*func)(const void *restrict, void *restrict));
+extern void avl_for_each(const struct avl_root tree, void (*func)(const void *restrict, void *restrict));
 
 /**
- * avl_inorder - applies @func to each element of @tree inorderwise
+ * avl_rev_each - applies @func to each element of @tree in descending order
  *
  * @tree: tree to apply @func to each element of
  * @func: function to apply to each element of @tree
  */
-extern void avl_inorder(const struct avl_root tree, void (*func)(const void *restrict, void *restrict));
-
-/**
- * avl_postorder - applies @func to each element of @tree postorderwise
- *
- * @tree: tree to apply @func to each element of
- * @func: function to apply to each element of @tree
- */
-extern void avl_postorder(const struct avl_root tree, void (*func)(const void *restrict, void *restrict));
+extern void avl_rev_each(const struct avl_root tree, void (*func)(const void *restrict, void *restrict));
 
 #endif /* _INDEX_AVLTREE_H */

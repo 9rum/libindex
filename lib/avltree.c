@@ -68,11 +68,9 @@ static inline void avl_rotate_right(struct avl_node **restrict root, struct avl_
 
 static inline void __avl_clear(struct avl_node *restrict tree) { if (tree != NULL) { __avl_clear(tree->left); __avl_clear(tree->right); free(tree); } }
 
-static inline void __avl_preorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { func(tree->key, tree->value); __avl_preorder(tree->left, func); __avl_preorder(tree->right, func); } }
+static inline void __avl_for_each(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __avl_for_each(tree->left, func); func(tree->key, tree->value); __avl_for_each(tree->right, func); } }
 
-static inline void __avl_inorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __avl_inorder(tree->left, func); func(tree->key, tree->value); __avl_inorder(tree->right, func); } }
-
-static inline void __avl_postorder(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __avl_postorder(tree->left, func); __avl_postorder(tree->right, func); func(tree->key, tree->value); } }
+static inline void __avl_rev_each(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __avl_rev_each(tree->right, func); func(tree->key, tree->value); __avl_rev_each(tree->left, func); } }
 
 extern struct avl_node *avl_insert(struct avl_root *restrict tree, const void *restrict key, void *restrict value) {
            struct avl_node *parent;
@@ -304,8 +302,6 @@ extern void avl_clear(struct avl_root *restrict tree) {
   tree->size = 0;
 }
 
-extern void avl_preorder(const struct avl_root tree, void (*func)(const void *restrict, void *restrict)) { __avl_preorder(tree.root, func); }
+extern void avl_for_each(const struct avl_root tree, void (*func)(const void *restrict, void *restrict)) { __avl_for_each(tree.root, func); }
 
-extern void avl_inorder(const struct avl_root tree, void (*func)(const void *restrict, void *restrict)) { __avl_inorder(tree.root, func); }
-
-extern void avl_postorder(const struct avl_root tree, void (*func)(const void *restrict, void *restrict)) { __avl_postorder(tree.root, func); }
+extern void avl_rev_each(const struct avl_root tree, void (*func)(const void *restrict, void *restrict)) { __avl_rev_each(tree.root, func); }
