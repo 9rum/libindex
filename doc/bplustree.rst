@@ -93,4 +93,8 @@
 
     ``void bplus_for_each(const struct bplus_root tree, void (*func)(const void *, void *))``
 
-        | This function applies function *func* to each element of tree *tree* sequentialwise.
+        | This function applies function *func* to each element of tree *tree* in ascending order.
+
+    ``void bplus_rev_each(const struct bplus_root tree, void (*func)(const void *, void *))``
+
+        | This function applies function *func* to each element of tree *tree* in descending order.

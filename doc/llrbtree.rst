@@ -80,14 +80,10 @@
         | If you inserted elements using ``llrb_insert`` or ``llrb_insert_or_assign`` and did not erase all the elements, you must clear the tree using this function, or memory leak would occur.
         | After calling this function, ``llrb_size`` returns zero.
 
-    ``void llrb_preorder(const struct llrb_root tree, void (*func)(const void *, void *))``
+    ``void llrb_for_each(const struct llrb_root tree, void (*func)(const void *, void *))``
 
-        | This function applies function *func* to each element of tree *tree* preorderwise.
+        | This function applies function *func* to each element of tree *tree* in ascending order.
 
-    ``void llrb_inorder(const struct llrb_root tree, void (*func)(const void *, void *))``
+    ``void llrb_rev_each(const struct llrb_root tree, void (*func)(const void *, void *))``
 
-        | This function applies function *func* to each element of tree *tree* inorderwise.
-
-    ``void llrb_postorder(const struct llrb_root tree, void (*func)(const void *, void *))``
-
-        | This function applies function *func* to each element of tree *tree* postorderwise.
+        | This function applies function *func* to each element of tree *tree* in descending order.

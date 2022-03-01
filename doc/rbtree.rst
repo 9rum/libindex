@@ -83,14 +83,10 @@
         | If you inserted elements using ``rb_insert`` or ``rb_insert_or_assign`` and did not erase all the elements, you must clear the tree using this function, or memory leak would occur.
         | After calling this function, ``rb_size`` returns zero.
 
-    ``void rb_preorder(const struct rb_root tree, void (*func)(const void *, void *))``
+    ``void rb_for_each(const struct rb_root tree, void (*func)(const void *, void *))``
 
-        | This function applies function *func* to each element of tree *tree* preorderwise.
+        | This function applies function *func* to each element of tree *tree* in ascending order.
 
-    ``void rb_inorder(const struct rb_root tree, void (*func)(const void *, void *))``
+    ``void rb_rev_each(const struct rb_root tree, void (*func)(const void *, void *))``
 
-        | This function applies function *func* to each element of tree *tree* inorderwise.
-
-    ``void rb_postorder(const struct rb_root tree, void (*func)(const void *, void *))``
-
-        | This function applies function *func* to each element of tree *tree* postorderwise.
+        | This function applies function *func* to each element of tree *tree* in descending order.

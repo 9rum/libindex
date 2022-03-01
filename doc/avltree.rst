@@ -82,14 +82,10 @@
         | If you inserted elements using ``avl_insert`` or ``avl_insert_or_assign`` and did not erase all the elements, you must clear the tree using this function, or memory leak would occur.
         | After calling this function, ``avl_size`` returns zero.
 
-    ``void avl_preorder(const struct avl_root tree, void (*func)(const void *, void *))``
+    ``void avl_for_each(const struct avl_root tree, void (*func)(const void *, void *))``
 
-        | This function applies function *func* to each element of tree *tree* preorderwise.
+        | This function applies function *func* to each element of tree *tree* in ascending order.
 
-    ``void avl_inorder(const struct avl_root tree, void (*func)(const void *, void *))``
+    ``void avl_rev_each(const struct avl_root tree, void (*func)(const void *, void *))``
 
-        | This function applies function *func* to each element of tree *tree* inorderwise.
-
-    ``void avl_postorder(const struct avl_root tree, void (*func)(const void *, void *))``
-
-        | This function applies function *func* to each element of tree *tree* postorderwise.
+        | This function applies function *func* to each element of tree *tree* in descending order.
