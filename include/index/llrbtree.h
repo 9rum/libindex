@@ -157,27 +157,19 @@ extern void *llrb_erase(struct llrb_root *restrict tree, const void *restrict ke
 extern void llrb_clear(struct llrb_root *restrict tree);
 
 /**
- * llrb_preorder - applies @func to each element of @tree preorderwise
+ * llrb_for_each - applies @func to each element of @tree in ascending order
  *
  * @tree: tree to apply @func to each element of
  * @func: function to apply to each element of @tree
  */
-extern void llrb_preorder(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict));
+extern void llrb_for_each(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict));
 
 /**
- * llrb_inorder - applies @func to each element of @tree inorderwise
+ * llrb_rev_each - applies @func to each element of @tree in descending order
  *
  * @tree: tree to apply @func to each element of
  * @func: function to apply to each element of @tree
  */
-extern void llrb_inorder(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict));
-
-/**
- * llrb_postorder - applies @func to each element of @tree postorderwise
- *
- * @tree: tree to apply @func to each element of
- * @func: function to apply to each element of @tree
- */
-extern void llrb_postorder(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict));
+extern void llrb_rev_each(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict));
 
 #endif /* _INDEX_LLRBTREE_H */

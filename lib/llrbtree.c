@@ -115,11 +115,9 @@ static inline struct llrb_node *llrb_move_red_right(struct llrb_node **restrict 
 
 static inline void __llrb_clear(struct llrb_node *restrict tree) { if (tree != NULL) { __llrb_clear(tree->left); __llrb_clear(tree->right); free(tree); } }
 
-static inline void __llrb_preorder(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { func(tree->key, tree->value); __llrb_preorder(tree->left, func); __llrb_preorder(tree->right, func); } }
+static inline void __llrb_for_each(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __llrb_for_each(tree->left, func); func(tree->key, tree->value); __llrb_for_each(tree->right, func); } }
 
-static inline void __llrb_inorder(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __llrb_inorder(tree->left, func); func(tree->key, tree->value); __llrb_inorder(tree->right, func); } }
-
-static inline void __llrb_postorder(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __llrb_postorder(tree->left, func); __llrb_postorder(tree->right, func); func(tree->key, tree->value); } }
+static inline void __llrb_rev_each(const struct llrb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __llrb_rev_each(tree->right, func); func(tree->key, tree->value); __llrb_rev_each(tree->left, func); } }
 
 extern struct llrb_node *llrb_insert(struct llrb_root *restrict tree, const void *restrict key, void *restrict value) {
   register struct llrb_node *parent;
@@ -258,8 +256,6 @@ extern void llrb_clear(struct llrb_root *restrict tree) {
   tree->size = 0;
 }
 
-extern void llrb_preorder(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict)) { __llrb_preorder(tree.root, func); }
+extern void llrb_for_each(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict)) { __llrb_for_each(tree.root, func); }
 
-extern void llrb_inorder(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict)) { __llrb_inorder(tree.root, func); }
-
-extern void llrb_postorder(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict)) { __llrb_postorder(tree.root, func); }
+extern void llrb_rev_each(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict)) { __llrb_rev_each(tree.root, func); }

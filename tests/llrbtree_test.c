@@ -46,7 +46,7 @@ CTEST(llrbtree_test, llrb_insert_test) {
     ASSERT_NOT_NULL(llrb_insert(&tree, (void *)*it, NULL));
 
   memset(dest, 0, sizeof(dest));
-  llrb_inorder(tree, concat);
+  llrb_for_each(tree, concat);
   ASSERT_STR("1011202225303340444950556066707780889099", dest);
   ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t), llrb_size(tree));
 
@@ -64,7 +64,7 @@ CTEST(llrbtree_test, llrb_insert_or_assign_test) {
     ASSERT_NOT_NULL(llrb_insert_or_assign(&tree, (void *)*it, (void *)*it));
 
   memset(dest, 0, sizeof(dest));
-  llrb_inorder(tree, concat);
+  llrb_for_each(tree, concat);
   ASSERT_STR("1011202225303340444950556066707780889099", dest);
   ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t), llrb_size(tree));
 
