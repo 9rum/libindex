@@ -151,27 +151,19 @@ extern void *btree_erase(struct btree_root *restrict tree, const void *restrict 
 extern void btree_clear(struct btree_root *restrict tree);
 
 /**
- * btree_preorder - applies @func to each element of @tree preorderwise
+ * btree_for_each - applies @func to each element of @tree in ascending order
  *
  * @tree: tree to apply @func to each element of
  * @func: function to apply to each element of @tree
  */
-extern void btree_preorder(const struct btree_root tree, void (*func)(const void *restrict, void *restrict));
+extern void btree_for_each(const struct btree_root tree, void (*func)(const void *restrict, void *restrict));
 
 /**
- * btree_inorder - applies @func to each element of @tree inorderwise
+ * btree_rev_each - applies @func to each element of @tree in descending order
  *
  * @tree: tree to apply @func to each element of
  * @func: function to apply to each element of @tree
  */
-extern void btree_inorder(const struct btree_root tree, void (*func)(const void *restrict, void *restrict));
-
-/**
- * btree_postorder - applies @func to each element of @tree postorderwise
- *
- * @tree: tree to apply @func to each element of
- * @func: function to apply to each element of @tree
- */
-extern void btree_postorder(const struct btree_root tree, void (*func)(const void *restrict, void *restrict));
+extern void btree_rev_each(const struct btree_root tree, void (*func)(const void *restrict, void *restrict));
 
 #endif /* _INDEX_BTREE_H */

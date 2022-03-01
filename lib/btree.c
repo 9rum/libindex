@@ -65,32 +65,22 @@ static inline void __btree_clear(struct btree_node *restrict tree) {
   }
 }
 
-static inline void __btree_preorder(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
+static inline void __btree_for_each(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
   if (tree != NULL) {
     for (register size_t idx = 0; idx < tree->nmemb; ++idx) {
+      __btree_for_each(tree->children[idx], func);
       func(tree->keys[idx], tree->values[idx]);
-      __btree_preorder(tree->children[idx], func);
     }
-    __btree_preorder(tree->children[tree->nmemb], func);
+    __btree_for_each(tree->children[tree->nmemb], func);
   }
 }
 
-static inline void __btree_inorder(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
+static inline void __btree_rev_each(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
   if (tree != NULL) {
-    for (register size_t idx = 0; idx < tree->nmemb; ++idx) {
-      __btree_inorder(tree->children[idx], func);
+    __btree_rev_each(tree->children[tree->nmemb], func);
+    for (register size_t idx = tree->nmemb-1; 0 <= idx; --idx) {
       func(tree->keys[idx], tree->values[idx]);
-    }
-    __btree_inorder(tree->children[tree->nmemb], func);
-  }
-}
-
-static inline void __btree_postorder(const struct btree_node *restrict tree, void (*func)(const void *restrict, void *restrict)) {
-  if (tree != NULL) {
-    __btree_postorder(tree->children[0], func);
-    for (register size_t idx = 0; idx < tree->nmemb; ++idx) {
-      __btree_postorder(tree->children[idx+1], func);
-      func(tree->keys[idx], tree->values[idx]);
+      __btree_rev_each(tree->children[idx], func);
     }
   }
 }
@@ -375,8 +365,6 @@ extern void btree_clear(struct btree_root *restrict tree) {
   tree->size = 0;
 }
 
-extern void btree_preorder(const struct btree_root tree, void (*func)(const void *restrict, void *restrict)) { __btree_preorder(tree.root, func); }
+extern void btree_for_each(const struct btree_root tree, void (*func)(const void *restrict, void *restrict)) { __btree_for_each(tree.root, func); }
 
-extern void btree_inorder(const struct btree_root tree, void (*func)(const void *restrict, void *restrict)) { __btree_inorder(tree.root, func); }
-
-extern void btree_postorder(const struct btree_root tree, void (*func)(const void *restrict, void *restrict)) { __btree_postorder(tree.root, func); }
+extern void btree_rev_each(const struct btree_root tree, void (*func)(const void *restrict, void *restrict)) { __btree_rev_each(tree.root, func); }

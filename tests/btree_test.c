@@ -67,7 +67,7 @@ CTEST(btree_test, btree_insert_odd_test) {
     ASSERT_NOT_NULL(btree_insert(&tree, (void *)*it, NULL));
 
   memset(dest, 0, sizeof(dest));
-  btree_inorder(tree, concat);
+  btree_for_each(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
   ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t)/2-1, btree_size(tree));
 
@@ -85,7 +85,7 @@ CTEST(btree_test, btree_insert_or_assign_odd_test) {
     ASSERT_NOT_NULL(btree_insert_or_assign(&tree, (void *)*it, (void *)*it));
 
   memset(dest, 0, sizeof(dest));
-  btree_inorder(tree, concat);
+  btree_for_each(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
   ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t)/2-1, btree_size(tree));
 
@@ -124,7 +124,7 @@ CTEST(btree_test, btree_insert_even_test) {
     ASSERT_NOT_NULL(btree_insert(&tree, (void *)*it, NULL));
 
   memset(dest, 0, sizeof(dest));
-  btree_inorder(tree, concat);
+  btree_for_each(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
   ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t)/2-1, btree_size(tree));
 
@@ -142,7 +142,7 @@ CTEST(btree_test, btree_insert_or_assign_even_test) {
     ASSERT_NOT_NULL(btree_insert_or_assign(&tree, (void *)*it, (void *)*it));
 
   memset(dest, 0, sizeof(dest));
-  btree_inorder(tree, concat);
+  btree_for_each(tree, concat);
   ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
   ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t)/2-1, btree_size(tree));
 
