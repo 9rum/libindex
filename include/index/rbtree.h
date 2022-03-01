@@ -171,27 +171,19 @@ extern void *rb_erase(struct rb_root *restrict tree, const void *restrict key);
 extern void rb_clear(struct rb_root *restrict tree);
 
 /**
- * rb_preorder - applies @func to each element of @tree preorderwise
+ * rb_for_each - applies @func to each element of @tree in ascending order
  *
  * @tree: tree to apply @func to each element of
  * @func: function to apply to each element of @tree
  */
-extern void rb_preorder(const struct rb_root tree, void (*func)(const void *restrict, void *restrict));
+extern void rb_for_each(const struct rb_root tree, void (*func)(const void *restrict, void *restrict));
 
 /**
- * rb_inorder - applies @func to each element of @tree inorderwise
+ * rb_rev_each - applies @func to each element of @tree in descending order
  *
  * @tree: tree to apply @func to each element of
  * @func: function to apply to each element of @tree
  */
-extern void rb_inorder(const struct rb_root tree, void (*func)(const void *restrict, void *restrict));
-
-/**
- * rb_postorder - applies @func to each element of @tree postorderwise
- *
- * @tree: tree to apply @func to each element of
- * @func: function to apply to each element of @tree
- */
-extern void rb_postorder(const struct rb_root tree, void (*func)(const void *restrict, void *restrict));
+extern void rb_rev_each(const struct rb_root tree, void (*func)(const void *restrict, void *restrict));
 
 #endif /* _INDEX_RBTREE_H */

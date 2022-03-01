@@ -59,11 +59,9 @@ static inline void rb_rotate_right(struct rb_node **restrict root, struct rb_nod
 
 static inline void __rb_clear(struct rb_node *restrict tree) { if (tree != NULL) { __rb_clear(tree->left); __rb_clear(tree->right); free(tree); } }
 
-static inline void __rb_preorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { func(tree->key, tree->value); __rb_preorder(tree->left, func); __rb_preorder(tree->right, func); } }
+static inline void __rb_for_each(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __rb_for_each(tree->left, func); func(tree->key, tree->value); __rb_for_each(tree->right, func); } }
 
-static inline void __rb_inorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __rb_inorder(tree->left, func); func(tree->key, tree->value); __rb_inorder(tree->right, func); } }
-
-static inline void __rb_postorder(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __rb_postorder(tree->left, func); __rb_postorder(tree->right, func); func(tree->key, tree->value); } }
+static inline void __rb_rev_each(const struct rb_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __rb_rev_each(tree->right, func); func(tree->key, tree->value); __rb_rev_each(tree->left, func); } }
 
 extern struct rb_node *rb_insert(struct rb_root *restrict tree, const void *restrict key, void *restrict value) {
   register struct rb_node *parent;
@@ -308,8 +306,6 @@ extern void rb_clear(struct rb_root *restrict tree) {
   tree->size = 0;
 }
 
-extern void rb_preorder(const struct rb_root tree, void (*func)(const void *restrict, void *restrict)) { __rb_preorder(tree.root, func); }
+extern void rb_for_each(const struct rb_root tree, void (*func)(const void *restrict, void *restrict)) { __rb_for_each(tree.root, func); }
 
-extern void rb_inorder(const struct rb_root tree, void (*func)(const void *restrict, void *restrict)) { __rb_inorder(tree.root, func); }
-
-extern void rb_postorder(const struct rb_root tree, void (*func)(const void *restrict, void *restrict)) { __rb_postorder(tree.root, func); }
+extern void rb_rev_each(const struct rb_root tree, void (*func)(const void *restrict, void *restrict)) { __rb_rev_each(tree.root, func); }
