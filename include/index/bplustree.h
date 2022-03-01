@@ -171,7 +171,7 @@ extern void *bplus_erase(struct bplus_root *restrict tree, const void *restrict 
 extern void bplus_clear(struct bplus_root *restrict tree);
 
 /**
- * bplus_for_each - applies @func to each element of @tree sequentialwise
+ * bplus_for_each - applies @func to each element of @tree in ascending order
  *
  * @tree: tree to apply @func to each element of
  * @func: function to apply to each element of @tree
