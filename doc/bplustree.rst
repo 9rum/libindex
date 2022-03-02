@@ -98,3 +98,7 @@
     ``void bplus_rev_each(const struct bplus_root tree, void (*func)(const void *, void *))``
 
         | This function applies function *func* to each element of tree *tree* in descending order.
+
+    ``void bplus_range_each(const struct bplus_root tree, const void *inf, const void *sup, void (*func)(const void *, void *))``
+
+        | This function applies function *func* to each element of tree *tree* greater than or equal to *inf* and less than *sup*.
