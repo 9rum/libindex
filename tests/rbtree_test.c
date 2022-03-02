@@ -84,7 +84,7 @@ CTEST(rbtree_test, rb_erase_test) {
   ASSERT_TRUE(rb_empty(tree));
 }
 
-CTEST(rbtree_test, rb_erase_reverse_test) {
+CTEST(rbtree_test, rb_erase_rev_test) {
   struct rb_root tree = rb_init(less);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)

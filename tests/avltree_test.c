@@ -84,7 +84,7 @@ CTEST(avltree_test, avl_erase_test) {
   ASSERT_TRUE(avl_empty(tree));
 }
 
-CTEST(avltree_test, avl_erase_reverse_test) {
+CTEST(avltree_test, avl_erase_rev_test) {
   struct avl_root tree = avl_init(less);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)

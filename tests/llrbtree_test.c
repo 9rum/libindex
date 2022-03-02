@@ -84,7 +84,7 @@ CTEST(llrbtree_test, llrb_erase_test) {
   ASSERT_TRUE(llrb_empty(tree));
 }
 
-CTEST(llrbtree_test, llrb_erase_reverse_test) {
+CTEST(llrbtree_test, llrb_erase_rev_test) {
   struct llrb_root tree = llrb_init(less);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
