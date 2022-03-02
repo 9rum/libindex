@@ -57,12 +57,14 @@ struct bplus_internal_node {
  *
  * @keys:   the ordered set of keys of the node
  * @values: the ordered set of values of the node
+ * @prev:   the address of the previous node
  * @next:   the address of the next node
  * @nmemb:  the number of the keys of the node
  */
 struct bplus_external_node {
   const void                       **keys;
         void                       **values;
+        struct bplus_external_node *prev;
         struct bplus_external_node *next;
         size_t                     nmemb;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
@@ -70,6 +72,7 @@ struct bplus_external_node {
 struct bplus_root {
         struct bplus_internal_node *root;
         struct bplus_external_node *head;
+        struct bplus_external_node *tail;
         bool                      (*less)(const void *restrict, const void *restrict);
         size_t                     size;
   const size_t                     order;
@@ -100,6 +103,7 @@ static inline struct bplus_root bplus_init(const size_t order, bool (*less)(cons
   struct bplus_root tree = {
     .root  = NULL,
     .head  = NULL,
+    .tail  = NULL,
     .less  = less,
     .size  = 0,
     .order = order,
@@ -181,5 +185,27 @@ static inline void bplus_for_each(const struct bplus_root tree, void (*func)(con
     for (register size_t idx = 0; idx < node->nmemb; ++idx)
       func(node->keys[idx], node->values[idx]);
 }
+
+/**
+ * bplus_rev_each - applies @func to each element of @tree in descending order
+ *
+ * @tree: tree to apply @func to each element of
+ * @func: function to apply to each element of @tree
+ */
+static inline void bplus_rev_each(const struct bplus_root tree, void (*func)(const void *restrict, void *restrict)) {
+  for (register const struct bplus_external_node *node = tree.tail; node != NULL; node = node->prev)
+    for (register size_t idx = 0; idx < node->nmemb; ++idx)
+      func(node->keys[node->nmemb-1-idx], node->values[node->nmemb-1-idx]);
+}
+
+/**
+ * bplus_range_each - applies @func to each element of @tree greater than or equal to @inf and less than @sup
+ *
+ * @tree: tree to apply @func to each element of
+ * @inf:  the minimum key to search for
+ * @sup:  the maximum key to search for
+ * @func: function to apply to each element of @tree
+ */
+extern void bplus_range_each(const struct bplus_root tree, const void *restrict inf, const void *restrict sup, void (*func)(const void *restrict, void *restrict));
 
 #endif /* _INDEX_BPLUSTREE_H */
