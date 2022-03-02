@@ -8,7 +8,7 @@
  * It is a variant of the red–black tree and guarantees the same asymptotic complexity for operations,
  * but is designed to be easier to implement.
  *
- * See https://www.cs.princeton.edu/~rs/talks/LLRB/LLRB.pdf for more details.
+ * See https://sedgewick.io/wp-content/themes/sedgewick/papers/2008LLRB.pdf for more details.
  */
 #ifndef _INDEX_LLRBTREE_H
 #define _INDEX_LLRBTREE_H

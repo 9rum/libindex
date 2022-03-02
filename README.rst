@@ -61,6 +61,6 @@ References
 .. _`Keller, Stack und automatisches Gedächtnis – eine Struktur mit Potenzial`: https://dl.gi.de/bitstream/handle/20.500.12116/4381/lni-t-7.pdf
 .. _`An algorithm for the organization of information`: https://zhjwpku.com/assets/pdf/AED2-10-avl-paper.pdf
 .. _`Symmetric Binary B-Trees: Data Structure and Algorithms for Random and Sequential Information Processing`: https://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1457&context=cstech
-.. _`Left-Leaning Red-Black Trees`: https://www.cs.princeton.edu/~rs/talks/LLRB/LLRB.pdf
+.. _`Left-Leaning Red-Black Trees`: https://sedgewick.io/wp-content/themes/sedgewick/papers/2008LLRB.pdf
 .. _`Organization and maintenance of large ordered indices`: https://infolab.usc.edu/csci585/Spring2010/den_ar/indexing.pdf
 .. _`The Ubiquitous B-Tree`: http://carlosproal.com/ir/papers/p121-comer.pdf

@@ -4,7 +4,7 @@
     | It is a variant of the red–black tree and guarantees the same asymptotic complexity for operations, but is designed to be easier to implement.
     | See `Left-Leaning Red-Black Trees`_ for more details.
 
-    .. _`Left-Leaning Red-Black Trees`: https://www.cs.princeton.edu/~rs/talks/LLRB/LLRB.pdf
+    .. _`Left-Leaning Red-Black Trees`: https://sedgewick.io/wp-content/themes/sedgewick/papers/2008LLRB.pdf
 
 2. Using the library from a C program
 
