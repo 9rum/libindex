@@ -101,4 +101,4 @@
 
     ``void bplus_range_each(const struct bplus_root tree, const void *inf, const void *sup, void (*func)(const void *, void *))``
 
-        | This function applies function *func* to each element of tree *tree* greater than or equal to *inf* and less than *sup*.
+        | This function applies function *func* to each element of tree *tree* greater than or equal to lower bound *inf* and less than upper bound *sup*.
