@@ -42,6 +42,7 @@
     ``struct btree_root btree_init(const size_t order, bool (*less)(const void *, const void *))``
 
         | This function initializes an empty tree of order *order* with operator *less*.
+        | To be cache conscious, setting *order* to page size / node size is recommended. e.g. ``getpagesize()/sizeof(struct btree_node)``
 
     ``size_t btree_size(const struct btree_root tree)``
 
