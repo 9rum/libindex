@@ -84,7 +84,7 @@ static inline void bplus_external_clear(struct bplus_external_node *restrict lis
   while (list != NULL) {
     node = list;
     list = list->next;
-    free(node);
+    bplus_external_free(node);
   }
 }
 
