@@ -495,8 +495,8 @@ extern void *bplus_erase(struct bplus_root *restrict tree, const void *restrict 
                                   : idx == walk->nmemb                                                                                                          ? walk->children[idx-1]
                                   : ((struct bplus_external_node *)walk->children[idx-1])->nmemb < ((struct bplus_external_node *)walk->children[idx+1])->nmemb ? walk->children[idx+1]
                                                                                                                                                                 : walk->children[idx-1];
-  if ((tree->order+1)>>1 < sib->nmemb) {       /* case of key redistribution */
-    if (sib == walk->children[idx-1]) {
+  if ((tree->order+1)>>1 < sib->nmemb) {                 /* case of key redistribution */
+    if (0 < idx && sib == walk->children[idx-1]) {
       memcpy(&node->keys[1], node->keys, __SIZEOF_POINTER__*node->nmemb);
       memcpy(&node->values[1], node->values, __SIZEOF_POINTER__*node->nmemb++);
       node->keys[0]     = sib->keys[--sib->nmemb];
@@ -513,7 +513,7 @@ extern void *bplus_erase(struct bplus_root *restrict tree, const void *restrict 
     return erased;
   }
 
-  if (sib == walk->children[idx-1]) {          /* case of external node merge */
+  if (0 < idx && sib == walk->children[idx-1]) {         /* case of external node merge */
     memcpy(&sib->keys[sib->nmemb], node->keys, __SIZEOF_POINTER__*node->nmemb);
     memcpy(&sib->values[sib->nmemb], node->values, __SIZEOF_POINTER__*node->nmemb);
     memcpy(&walk->keys[idx-1], &walk->keys[idx], __SIZEOF_POINTER__*(walk->nmemb-idx));
@@ -544,8 +544,8 @@ extern void *bplus_erase(struct bplus_root *restrict tree, const void *restrict 
             : idx == parent->nmemb                                                                                                            ? parent->children[idx-1]
             : ((struct bplus_internal_node *)parent->children[idx-1])->nmemb < ((struct bplus_internal_node *)parent->children[idx+1])->nmemb ? parent->children[idx+1]
                                                                                                                                               : parent->children[idx-1];
-    if ((tree->order-1)>>1 < sibling->nmemb) { /* case of key redistribution */
-      if (sibling == parent->children[idx-1]) {
+    if ((tree->order-1)>>1 < sibling->nmemb) {           /* case of key redistribution */
+      if (0 < idx && sibling == parent->children[idx-1]) {
         memcpy(&walk->keys[1], walk->keys, __SIZEOF_POINTER__*walk->nmemb);
         memcpy(&walk->children[1], walk->children, __SIZEOF_POINTER__*++walk->nmemb);
         walk->keys[0]       = parent->keys[idx-1];
@@ -562,7 +562,7 @@ extern void *bplus_erase(struct bplus_root *restrict tree, const void *restrict 
       return erased;
     }
 
-    if (sibling == parent->children[idx-1]) {  /* case of internal node merge */
+    if (0 < idx && sibling == parent->children[idx-1]) { /* case of internal node merge */
       sibling->keys[sibling->nmemb] = parent->keys[idx-1];
       memcpy(&sibling->keys[++sibling->nmemb], walk->keys, __SIZEOF_POINTER__*walk->nmemb);
       memcpy(&sibling->children[sibling->nmemb], walk->children, __SIZEOF_POINTER__*(walk->nmemb+1));

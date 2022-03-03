@@ -304,8 +304,8 @@ extern void *btree_erase(struct btree_root *restrict tree, const void *restrict 
             : idx == parent->nmemb                                            ? parent->children[idx-1]
             : parent->children[idx-1]->nmemb < parent->children[idx+1]->nmemb ? parent->children[idx+1]
                                                                               : parent->children[idx-1];
-    if ((tree->order-1)>>1 < sibling->nmemb) { /* case of key redistribution */
-      if (sibling == parent->children[idx-1]) {
+    if ((tree->order-1)>>1 < sibling->nmemb) {           /* case of key redistribution */
+      if (0 < idx && sibling == parent->children[idx-1]) {
         memcpy(&walk->keys[1], walk->keys, __SIZEOF_POINTER__*walk->nmemb);
         memcpy(&walk->values[1], walk->values, __SIZEOF_POINTER__*walk->nmemb);
         memcpy(&walk->children[1], walk->children, __SIZEOF_POINTER__*++walk->nmemb);
@@ -328,7 +328,7 @@ extern void *btree_erase(struct btree_root *restrict tree, const void *restrict 
       return erased;
     }
 
-    if (sibling == parent->children[idx-1]) {  /* case of node merge */
+    if (0 < idx && sibling == parent->children[idx-1]) { /* case of node merge */
       sibling->keys[sibling->nmemb]   = parent->keys[idx-1];
       sibling->values[sibling->nmemb] = parent->values[idx-1];
       memcpy(&sibling->keys[++sibling->nmemb], walk->keys, __SIZEOF_POINTER__*walk->nmemb);
