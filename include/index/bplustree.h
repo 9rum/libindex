@@ -202,8 +202,8 @@ static inline void bplus_rev_each(const struct bplus_root tree, void (*func)(con
  * bplus_range_each - applies @func to each element of @tree greater than or equal to @inf and less than @sup
  *
  * @tree: tree to apply @func to each element of
- * @inf:  the minimum key to search for
- * @sup:  the maximum key to search for
+ * @inf:  the lower bound key to search for
+ * @sup:  the upper bound key to search for
  * @func: function to apply to each element of @tree
  */
 extern void bplus_range_each(const struct bplus_root tree, const void *restrict inf, const void *restrict sup, void (*func)(const void *restrict, void *restrict));
