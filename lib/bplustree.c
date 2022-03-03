@@ -141,7 +141,7 @@ extern bool bplus_contains(const struct bplus_root tree, const void *restrict ke
     else            walk = walk->children[idx];
   }
 
-  if (node == NULL) return NULL;
+  if (node == NULL) return false;
 
   if ((idx = __bsearch(key, node->keys, node->nmemb, tree.less)) < node->nmemb &&
       !(tree.less(key, node->keys[idx]) || tree.less(node->keys[idx], key))) return true;
@@ -594,4 +594,31 @@ extern void bplus_clear(struct bplus_root *restrict tree) {
   tree->head = NULL;
   tree->tail = NULL;
   tree->size = 0;
+}
+
+extern void bplus_range_each(const struct bplus_root tree, const void *restrict inf, const void *restrict sup, void (*func)(const void *restrict, void *restrict)) {
+  register       size_t                     idx;
+  register       size_t                     edx;
+  register const struct bplus_internal_node *walk = tree.root;
+  register const struct bplus_external_node *node = tree.head;
+
+  while (walk != NULL) {
+    idx = __bsearch(inf, walk->keys, walk->nmemb, tree.less);
+    if (walk->type) node = walk->children[idx], walk = NULL;
+    else            walk = walk->children[idx];
+  }
+
+  if (node == NULL) return;
+
+  edx = __bsearch(sup, node->keys, node->nmemb, tree.less);
+  for (idx = __bsearch(inf, node->keys, node->nmemb, tree.less); idx < edx; ++idx)
+    func(node->keys[idx], node->values[idx]);
+  if (idx < node->nmemb) return;
+
+  for (node = node->next; node != NULL; node = node->next) {
+    edx = __bsearch(sup, node->keys, node->nmemb, tree.less);
+    for (idx = 0; idx < edx; ++idx)
+      func(node->keys[idx], node->values[idx]);
+    if (idx < node->nmemb) return;
+  }
 }
