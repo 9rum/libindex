@@ -168,4 +168,30 @@ CTEST(bplustree_test, bplus_erase_even_test) {
   ASSERT_TRUE(bplus_empty(tree));
 }
 
+CTEST(bplustree_test, bplus_range_each_test) {
+  struct bplus_root tree = bplus_init(4, less);
+
+  for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t)/2; ++it)
+    bplus_insert(&tree, (void *)*it, NULL);
+
+  memset(dest, 0, sizeof(dest));
+  bplus_range_each(tree, (void *)0, (void *)101, concat);
+  ASSERT_STR("1234567891011121314151617182022242528303340414243444546474849505152535455565758596061626364656667686970737577808182838488899099100", dest);
+
+  memset(dest, 0, sizeof(dest));
+  bplus_range_each(tree, (void *)30, (void *)76, concat);
+  ASSERT_STR("3033404142434445464748495051525354555657585960616263646566676869707375", dest);
+
+  memset(dest, 0, sizeof(dest));
+  bplus_range_each(tree, (void *)19, (void *)70, concat);
+  ASSERT_STR("20222425283033404142434445464748495051525354555657585960616263646566676869", dest);
+
+  memset(dest, 0, sizeof(dest));
+  bplus_range_each(tree, (void *)16, (void *)61, concat);
+  ASSERT_STR("16171820222425283033404142434445464748495051525354555657585960", dest);
+
+  bplus_clear(&tree);
+  ASSERT_TRUE(bplus_empty(tree));
+}
+
 int main(int argc, const char **argv) { return ctest_main(argc, argv); }
