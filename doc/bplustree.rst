@@ -48,7 +48,7 @@
     ``struct bplus_root bplus_init(const size_t order, bool (*less)(const void *, const void *))``
 
         | This function initializes an empty tree of order *order* with operator *less*.
-        | To be cache conscious, setting *order* to page size / node size is recommended. e.g. ``getpagesize()/sizeof(struct bplus_internal_node)``
+        | To be cache conscious, it is recommended to set *order* to make each node fit on a single page.
 
     ``size_t bplus_size(const struct bplus_root tree)``
 
