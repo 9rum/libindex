@@ -37,7 +37,7 @@ static inline void btree_free(struct btree_node *restrict node) {
 /**
  * __bsearch - do a binary search for @key in @base, which consists of @nmemb elements, using @less to perform the comparisons
  *
- * @key:   the key to search
+ * @key:   the key to search for
  * @base:  where to search @key
  * @nmemb: number of elements in @base
  * @less:  operator defining the (partial) element order
@@ -48,7 +48,7 @@ static inline size_t __bsearch(const void *restrict key, const void **restrict b
   register size_t hi = nmemb;
 
   while (lo < hi) {
-    idx = (lo + hi) / 2;
+    idx = (lo+hi)>>1;
     if (less(key, base[idx]))      hi = idx;
     else if (less(base[idx], key)) lo = idx+1;
     else                           return idx;
