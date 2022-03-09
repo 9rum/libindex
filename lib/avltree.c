@@ -23,7 +23,7 @@ static inline struct avl_node *avl_alloc(const void *restrict key, void *restric
   return node;
 }
 
-static inline size_t max(const size_t a, const size_t b) { return a < b ? b : a; }
+static inline size_t max(const size_t lhs, const size_t rhs) { return lhs < rhs ? rhs : lhs; }
 
 /**
  * avl_height - returns the height of @tree
@@ -72,7 +72,7 @@ static inline void __avl_for_each(const struct avl_node *restrict tree, void (*f
 
 static inline void __avl_rev_each(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __avl_rev_each(tree->right, func); func(tree->key, tree->value); __avl_rev_each(tree->left, func); } }
 
-extern struct avl_node *avl_insert(struct avl_root *restrict tree, const void *restrict key, void *restrict value) {
+struct avl_node *avl_insert(struct avl_root *restrict tree, const void *restrict key, void *restrict value) {
            struct avl_node *parent;
   register struct avl_node *walk       = tree->root;
            struct avl_node *unbalanced = NULL;
@@ -138,7 +138,7 @@ extern struct avl_node *avl_insert(struct avl_root *restrict tree, const void *r
   return node;
 }
 
-extern struct avl_node *avl_insert_or_assign(struct avl_root *restrict tree, const void *restrict key, void *restrict value) {
+struct avl_node *avl_replace(struct avl_root *restrict tree, const void *restrict key, void *restrict value) {
            struct avl_node *parent;
   register struct avl_node *walk       = tree->root;
            struct avl_node *unbalanced = NULL;
@@ -204,7 +204,7 @@ extern struct avl_node *avl_insert_or_assign(struct avl_root *restrict tree, con
   return node;
 }
 
-extern void *avl_erase(struct avl_root *restrict tree, const void *restrict key) {
+void *avl_erase(struct avl_root *restrict tree, const void *restrict key) {
            struct avl_node *parent;
   register struct avl_node *walk       = tree->root;
            struct avl_node *unbalanced = NULL;
@@ -296,7 +296,7 @@ extern void *avl_erase(struct avl_root *restrict tree, const void *restrict key)
   return erased;
 }
 
-extern void avl_clear(struct avl_root *restrict tree) {
+void avl_clear(struct avl_root *tree) {
   __avl_clear(tree->root);
   tree->root = NULL;
   tree->size = 0;

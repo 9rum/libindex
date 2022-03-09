@@ -80,7 +80,7 @@ struct avl_root {
 /**
  * avl_init - initializes an empty tree with @less
  *
- * @less: operator defining the (partial) element order
+ * @less: operator defining the (partial) node order
  */
 static inline struct avl_root avl_init(bool (*less)(const void *restrict, const void *restrict)) {
   struct avl_root tree = {
@@ -92,26 +92,19 @@ static inline struct avl_root avl_init(bool (*less)(const void *restrict, const 
 }
 
 /**
- * avl_size - returns the number of elements in @tree
- *
- * @tree: tree to get the number of elements
- */
-static inline size_t avl_size(const struct avl_root tree) { return tree.size; }
-
-/**
  * avl_empty - checks whether @tree is empty
  *
  * @tree: tree to check
  */
-static inline bool avl_empty(const struct avl_root tree) { return avl_size(tree) == 0; }
+static inline bool avl_empty(const struct avl_root tree) { return tree.root == NULL; }
 
 /**
- * avl_find - finds element from @tree with @key
+ * avl_find - searches @tree for an entry with @key
  *
- * @tree: tree to find element from
+ * @tree: tree to search
  * @key:  the key to search for
  */
-static inline void *avl_find(const struct avl_root tree, const void *restrict key) {
+static inline void *avl_find(const struct avl_root tree, const void *key) {
   register const struct avl_node *walk = tree.root;
 
   while (walk != NULL) {
@@ -124,12 +117,12 @@ static inline void *avl_find(const struct avl_root tree, const void *restrict ke
 }
 
 /**
- * avl_contains - checks if @tree contains element with @key
+ * avl_contains - checks if @tree contains an entry with @key
  *
  * @tree: tree to check
  * @key:  the key to search for
  */
-static inline bool avl_contains(const struct avl_root tree, const void *restrict key) {
+static inline bool avl_contains(const struct avl_root tree, const void *key) {
   register const struct avl_node *walk = tree.root;
 
   while (walk != NULL) {
@@ -142,37 +135,37 @@ static inline bool avl_contains(const struct avl_root tree, const void *restrict
 }
 
 /**
- * avl_insert - inserts an element into @tree
+ * avl_insert - inserts an entry into @tree
  *
- * @tree:  tree to insert element into
- * @key:   the key of the element to insert
- * @value: the value of the element to insert
+ * @tree:  tree to insert an entry into
+ * @key:   the key of the entry to insert
+ * @value: the value of the entry to insert
  */
-extern struct avl_node *avl_insert(struct avl_root *restrict tree, const void *restrict key, void *restrict value);
+struct avl_node *avl_insert(struct avl_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
- * avl_insert_or_assign - inserts an element or assigns @value if @key already exists
+ * avl_replace - inserts an entry or assigns @value if @key already exists
  *
- * @tree:  tree to insert element into
- * @key:   the key of the element to insert if not found
- * @value: the value of the element to insert or assign
+ * @tree:  tree to insert an entry into
+ * @key:   the key of the entry to insert if not found
+ * @value: the value of the entry to insert or assign
  */
-extern struct avl_node *avl_insert_or_assign(struct avl_root *restrict tree, const void *restrict key, void *restrict value);
+struct avl_node *avl_replace(struct avl_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
- * avl_erase - removes the element with @key from @tree
+ * avl_erase - removes the entry with @key from @tree
  *
- * @tree: tree to remove the element from
- * @key:  the key of the element to remove
+ * @tree: tree to remove the entry from
+ * @key:  the key of the entry to remove
  */
-extern void *avl_erase(struct avl_root *restrict tree, const void *restrict key);
+void *avl_erase(struct avl_root *restrict tree, const void *restrict key);
 
 /**
- * avl_clear - erases all elements from @tree
+ * avl_clear - erases all entries from @tree
  *
- * @tree: tree to erase all elements from
+ * @tree: tree to erase all entries from
  */
-extern void avl_clear(struct avl_root *restrict tree);
+void avl_clear(struct avl_root *tree);
 
 /**
  * avl_for_each - applies @func to each element of @tree in ascending order
