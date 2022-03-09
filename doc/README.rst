@@ -2,7 +2,7 @@ Documentation
 =============
 
 | These are the guides for using the Index library. Read them carefully, as they tell you what this is all about and explain how to use the library.
-| Each documentation contains the guide for using the structures and interfaces:
+| Each documentation contains the guide for using the structures and functions:
 
 * `avltree.rst`_: AVL tree
 * `rbtree.rst`_: Red-black tree
