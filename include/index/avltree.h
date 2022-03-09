@@ -26,10 +26,12 @@
 /**
  * struct avl_node - a node in AVL tree
  *
- * @key:    the key of the element
- * @value:  the value of the element
+ * @key:    the key of the node
+ * @value:  the value of the node
+ * @parent: the address of the parent node
  * @left:   the address of the left subtree
  * @right:  the address of the right subtree
+ * @tree:   the address of the tree to which the node belongs
  * @height: the height of the subtree rooted with the node
  *
  * In a binary tree, the balance factor of a node X is defined
@@ -47,8 +49,10 @@
 struct avl_node {
   const void            *key;
         void            *value;
+        struct avl_node *parent;
         struct avl_node *left;
         struct avl_node *right;
+        struct avl_root *tree;
         size_t          height;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
