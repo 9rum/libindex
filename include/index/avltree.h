@@ -141,7 +141,7 @@ static inline bool avl_contains(const struct avl_root tree, const void *key) {
  * @key:   the key of the entry to insert
  * @value: the value of the entry to insert
  */
-struct avl_node *avl_insert(struct avl_root *restrict tree, const void *restrict key, void *restrict value);
+extern struct avl_node *avl_insert(struct avl_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
  * avl_replace - inserts an entry or assigns @value if @key already exists
@@ -150,7 +150,7 @@ struct avl_node *avl_insert(struct avl_root *restrict tree, const void *restrict
  * @key:   the key of the entry to insert if not found
  * @value: the value of the entry to insert or assign
  */
-struct avl_node *avl_replace(struct avl_root *restrict tree, const void *restrict key, void *restrict value);
+extern struct avl_node *avl_replace(struct avl_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
  * avl_erase - removes the entry with @key from @tree
@@ -158,14 +158,14 @@ struct avl_node *avl_replace(struct avl_root *restrict tree, const void *restric
  * @tree: tree to remove the entry from
  * @key:  the key of the entry to remove
  */
-void *avl_erase(struct avl_root *restrict tree, const void *restrict key);
+extern void *avl_erase(struct avl_root *restrict tree, const void *restrict key);
 
 /**
  * avl_clear - erases all entries from @tree
  *
  * @tree: tree to erase all entries from
  */
-void avl_clear(struct avl_root *tree);
+extern void avl_clear(struct avl_root *tree);
 
 /**
  * avl_for_each - applies @func to each element of @tree in ascending order
