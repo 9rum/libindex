@@ -26,11 +26,11 @@ static inline struct avl_node *avl_alloc(const void *restrict key, void *restric
 static inline size_t max(const size_t lhs, const size_t rhs) { return lhs < rhs ? rhs : lhs; }
 
 /**
- * avl_height - returns the height of @tree
+ * avl_height - returns the height of subtree rooted with @node
  *
- * @tree: tree to get the height
+ * @node: root node of subtree to get the height
  */
-static inline size_t avl_height(const struct avl_node *restrict tree) { return tree == NULL ? 0 : tree->height; }
+static inline size_t avl_height(const struct avl_node *node) { return node == NULL ? 0 : node->height; }
 
 /**
  * avl_rotate_left - rotates subtree rooted with @node counterclockwise
@@ -66,7 +66,7 @@ static inline void avl_rotate_right(struct avl_node **restrict root, struct avl_
   else                           parent->right = lchild;
 }
 
-static inline void __avl_clear(struct avl_node *restrict tree) { if (tree != NULL) { __avl_clear(tree->left); __avl_clear(tree->right); free(tree); } }
+static inline void __avl_clear(struct avl_node *tree) { if (tree != NULL) { __avl_clear(tree->left); __avl_clear(tree->right); free(tree); } }
 
 static inline void __avl_for_each(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __avl_for_each(tree->left, func); func(tree->key, tree->value); __avl_for_each(tree->right, func); } }
 
