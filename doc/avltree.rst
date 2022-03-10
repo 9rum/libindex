@@ -48,7 +48,7 @@
 
         | This function searches tree *tree* for an entry with specified key *key*.
         | It returns the value of the entry with the equivalent key.
-        | If *key* does not exist in *tree*, it returns ``NULL``.
+        | If *key* is not present in *tree*, it returns ``NULL``.
 
     ``bool avl_contains(const struct avl_root tree, const void *key)``
 
@@ -70,7 +70,7 @@
 
         | This function removes the entry from tree *tree* with specified key *key*.
         | It returns the value of the entry with the equivalent key.
-        | If *key* does not exist in *tree*, it returns ``NULL`` without removal.
+        | If *key* is not present in *tree*, it returns ``NULL`` without removal.
 
     ``void avl_clear(struct avl_root *tree)``
 
