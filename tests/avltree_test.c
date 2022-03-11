@@ -48,7 +48,7 @@ CTEST(avltree_test, avl_insert_test) {
   memset(dest, 0, sizeof(dest));
   avl_for_each(tree, concat);
   ASSERT_STR("1011202225303340444950556066707780889099", dest);
-  ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t), tree.size);
+  ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t), avl_size(tree));
 
   avl_clear(&tree);
   ASSERT_TRUE(avl_empty(tree));
@@ -66,7 +66,7 @@ CTEST(avltree_test, avl_replace_test) {
   memset(dest, 0, sizeof(dest));
   avl_for_each(tree, concat);
   ASSERT_STR("1011202225303340444950556066707780889099", dest);
-  ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t), tree.size);
+  ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t), avl_size(tree));
 
   avl_clear(&tree);
   ASSERT_TRUE(avl_empty(tree));

@@ -92,6 +92,13 @@ static inline struct avl_root avl_init(bool (*less)(const void *restrict, const 
 }
 
 /**
+ * avl_size - returns the number of entries in @tree
+ *
+ * @tree: tree to get the number of entries
+ */
+static inline size_t avl_size(const struct avl_root tree) { return tree.size; }
+
+/**
  * avl_empty - checks whether @tree is empty
  *
  * @tree: tree to check

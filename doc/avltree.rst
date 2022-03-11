@@ -40,6 +40,10 @@
 
         | This function initializes an empty tree with operator *less*.
 
+    ``size_t avl_size(const struct avl_root tree)``
+
+        | This function returns the number of entries in tree *tree*.
+
     ``bool avl_empty(const struct avl_root tree)``
 
         | This function checks whether tree *tree* is empty.
