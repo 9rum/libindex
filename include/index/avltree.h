@@ -68,6 +68,12 @@ struct avl_iter {
         struct avl_node *node;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
+struct avl_reverse_iter {
+  const void            *key;
+        void            *value;
+        struct avl_node *node;
+} __attribute__((aligned(__SIZEOF_POINTER__)));
+
 /*
  * The below functions use the operator with 3 different
  * calling conventions. The operator denotes:
@@ -190,5 +196,26 @@ extern void avl_iter_prev(struct avl_iter *iter);
  * @iter: iterator to find next entry of
  */
 extern void avl_iter_next(struct avl_iter *iter);
+
+/**
+ * avl_reverse_iter_init - initializes a reverse iterator of @tree
+ *
+ * @tree: tree to initialize a reverse iterator of
+ */
+extern struct avl_reverse_iter avl_reverse_iter_init(const struct avl_root tree);
+
+/**
+ * avl_reverse_iter_prev - finds logical previous entry of @iter
+ *
+ * @iter: reverse iterator to find previous entry of
+ */
+extern void avl_reverse_iter_prev(struct avl_reverse_iter *iter);
+
+/**
+ * avl_reverse_iter_next - finds logical next entry of @iter
+ *
+ * @iter: reverse iterator to find next entry of
+ */
+extern void avl_reverse_iter_next(struct avl_reverse_iter *iter);
 
 #endif /* _INDEX_AVLTREE_H */

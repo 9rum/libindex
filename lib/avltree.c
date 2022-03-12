@@ -159,7 +159,35 @@ static inline struct avl_iter avl_mk_iter(struct avl_node *node) {
   return iter;
 }
 
-static inline void __avl_clear(struct avl_node *node) { if (node != NULL) { __avl_clear(node->left); __avl_clear(node->right); free(node); } }
+/**
+ * avl_mk_reverse_iter - creates a reverse iterator from @node
+ *
+ * @node: node to create a reverse iterator from
+ */
+static inline struct avl_reverse_iter avl_mk_reverse_iter(struct avl_node *node) {
+  struct avl_reverse_iter iter = {
+    .node  = node,
+    .key   = node == NULL ? NULL : node->key,
+    .value = node == NULL ? NULL : node->value,
+  };
+  return iter;
+}
+
+/**
+ * avl_destroy - erases all entries in tree
+ *
+ * @node: root node of tree
+ */
+static inline void avl_destroy(struct avl_node *node) {
+  register struct avl_node *next;
+
+  while (node != NULL) {
+    avl_destroy(node->right);
+    next = node->left;
+    free(node);
+    node = next;
+  }
+}
 
 extern struct avl_iter avl_find(const struct avl_root tree, const void *key) {
   register struct avl_node *walk = tree.root;
@@ -312,7 +340,7 @@ extern void *avl_erase(struct avl_root *restrict tree, const void *restrict key)
 }
 
 extern void avl_clear(struct avl_root *tree) {
-  __avl_clear(tree->root);
+  avl_destroy(tree->root);
   tree->root = NULL;
   tree->size = 0;
 }
@@ -335,6 +363,28 @@ extern void avl_iter_prev(struct avl_iter *iter) {
 
 extern void avl_iter_next(struct avl_iter *iter) {
   iter->node  = avl_upper_bound(iter->node);
+  iter->key   = iter->node == NULL ? NULL : iter->node->key;
+  iter->value = iter->node == NULL ? NULL : iter->node->value;
+}
+
+extern struct avl_reverse_iter avl_reverse_iter_init(const struct avl_root tree) {
+  register struct avl_node *walk = tree.root;
+
+  if (walk != NULL)
+    while (walk->right != NULL)
+      walk = walk->right;
+
+  return avl_mk_reverse_iter(walk);
+}
+
+extern void avl_reverse_iter_prev(struct avl_reverse_iter *iter) {
+  iter->node  = avl_upper_bound(iter->node);
+  iter->key   = iter->node == NULL ? NULL : iter->node->key;
+  iter->value = iter->node == NULL ? NULL : iter->node->value;
+}
+
+extern void avl_reverse_iter_next(struct avl_reverse_iter *iter) {
+  iter->node  = avl_lower_bound(iter->node);
   iter->key   = iter->node == NULL ? NULL : iter->node->key;
   iter->value = iter->node == NULL ? NULL : iter->node->value;
 }

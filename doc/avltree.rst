@@ -22,9 +22,9 @@
 
         | These structures represent a node and the root of an AVL tree respectively.
 
-    ``struct avl_iter``
+    ``struct avl_iter`` and ``struct avl_reverse_iter``
 
-        | This structure represents an AVL tree iterator.
+        | These structures represent an iterator and a reverse iterator of an AVL tree respectively.
 
     The below function uses the operator with 3 different calling conventions. The operator denotes:
 
@@ -97,3 +97,15 @@
     ``void avl_iter_next(struct avl_iter *iter)``
 
         | This function finds logical next entry of iterator *iter*.
+
+    ``struct avl_reverse_iter avl_reverse_iter_init(const struct avl_root tree)``
+
+        | This function initializes a reverse iterator of tree *tree*.
+
+    ``void avl_reverse_iter_prev(struct avl_reverse_iter *iter)``
+
+        | This function finds logical previous entry of reverse iterator *iter*.
+
+    ``void avl_reverse_iter_next(struct avl_reverse_iter *iter)``
+
+        | This function finds logical next entry of reverse iterator *iter*.
