@@ -22,6 +22,10 @@
 
         | These structures represent a node and the root of an AVL tree respectively.
 
+    ``struct avl_iter``
+
+        | This structure represents an AVL tree iterator.
+
     The below function uses the operator with 3 different calling conventions. The operator denotes:
 
     .. code-block::
@@ -48,27 +52,27 @@
 
         | This function checks whether tree *tree* is empty.
 
-    ``void *avl_find(const struct avl_root tree, const void *key)``
-
-        | This function searches tree *tree* for an entry with specified key *key*.
-        | It returns the value of the entry with the equivalent key.
-        | If *key* is not present in *tree*, it returns ``NULL``.
-
     ``bool avl_contains(const struct avl_root tree, const void *key)``
 
         | This function checks if tree *tree* contains an entry with specified key *key*.
 
-    ``struct avl_node *avl_insert(struct avl_root *tree, const void *key, void *value)``
+    ``struct avl_iter avl_find(const struct avl_root tree, const void *key)``
+
+        | This function searches tree *tree* for an entry with specified key *key*.
+        | It returns the iterator of the entry with the equivalent key.
+        | If *key* is not present in *tree*, the iterator points to ``NULL``.
+
+    ``struct avl_iter avl_insert(struct avl_root *tree, const void *key, void *value)``
 
         | This function inserts an entry with key *key* and value *value* into tree *tree*.
-        | It returns the address of the inserted entry.
-        | If *key* already exists in *tree*, it returns ``NULL`` without insertion.
+        | It returns the iterator of the inserted entry.
+        | If *key* already exists in *tree*, the iterator points to the entry that prevented the insertion.
 
-    ``struct avl_node *avl_replace(struct avl_root *tree, const void *key, void *value)``
+    ``struct avl_iter avl_replace(struct avl_root *tree, const void *key, void *value)``
 
         | This function inserts an entry with key *key* and value *value* into tree *tree*.
         | Unlike ``avl_insert``, it assigns *value* if *key* already exists in *tree*.
-        | It returns the address of the inserted/assigned entry.
+        | It returns the iterator of the inserted/assigned entry.
 
     ``void *avl_erase(struct avl_root *tree, const void *key)``
 
@@ -82,10 +86,14 @@
         | If you inserted entries using ``avl_insert`` or ``avl_replace`` and did not erase all the entries, you must clear the tree using this function, or memory leak would occur.
         | After calling this function, ``avl_empty`` returns ``true``.
 
-    ``void avl_for_each(const struct avl_root tree, void (*func)(const void *, void *))``
+    ``struct avl_iter avl_iter_init(const struct avl_root tree)``
 
-        | This function applies function *func* to each element of tree *tree* in ascending order.
+        | This function initializes an iterator of tree *tree*.
 
-    ``void avl_rev_each(const struct avl_root tree, void (*func)(const void *, void *))``
+    ``void avl_iter_prev(struct avl_iter *iter)``
 
-        | This function applies function *func* to each element of tree *tree* in descending order.
+        | This function finds logical previous entry of iterator *iter*.
+
+    ``void avl_iter_next(struct avl_iter *iter)``
+
+        | This function finds logical next entry of iterator *iter*.
