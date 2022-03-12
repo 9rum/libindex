@@ -39,15 +39,14 @@ static inline size_t avl_height(const struct avl_node *node) { return node == NU
 /**
  * avl_rotate_left - rotates subtree rooted with @node counterclockwise
  *
- * @tree: tree to rotate subtree
  * @node: root node of subtree
  */
-static inline void avl_rotate_left(struct avl_root *restrict tree, struct avl_node *restrict node) {
+static inline void avl_rotate_left(struct avl_node *node) {
   struct avl_node *rchild = node->right;
   node->right             = rchild->left;
   rchild->left            = node;
 
-  if (node->parent == NULL)            tree->root          = rchild; /* case of root */
+  if (node->parent == NULL)            node->tree->root    = rchild; /* case of root */
   else if (node->parent->left == node) node->parent->left  = rchild;
   else                                 node->parent->right = rchild;
 
@@ -61,15 +60,14 @@ static inline void avl_rotate_left(struct avl_root *restrict tree, struct avl_no
 /**
  * avl_rotate_right - rotates subtree rooted with @node clockwise
  *
- * @tree: tree to rotate subtree
  * @node: root node of subtree
  */
-static inline void avl_rotate_right(struct avl_root *restrict tree, struct avl_node *restrict node) {
+static inline void avl_rotate_right(struct avl_node *node) {
   struct avl_node *lchild = node->left;
   node->left              = lchild->right;
   lchild->right           = node;
 
-  if (node->parent == NULL)            tree->root          = lchild; /* case of root */
+  if (node->parent == NULL)            node->tree->root    = lchild; /* case of root */
   else if (node->parent->left == node) node->parent->left  = lchild;
   else                                 node->parent->right = lchild;
 
@@ -83,25 +81,24 @@ static inline void avl_rotate_right(struct avl_root *restrict tree, struct avl_n
 /**
  * avl_rebalance - rebalances subtree rooted with @node
  *
- * @tree: tree to rebalance subtree
  * @node: root node of subtree
  */
-static inline void avl_rebalance(struct avl_root *restrict tree, struct avl_node *restrict node) {
+static inline void avl_rebalance(struct avl_node *node) {
   if (1 + avl_height(node->right) < avl_height(node->left)) {
     if (avl_height(node->left->left) < avl_height(node->left->right)) {   /* case of Left Right */
-      avl_rotate_left(tree, node->left);
-      avl_rotate_right(tree, node);
+      avl_rotate_left(node->left);
+      avl_rotate_right(node);
       node->parent->left->height = 1 + max(avl_height(node->parent->left->left), avl_height(node->parent->left->right));
     } else {                                                              /* case of Left Left */
-      avl_rotate_right(tree, node);
+      avl_rotate_right(node);
     }
   } else {
     if (avl_height(node->right->right) < avl_height(node->right->left)) { /* case of Right Left */
-      avl_rotate_right(tree, node->right);
-      avl_rotate_left(tree, node);
+      avl_rotate_right(node->right);
+      avl_rotate_left(node);
       node->parent->right->height = 1 + max(avl_height(node->parent->right->left), avl_height(node->parent->right->right));
     } else {                                                              /* case of Right Right */
-      avl_rotate_left(tree, node);
+      avl_rotate_left(node);
     }
   }
 
@@ -232,7 +229,7 @@ extern struct avl_iter avl_insert(struct avl_root *restrict tree, const void *re
   }
 
   if (walk != NULL)
-    avl_rebalance(tree, walk);
+    avl_rebalance(walk);
 
   return avl_mk_iter(node);
 }
@@ -269,7 +266,7 @@ extern struct avl_iter avl_replace(struct avl_root *restrict tree, const void *r
   }
 
   if (walk != NULL)
-    avl_rebalance(tree, walk);
+    avl_rebalance(walk);
 
   return avl_mk_iter(node);
 }
@@ -334,7 +331,7 @@ extern void *avl_erase(struct avl_root *restrict tree, const void *restrict key)
   }
 
   if (walk != NULL)
-    avl_rebalance(tree, walk);
+    avl_rebalance(walk);
 
   return erased;
 }
