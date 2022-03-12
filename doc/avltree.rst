@@ -84,7 +84,7 @@
 
         | This function erases all entries from tree *tree*.
         | If you inserted entries using ``avl_insert`` or ``avl_replace`` and did not erase all the entries, you must clear the tree using this function, or memory leak would occur.
-        | After calling this function, ``avl_empty`` returns ``true``.
+        | After this call, ``avl_size`` returns zero.
 
     ``struct avl_iter avl_iter_init(const struct avl_root tree)``
 
