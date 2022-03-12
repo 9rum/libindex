@@ -109,13 +109,71 @@ static inline void avl_rebalance(struct avl_root *restrict tree, struct avl_node
     node->height = 1 + max(avl_height(node->left), avl_height(node->right));
 }
 
+/**
+ * avl_lower_bound - finds logical lower bound of @node
+ *
+ * @node: node to find logical lower bound
+ */
+static inline struct avl_node *avl_lower_bound(struct avl_node *node) {
+  if (node == NULL)
+    return NULL;
+
+  if (node->left != NULL) {
+    for (node = node->left; node->right != NULL; node = node->right);
+    return node;
+  }
+
+  for (; node->parent != NULL && node->parent->left == node; node = node->parent);
+  return node->parent;
+}
+
+/**
+ * avl_upper_bound - finds logical upper bound of @node
+ *
+ * @node: node to find logical upper bound
+ */
+static inline struct avl_node *avl_upper_bound(struct avl_node *node) {
+  if (node == NULL)
+    return NULL;
+
+  if (node->right != NULL) {
+    for (node = node->right; node->left != NULL; node = node->left);
+    return node;
+  }
+
+  for (; node->parent != NULL && node->parent->right == node; node = node->parent);
+  return node->parent;
+}
+
+/**
+ * avl_mk_iter - creates an iterator from @node
+ *
+ * @node: node to create an iterator from
+ */
+static inline struct avl_iter avl_mk_iter(struct avl_node *node) {
+  struct avl_iter iter = {
+    .node  = node,
+    .key   = node == NULL ? NULL : node->key,
+    .value = node == NULL ? NULL : node->value,
+  };
+  return iter;
+}
+
 static inline void __avl_clear(struct avl_node *node) { if (node != NULL) { __avl_clear(node->left); __avl_clear(node->right); free(node); } }
 
-static inline void __avl_for_each(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __avl_for_each(tree->left, func); func(tree->key, tree->value); __avl_for_each(tree->right, func); } }
+extern struct avl_iter avl_find(const struct avl_root tree, const void *key) {
+  register struct avl_node *walk = tree.root;
 
-static inline void __avl_rev_each(const struct avl_node *restrict tree, void (*func)(const void *restrict, void *restrict)) { if (tree != NULL) { __avl_rev_each(tree->right, func); func(tree->key, tree->value); __avl_rev_each(tree->left, func); } }
+  while (walk != NULL) {
+    if (tree.less(key, walk->key))      walk = walk->left;
+    else if (tree.less(walk->key, key)) walk = walk->right;
+    else                                return avl_mk_iter(walk);
+  }
 
-extern struct avl_node *avl_insert(struct avl_root *restrict tree, const void *restrict key, void *restrict value) {
+  return avl_mk_iter(NULL);
+}
+
+extern struct avl_iter avl_insert(struct avl_root *restrict tree, const void *restrict key, void *restrict value) {
   register struct avl_node *parent = NULL;
   register struct avl_node *walk   = tree->root;
 
@@ -127,7 +185,7 @@ extern struct avl_node *avl_insert(struct avl_root *restrict tree, const void *r
       parent = walk;
       walk   = walk->right;
     } else {
-      return NULL;
+      return avl_mk_iter(walk);
     }
   }
 
@@ -148,10 +206,10 @@ extern struct avl_node *avl_insert(struct avl_root *restrict tree, const void *r
   if (walk != NULL)
     avl_rebalance(tree, walk);
 
-  return node;
+  return avl_mk_iter(node);
 }
 
-extern struct avl_node *avl_replace(struct avl_root *restrict tree, const void *restrict key, void *restrict value) {
+extern struct avl_iter avl_replace(struct avl_root *restrict tree, const void *restrict key, void *restrict value) {
   register struct avl_node *parent = NULL;
   register struct avl_node *walk   = tree->root;
 
@@ -164,7 +222,7 @@ extern struct avl_node *avl_replace(struct avl_root *restrict tree, const void *
       walk   = walk->right;
     } else {
       walk->value = value;
-      return walk;
+      return avl_mk_iter(walk);
     }
   }
 
@@ -185,7 +243,7 @@ extern struct avl_node *avl_replace(struct avl_root *restrict tree, const void *
   if (walk != NULL)
     avl_rebalance(tree, walk);
 
-  return node;
+  return avl_mk_iter(node);
 }
 
 extern void *avl_erase(struct avl_root *restrict tree, const void *restrict key) {
@@ -259,6 +317,24 @@ extern void avl_clear(struct avl_root *tree) {
   tree->size = 0;
 }
 
-extern void avl_for_each(const struct avl_root tree, void (*func)(const void *restrict, void *restrict)) { __avl_for_each(tree.root, func); }
+extern struct avl_iter avl_iter_init(const struct avl_root tree) {
+  register struct avl_node *walk = tree.root;
 
-extern void avl_rev_each(const struct avl_root tree, void (*func)(const void *restrict, void *restrict)) { __avl_rev_each(tree.root, func); }
+  if (walk != NULL)
+    while (walk->left != NULL)
+      walk = walk->left;
+
+  return avl_mk_iter(walk);
+}
+
+extern void avl_iter_prev(struct avl_iter *iter) {
+  iter->node  = avl_lower_bound(iter->node);
+  iter->key   = iter->node == NULL ? NULL : iter->node->key;
+  iter->value = iter->node == NULL ? NULL : iter->node->value;
+}
+
+extern void avl_iter_next(struct avl_iter *iter) {
+  iter->node  = avl_upper_bound(iter->node);
+  iter->key   = iter->node == NULL ? NULL : iter->node->key;
+  iter->value = iter->node == NULL ? NULL : iter->node->value;
+}

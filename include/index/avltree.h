@@ -62,6 +62,12 @@ struct avl_root {
   size_t          size;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
+struct avl_iter {
+  const void            *key;
+        void            *value;
+        struct avl_node *node;
+} __attribute__((aligned(__SIZEOF_POINTER__)));
+
 /*
  * The below functions use the operator with 3 different
  * calling conventions. The operator denotes:
@@ -106,31 +112,13 @@ static inline size_t avl_size(const struct avl_root tree) { return tree.size; }
 static inline bool avl_empty(const struct avl_root tree) { return tree.root == NULL; }
 
 /**
- * avl_find - searches @tree for an entry with @key
- *
- * @tree: tree to search
- * @key:  the key to search for
- */
-static inline void *avl_find(const struct avl_root tree, const void *key) {
-  register const struct avl_node *walk = tree.root;
-
-  while (walk != NULL) {
-    if (tree.less(key, walk->key))      walk = walk->left;
-    else if (tree.less(walk->key, key)) walk = walk->right;
-    else                                return walk->value;
-  }
-
-  return NULL;
-}
-
-/**
  * avl_contains - checks if @tree contains an entry with @key
  *
  * @tree: tree to check
  * @key:  the key to search for
  */
 static inline bool avl_contains(const struct avl_root tree, const void *key) {
-  register const struct avl_node *walk = tree.root;
+  register struct avl_node *walk = tree.root;
 
   while (walk != NULL) {
     if (tree.less(key, walk->key))      walk = walk->left;
@@ -142,13 +130,21 @@ static inline bool avl_contains(const struct avl_root tree, const void *key) {
 }
 
 /**
+ * avl_find - searches @tree for an entry with @key
+ *
+ * @tree: tree to search
+ * @key:  the key to search for
+ */
+extern struct avl_iter avl_find(const struct avl_root tree, const void *key);
+
+/**
  * avl_insert - inserts an entry into @tree
  *
  * @tree:  tree to insert an entry into
  * @key:   the key of the entry to insert
  * @value: the value of the entry to insert
  */
-extern struct avl_node *avl_insert(struct avl_root *restrict tree, const void *restrict key, void *restrict value);
+extern struct avl_iter avl_insert(struct avl_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
  * avl_replace - inserts an entry or assigns @value if @key already exists
@@ -157,7 +153,7 @@ extern struct avl_node *avl_insert(struct avl_root *restrict tree, const void *r
  * @key:   the key of the entry to insert if not found
  * @value: the value of the entry to insert or assign
  */
-extern struct avl_node *avl_replace(struct avl_root *restrict tree, const void *restrict key, void *restrict value);
+extern struct avl_iter avl_replace(struct avl_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
  * avl_erase - removes the entry with @key from @tree
@@ -175,19 +171,24 @@ extern void *avl_erase(struct avl_root *restrict tree, const void *restrict key)
 extern void avl_clear(struct avl_root *tree);
 
 /**
- * avl_for_each - applies @func to each element of @tree in ascending order
+ * avl_iter_init - initializes an iterator of @tree
  *
- * @tree: tree to apply @func to each element of
- * @func: function to apply to each element of @tree
+ * @tree: tree to initialize an iterator of
  */
-extern void avl_for_each(const struct avl_root tree, void (*func)(const void *restrict, void *restrict));
+extern struct avl_iter avl_iter_init(const struct avl_root tree);
 
 /**
- * avl_rev_each - applies @func to each element of @tree in descending order
+ * avl_iter_prev - finds logical previous entry of @iter
  *
- * @tree: tree to apply @func to each element of
- * @func: function to apply to each element of @tree
+ * @iter: iterator to find previous entry of
  */
-extern void avl_rev_each(const struct avl_root tree, void (*func)(const void *restrict, void *restrict));
+extern void avl_iter_prev(struct avl_iter *iter);
+
+/**
+ * avl_iter_next - finds logical next entry of @iter
+ *
+ * @iter: iterator to find next entry of
+ */
+extern void avl_iter_next(struct avl_iter *iter);
 
 #endif /* _INDEX_AVLTREE_H */
