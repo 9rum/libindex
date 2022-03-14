@@ -28,11 +28,13 @@
 /**
  * struct rb_node - a node in red-black tree
  *
- * @key:   the key of the element
- * @value: the value of the element
- * @left:  the address of the left subtree
- * @right: the address of the right subtree
- * @color: the color of the node
+ * @key:    the key of the node
+ * @value:  the value of the node
+ * @parent: the address of the parent node
+ * @left:   the address of the left subtree
+ * @right:  the address of the right subtree
+ * @tree:   the address of the tree to which the node belongs
+ * @color:  the color of the node
  *
  * In addition to the requirements imposed on a binary search tree,
  * the following must be satisfied by a red–black tree:
@@ -47,8 +49,10 @@
 struct rb_node {
   const void           *key;
         void           *value;
+        struct rb_node *parent;
         struct rb_node *left;
         struct rb_node *right;
+        struct rb_root *tree;
         bool           color;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
@@ -56,6 +60,18 @@ struct rb_root {
   struct rb_node *root;
   bool          (*less)(const void *restrict, const void *restrict);
   size_t         size;
+} __attribute__((aligned(__SIZEOF_POINTER__)));
+
+struct rb_iter {
+  const void           *key;
+        void           *value;
+        struct rb_node *node;
+} __attribute__((aligned(__SIZEOF_POINTER__)));
+
+struct rb_reverse_iter {
+  const void           *key;
+        void           *value;
+        struct rb_node *node;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
 /*
@@ -76,7 +92,7 @@ struct rb_root {
 /**
  * rb_init - initializes an empty tree with @less
  *
- * @less: operator defining the (partial) element order
+ * @less: operator defining the (partial) node order
  */
 static inline struct rb_root rb_init(bool (*less)(const void *restrict, const void *restrict)) {
   struct rb_root tree = {
@@ -88,9 +104,9 @@ static inline struct rb_root rb_init(bool (*less)(const void *restrict, const vo
 }
 
 /**
- * rb_size - returns the number of elements in @tree
+ * rb_size - returns the number of entries in @tree
  *
- * @tree: tree to get the number of elements
+ * @tree: tree to get the number of entries
  */
 static inline size_t rb_size(const struct rb_root tree) { return tree.size; }
 
@@ -99,34 +115,16 @@ static inline size_t rb_size(const struct rb_root tree) { return tree.size; }
  *
  * @tree: tree to check
  */
-static inline bool rb_empty(const struct rb_root tree) { return rb_size(tree) == 0; }
+static inline bool rb_empty(const struct rb_root tree) { return tree.root == NULL; }
 
 /**
- * rb_find - finds element from @tree with @key
- *
- * @tree: tree to find element from
- * @key:  the key to search for
- */
-static inline void *rb_find(const struct rb_root tree, const void *restrict key) {
-  register const struct rb_node *walk = tree.root;
-
-  while (walk != NULL) {
-    if (tree.less(key, walk->key))      walk = walk->left;
-    else if (tree.less(walk->key, key)) walk = walk->right;
-    else                                return walk->value;
-  }
-
-  return NULL;
-}
-
-/**
- * rb_contains - checks if @tree contains element with @key
+ * rb_contains - checks if @tree contains an entry with @key
  *
  * @tree: tree to check
  * @key:  the key to search for
  */
-static inline bool rb_contains(const struct rb_root tree, const void *restrict key) {
-  register const struct rb_node *walk = tree.root;
+static inline bool rb_contains(const struct rb_root tree, const void *key) {
+  register struct rb_node *walk = tree.root;
 
   while (walk != NULL) {
     if (tree.less(key, walk->key))      walk = walk->left;
@@ -138,52 +136,86 @@ static inline bool rb_contains(const struct rb_root tree, const void *restrict k
 }
 
 /**
- * rb_insert - inserts an element into @tree
+ * rb_find - searches @tree for an entry with @key
  *
- * @tree:  tree to insert element into
- * @key:   the key of the element to insert
- * @value: the value of the element to insert
+ * @tree: tree to search
+ * @key:  the key to search for
  */
-extern struct rb_node *rb_insert(struct rb_root *restrict tree, const void *restrict key, void *restrict value);
+extern struct rb_iter rb_find(const struct rb_root tree, const void *key);
 
 /**
- * rb_insert_or_assign - inserts an element or assigns @value if @key already exists
+ * rb_insert - inserts an entry into @tree
  *
- * @tree:  tree to insert element into
- * @key:   the key of the element to insert if not found
- * @value: the value of the element to insert or assign
+ * @tree:  tree to insert an entry into
+ * @key:   the key of the entry to insert
+ * @value: the value of the entry to insert
  */
-extern struct rb_node *rb_insert_or_assign(struct rb_root *restrict tree, const void *restrict key, void *restrict value);
+extern struct rb_iter rb_insert(struct rb_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
- * rb_erase - removes the element with @key from @tree
+ * rb_replace - inserts an entry or assigns @value if @key already exists
  *
- * @tree: tree to remove the element from
- * @key:  the key of the element to remove
+ * @tree:  tree to insert an entry into
+ * @key:   the key of the entry to insert if not found
+ * @value: the value of the entry to insert or assign
+ */
+extern struct rb_iter rb_replace(struct rb_root *restrict tree, const void *restrict key, void *restrict value);
+
+/**
+ * rb_erase - removes the entry with @key from @tree
+ *
+ * @tree: tree to remove the entry from
+ * @key:  the key of the entry to remove
  */
 extern void *rb_erase(struct rb_root *restrict tree, const void *restrict key);
 
 /**
- * rb_clear - erases all elements from @tree
+ * rb_clear - erases all entries from @tree
  *
- * @tree: tree to erase all elements from
+ * @tree: tree to erase all entries from
  */
-extern void rb_clear(struct rb_root *restrict tree);
+extern void rb_clear(struct rb_root *tree);
 
 /**
- * rb_for_each - applies @func to each element of @tree in ascending order
+ * rb_iter_init - initializes an iterator of @tree
  *
- * @tree: tree to apply @func to each element of
- * @func: function to apply to each element of @tree
+ * @tree: tree to initialize an iterator of
  */
-extern void rb_for_each(const struct rb_root tree, void (*func)(const void *restrict, void *restrict));
+extern struct rb_iter rb_iter_init(const struct rb_root tree);
 
 /**
- * rb_rev_each - applies @func to each element of @tree in descending order
+ * rb_iter_prev - finds logical previous entry of @iter
  *
- * @tree: tree to apply @func to each element of
- * @func: function to apply to each element of @tree
+ * @iter: iterator to find logical previous entry of
  */
-extern void rb_rev_each(const struct rb_root tree, void (*func)(const void *restrict, void *restrict));
+extern void rb_iter_prev(struct rb_iter *iter);
+
+/**
+ * rb_iter_next - finds logical next entry of @iter
+ *
+ * @iter: iterator to find logical next entry of
+ */
+extern void rb_iter_next(struct rb_iter *iter);
+
+/**
+ * rb_reverse_iter_init - initializes a reverse iterator of @tree
+ *
+ * @tree: tree to initialize a reverse iterator of
+ */
+extern struct rb_reverse_iter rb_reverse_iter_init(const struct rb_root tree);
+
+/**
+ * rb_reverse_iter_prev - finds logical previous entry of @iter
+ *
+ * @iter: reverse iterator to find logical previous entry of
+ */
+extern void rb_reverse_iter_prev(struct rb_reverse_iter *iter);
+
+/**
+ * rb_reverse_iter_next - finds logical next entry of @iter
+ *
+ * @iter: reverse iterator to find logical next entry of
+ */
+extern void rb_reverse_iter_next(struct rb_reverse_iter *iter);
 
 #endif /* _INDEX_RBTREE_H */
