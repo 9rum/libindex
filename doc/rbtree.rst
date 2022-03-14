@@ -23,6 +23,10 @@
 
         | These structures represent a node and the root of a red-black tree respectively.
 
+    ``struct rb_iter`` and ``struct rb_reverse_iter``
+
+        | These structures represent an iterator and a reverse iterator of a red-black tree respectively.
+
     The below function uses the operator with 3 different calling conventions. The operator denotes:
 
     .. code-block::
@@ -43,50 +47,66 @@
 
     ``size_t rb_size(const struct rb_root tree)``
 
-        | This function returns the number of elements in tree *tree*.
+        | This function returns the number of entries in tree *tree*.
 
     ``bool rb_empty(const struct rb_root tree)``
 
         | This function checks whether tree *tree* is empty.
 
-    ``void *rb_find(const struct rb_root tree, const void *key)``
-
-        | This function finds element from tree *tree* with specified key *key*.
-        | It returns the value of the element with the equivalent key.
-        | If *key* is not found in *tree*, it returns ``NULL``.
-
     ``bool rb_contains(const struct rb_root tree, const void *key)``
 
-        | This function checks if tree *tree* contains element with specified key *key*.
+        | This function checks if tree *tree* contains an entry with specified key *key*.
 
-    ``struct rb_node *rb_insert(struct rb_root *tree, const void *key, void *value)``
+    ``struct rb_iter rb_find(const struct rb_root tree, const void *key)``
 
-        | This function inserts an element with key *key* and value *value* into tree *tree*.
-        | It returns the address of the inserted element.
-        | If *key* already exists in *tree*, it returns ``NULL`` without insertion.
+        | This function searches tree *tree* for an entry with specified key *key*.
+        | It returns the iterator of the entry with the equivalent key.
+        | If *key* is not present in *tree*, the iterator points to ``NULL``.
 
-    ``struct rb_node *rb_insert_or_assign(struct rb_root *tree, const void *key, void *value)``
+    ``struct rb_iter rb_insert(struct rb_root *tree, const void *key, void *value)``
 
-        | This function inserts an element with key *key* and value *value* into tree *tree*.
+        | This function inserts an entry with key *key* and value *value* into tree *tree*.
+        | It returns the iterator of the inserted entry.
+        | If *key* already exists in *tree*, the iterator points to the entry that prevented the insertion.
+
+    ``struct rb_iter rb_replace(struct rb_root *tree, const void *key, void *value)``
+
+        | This function inserts an entry with key *key* and value *value* into tree *tree*.
         | Unlike ``rb_insert``, it assigns *value* if *key* already exists in *tree*.
-        | It returns the address of the inserted/assigned element.
+        | It returns the iterator of the inserted/assigned entry.
 
     ``void *rb_erase(struct rb_root *tree, const void *key)``
 
-        | This function removes the element from tree *tree* with specified key *key*.
-        | It returns the value of the element with the equivalent key.
-        | If *key* does not exist in *tree*, it returns ``NULL`` without removal.
+        | This function removes the entry from tree *tree* with specified key *key*.
+        | It returns the value of the entry with the equivalent key.
+        | If *key* is not present in *tree*, it returns ``NULL`` without removal.
 
     ``void rb_clear(struct rb_root *tree)``
 
-        | This function erases all elements from tree *tree*.
-        | If you inserted elements using ``rb_insert`` or ``rb_insert_or_assign`` and did not erase all the elements, you must clear the tree using this function, or memory leak would occur.
-        | After calling this function, ``rb_size`` returns zero.
+        | This function erases all entries from tree *tree*.
+        | If you inserted entries using ``rb_insert`` or ``rb_replace`` and did not erase all the entries, you must clear the tree using this function, or memory leak would occur.
+        | After this call, ``rb_size`` returns zero.
 
-    ``void rb_for_each(const struct rb_root tree, void (*func)(const void *, void *))``
+    ``struct rb_iter rb_iter_init(const struct rb_root tree)``
 
-        | This function applies function *func* to each element of tree *tree* in ascending order.
+        | This function initializes an iterator of tree *tree*.
 
-    ``void rb_rev_each(const struct rb_root tree, void (*func)(const void *, void *))``
+    ``void rb_iter_prev(struct rb_iter *iter)``
 
-        | This function applies function *func* to each element of tree *tree* in descending order.
+        | This function finds logical previous entry of iterator *iter*.
+
+    ``void rb_iter_next(struct rb_iter *iter)``
+
+        | This function finds logical next entry of iterator *iter*.
+
+    ``struct rb_reverse_iter rb_reverse_iter_init(const struct rb_root tree)``
+
+        | This function initializes a reverse iterator of tree *tree*.
+
+    ``void rb_reverse_iter_prev(struct rb_reverse_iter *iter)``
+
+        | This function finds logical previous entry of reverse iterator *iter*.
+
+    ``void rb_reverse_iter_next(struct rb_reverse_iter *iter)``
+
+        | This function finds logical next entry of reverse iterator *iter*.
