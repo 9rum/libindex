@@ -109,7 +109,7 @@ static inline void avl_rebalance(struct avl_node *node) {
 /**
  * avl_lower_bound - finds logical lower bound of @node
  *
- * @node: node to find logical lower bound
+ * @node: node to find logical lower bound of
  */
 static inline struct avl_node *avl_lower_bound(struct avl_node *node) {
   if (node == NULL)
@@ -127,7 +127,7 @@ static inline struct avl_node *avl_lower_bound(struct avl_node *node) {
 /**
  * avl_upper_bound - finds logical upper bound of @node
  *
- * @node: node to find logical upper bound
+ * @node: node to find logical upper bound of
  */
 static inline struct avl_node *avl_upper_bound(struct avl_node *node) {
   if (node == NULL)
@@ -192,10 +192,10 @@ extern struct avl_iter avl_find(const struct avl_root tree, const void *key) {
   while (walk != NULL) {
     if (tree.less(key, walk->key))      walk = walk->left;
     else if (tree.less(walk->key, key)) walk = walk->right;
-    else                                return avl_mk_iter(walk);
+    else                                break;
   }
 
-  return avl_mk_iter(NULL);
+  return avl_mk_iter(walk);
 }
 
 extern struct avl_iter avl_insert(struct avl_root *restrict tree, const void *restrict key, void *restrict value) {
@@ -314,15 +314,18 @@ extern void *avl_erase(struct avl_root *restrict tree, const void *restrict key)
       if (parent == NULL)            tree->root    = walk->left;  /* case of root */
       else if (parent->left == walk) parent->left  = walk->left;
       else                           parent->right = walk->left;
+      walk->left->parent = parent;
     } else {
       if (parent == NULL)            tree->root    = walk->right; /* case of root */
       else if (parent->left == walk) parent->left  = walk->right;
       else                           parent->right = walk->right;
+      walk->right->parent = parent;
     }
   }
 
-  free(walk);
   --tree->size;
+
+  free(walk);
 
   for (walk = parent; walk != NULL; walk = walk->parent) {
     walk->height = 1 + max(avl_height(walk->left), avl_height(walk->right));
