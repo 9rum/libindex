@@ -34,7 +34,7 @@
  * @left:   the address of the left subtree
  * @right:  the address of the right subtree
  * @tree:   the address of the tree to which the node belongs
- * @color:  the color of the node
+ * @black:  the color of the node
  *
  * In addition to the requirements imposed on a binary search tree,
  * the following must be satisfied by a red–black tree:
@@ -53,7 +53,7 @@ struct rb_node {
         struct rb_node *left;
         struct rb_node *right;
         struct rb_root *tree;
-        bool           color;
+        bool           black;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
 struct rb_root {
