@@ -44,7 +44,7 @@ CTEST(avltree_test, avl_insert_test) {
     ASSERT_EQUAL_U(*it, (uintptr_t)avl_insert(&tree, (void *)*it, NULL).key);
 
   memset(dest, 0, sizeof(dest));
-  for (struct avl_iter iter = avl_iter_init(tree); iter.node != NULL; avl_iter_next(&iter)) {
+  for (struct avl_iter iter = avl_iter_init(tree); !avl_iter_end(iter); avl_iter_next(&iter)) {
     sprintf(src, "%" PRIuPTR, (uintptr_t)iter.key);
     strcat(dest, src);
   }
@@ -67,7 +67,7 @@ CTEST(avltree_test, avl_replace_test) {
     ASSERT_EQUAL_U(*it, (uintptr_t)avl_replace(&tree, (void *)*it, (void *)*it).value);
 
   memset(dest, 0, sizeof(dest));
-  for (struct avl_iter iter = avl_iter_init(tree); iter.node != NULL; avl_iter_next(&iter)) {
+  for (struct avl_iter iter = avl_iter_init(tree); !avl_iter_end(iter); avl_iter_next(&iter)) {
     sprintf(src, "%" PRIuPTR, (uintptr_t)iter.key);
     strcat(dest, src);
   }

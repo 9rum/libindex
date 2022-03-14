@@ -198,6 +198,13 @@ extern void avl_iter_prev(struct avl_iter *iter);
 extern void avl_iter_next(struct avl_iter *iter);
 
 /**
+ * avl_iter_end - checks if @iter reaches the end
+ *
+ * @iter: iterator to check
+ */
+static inline bool avl_iter_end(const struct avl_iter iter) { return iter.node == NULL; }
+
+/**
  * avl_reverse_iter_init - initializes a reverse iterator of @tree
  *
  * @tree: tree to initialize a reverse iterator of
@@ -217,5 +224,12 @@ extern void avl_reverse_iter_prev(struct avl_reverse_iter *iter);
  * @iter: reverse iterator to find next entry of
  */
 extern void avl_reverse_iter_next(struct avl_reverse_iter *iter);
+
+/**
+ * avl_reverse_iter_end - checks if @iter reaches the end
+ *
+ * @iter: reverse iterator to check
+ */
+static inline bool avl_reverse_iter_end(const struct avl_reverse_iter iter) { return iter.node == NULL; }
 
 #endif /* _INDEX_AVLTREE_H */

@@ -198,6 +198,13 @@ extern void rb_iter_prev(struct rb_iter *iter);
 extern void rb_iter_next(struct rb_iter *iter);
 
 /**
+ * rb_iter_end - checks if @iter reaches the end
+ *
+ * @iter: iterator to check
+ */
+static inline bool rb_iter_end(const struct rb_iter iter) { return iter.node == NULL; }
+
+/**
  * rb_reverse_iter_init - initializes a reverse iterator of @tree
  *
  * @tree: tree to initialize a reverse iterator of
@@ -217,5 +224,12 @@ extern void rb_reverse_iter_prev(struct rb_reverse_iter *iter);
  * @iter: reverse iterator to find logical next entry of
  */
 extern void rb_reverse_iter_next(struct rb_reverse_iter *iter);
+
+/**
+ * rb_reverse_iter_end - checks if @iter reaches the end
+ *
+ * @iter: reverse iterator to check
+ */
+static inline bool rb_reverse_iter_end(const struct rb_reverse_iter iter) { return iter.node == NULL; }
 
 #endif /* _INDEX_RBTREE_H */

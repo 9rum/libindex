@@ -98,6 +98,10 @@
 
         | This function finds logical next entry of iterator *iter*.
 
+    ``bool avl_iter_end(const struct avl_iter iter)``
+
+        | This function checks if iterator *iter* reaches the end.
+
     ``struct avl_reverse_iter avl_reverse_iter_init(const struct avl_root tree)``
 
         | This function initializes a reverse iterator of tree *tree*.
@@ -109,3 +113,7 @@
     ``void avl_reverse_iter_next(struct avl_reverse_iter *iter)``
 
         | This function finds logical next entry of reverse iterator *iter*.
+
+    ``bool avl_reverse_iter_end(const struct avl_reverse_iter iter)``
+
+        | This function checks if reverse iterator *iter* reaches the end.

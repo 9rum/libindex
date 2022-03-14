@@ -99,6 +99,10 @@
 
         | This function finds logical next entry of iterator *iter*.
 
+    ``bool rb_iter_end(const struct rb_iter iter)``
+
+        | This function checks if iterator *iter* reaches the end.
+
     ``struct rb_reverse_iter rb_reverse_iter_init(const struct rb_root tree)``
 
         | This function initializes a reverse iterator of tree *tree*.
@@ -110,3 +114,7 @@
     ``void rb_reverse_iter_next(struct rb_reverse_iter *iter)``
 
         | This function finds logical next entry of reverse iterator *iter*.
+
+    ``bool rb_reverse_iter_end(const struct rb_reverse_iter iter)``
+
+        | This function checks if reverse iterator *iter* reaches the end.

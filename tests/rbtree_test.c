@@ -44,7 +44,7 @@ CTEST(rbtree_test, rb_insert_test) {
     ASSERT_EQUAL_U(*it, (uintptr_t)rb_insert(&tree, (void *)*it, NULL).key);
 
   memset(dest, 0, sizeof(dest));
-  for (struct rb_iter iter = rb_iter_init(tree); iter.node != NULL; rb_iter_next(&iter)) {
+  for (struct rb_iter iter = rb_iter_init(tree); !rb_iter_end(iter); rb_iter_next(&iter)) {
     sprintf(src, "%" PRIuPTR, (uintptr_t)iter.key);
     strcat(dest, src);
   }
@@ -67,7 +67,7 @@ CTEST(rbtree_test, rb_replace_test) {
     ASSERT_EQUAL_U(*it, (uintptr_t)rb_replace(&tree, (void *)*it, (void *)*it).value);
 
   memset(dest, 0, sizeof(dest));
-  for (struct rb_iter iter = rb_iter_init(tree); iter.node != NULL; rb_iter_next(&iter)) {
+  for (struct rb_iter iter = rb_iter_init(tree); !rb_iter_end(iter); rb_iter_next(&iter)) {
     sprintf(src, "%" PRIuPTR, (uintptr_t)iter.key);
     strcat(dest, src);
   }
