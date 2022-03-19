@@ -20,6 +20,10 @@
 
         | These structures represent a node and the root of a left-leaning red-black tree respectively.
 
+    ``struct llrb_iter`` and ``struct llrb_reverse_iter``
+
+        | These structures represent an iterator and a reverse iterator of a left-leaning red-black tree respectively.
+
     The below function uses the operator with 3 different calling conventions. The operator denotes:
 
     .. code-block::
@@ -40,50 +44,74 @@
 
     ``size_t llrb_size(const struct llrb_root tree)``
 
-        | This function returns the number of elements in tree *tree*.
+        | This function returns the number of entries in tree *tree*.
 
     ``bool llrb_empty(const struct llrb_root tree)``
 
         | This function checks whether tree *tree* is empty.
 
-    ``void *llrb_find(const struct llrb_root tree, const void *key)``
-
-        | This function finds element from tree *tree* with specified key *key*.
-        | It returns the value of the element with the equivalent key.
-        | If *key* is not found in *tree*, it returns ``NULL``.
-
     ``bool llrb_contains(const struct llrb_root tree, const void *key)``
 
-        | This function checks if tree *tree* contains element with specified key *key*.
+        | This function checks if tree *tree* contains an entry with specified key *key*.
 
-    ``struct llrb_node *llrb_insert(struct llrb_root *tree, const void *key, void *value)``
+    ``struct llrb_iter llrb_find(const struct llrb_root tree, const void *key)``
 
-        | This function inserts an element with key *key* and value *value* into tree *tree*.
-        | It returns the address of the inserted element.
-        | If *key* already exists in *tree*, it returns ``NULL`` without insertion.
+        | This function searches tree *tree* for an entry with specified key *key*.
+        | It returns the iterator of the entry with the equivalent key.
+        | If *key* is not present in *tree*, the iterator points to ``NULL``.
 
-    ``struct llrb_node *llrb_insert_or_assign(struct llrb_root *tree, const void *key, void *value)``
+    ``struct llrb_iter llrb_insert(struct llrb_root *tree, const void *key, void *value)``
 
-        | This function inserts an element with key *key* and value *value* into tree *tree*.
+        | This function inserts an entry with key *key* and value *value* into tree *tree*.
+        | It returns the iterator of the inserted entry.
+        | If *key* already exists in *tree*, the iterator points to the entry that prevented the insertion.
+
+    ``struct llrb_iter llrb_replace(struct llrb_root *tree, const void *key, void *value)``
+
+        | This function inserts an entry with key *key* and value *value* into tree *tree*.
         | Unlike ``llrb_insert``, it assigns *value* if *key* already exists in *tree*.
-        | It returns the address of the inserted/assigned element.
+        | It returns the iterator of the inserted/assigned entry.
 
     ``void *llrb_erase(struct llrb_root *tree, const void *key)``
 
-        | This function removes the element from tree *tree* with specified key *key*.
-        | It returns the value of the element with the equivalent key.
-        | If *key* does not exist in *tree*, it returns ``NULL`` without removal.
+        | This function removes the entry from tree *tree* with specified key *key*.
+        | It returns the value of the entry with the equivalent key.
+        | If *key* is not present in *tree*, it returns ``NULL`` without removal.
 
     ``void llrb_clear(struct llrb_root *tree)``
 
-        | This function erases all elements from tree *tree*.
-        | If you inserted elements using ``llrb_insert`` or ``llrb_insert_or_assign`` and did not erase all the elements, you must clear the tree using this function, or memory leak would occur.
-        | After calling this function, ``llrb_size`` returns zero.
+        | This function erases all entries from tree *tree*.
+        | If you inserted entries using ``llrb_insert`` or ``llrb_replace`` and did not erase all the entries, you must clear the tree using this function, or memory leak would occur.
+        | After this call, ``llrb_size`` returns zero.
 
-    ``void llrb_for_each(const struct llrb_root tree, void (*func)(const void *, void *))``
+    ``struct llrb_iter llrb_iter_init(const struct llrb_root tree)``
 
-        | This function applies function *func* to each element of tree *tree* in ascending order.
+        | This function initializes an iterator of tree *tree*.
 
-    ``void llrb_rev_each(const struct llrb_root tree, void (*func)(const void *, void *))``
+    ``void llrb_iter_prev(struct llrb_iter *iter)``
 
-        | This function applies function *func* to each element of tree *tree* in descending order.
+        | This function finds logical previous entry of iterator *iter*.
+
+    ``void llrb_iter_next(struct llrb_iter *iter)``
+
+        | This function finds logical next entry of iterator *iter*.
+
+    ``bool llrb_iter_end(const struct llrb_iter iter)``
+
+        | This function checks if iterator *iter* reaches the end.
+
+    ``struct llrb_reverse_iter llrb_reverse_iter_init(const struct llrb_root tree)``
+
+        | This function initializes a reverse iterator of tree *tree*.
+
+    ``void llrb_reverse_iter_prev(struct llrb_reverse_iter *iter)``
+
+        | This function finds logical previous entry of reverse iterator *iter*.
+
+    ``void llrb_reverse_iter_next(struct llrb_reverse_iter *iter)``
+
+        | This function finds logical next entry of reverse iterator *iter*.
+
+    ``bool llrb_reverse_iter_end(const struct llrb_reverse_iter iter)``
+
+        | This function checks if reverse iterator *iter* reaches the end.
