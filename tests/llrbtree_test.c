@@ -18,13 +18,9 @@
 #include <stdio.h>
 #include <string.h>
 
-      char      src[3];
-      char      dest[41];
 const uintptr_t testcases[] = {40, 11, 77, 33, 20, 90, 99, 70, 88, 80, 66, 10, 22, 30, 44, 55, 50, 60, 25, 49};
 
 bool less(const void *restrict lhs, const void *restrict rhs) { return (uintptr_t)lhs < (uintptr_t)rhs; }
-
-void concat(const void *restrict key, void *restrict value) { sprintf(src, "%" PRIuPTR, (uintptr_t)key); strcat(dest, src); }
 
 CTEST(llrbtree_test, llrb_find_test) {
   struct llrb_root tree = llrb_init(less);
@@ -33,7 +29,7 @@ CTEST(llrbtree_test, llrb_find_test) {
     llrb_insert(&tree, (void *)*it, (void *)*it);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    ASSERT_EQUAL_U(*it, (uintptr_t)llrb_find(tree, (void *)*it));
+    ASSERT_EQUAL_U(*it, (uintptr_t)llrb_find(tree, (void *)*it).value);
 
   llrb_clear(&tree);
   ASSERT_TRUE(llrb_empty(tree));
@@ -41,12 +37,17 @@ CTEST(llrbtree_test, llrb_find_test) {
 
 CTEST(llrbtree_test, llrb_insert_test) {
   struct llrb_root tree = llrb_init(less);
+  char             src[3];
+  char             dest[41];
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    ASSERT_NOT_NULL(llrb_insert(&tree, (void *)*it, NULL));
+    ASSERT_EQUAL_U(*it, (uintptr_t)llrb_insert(&tree, (void *)*it, NULL).key);
 
   memset(dest, 0, sizeof(dest));
-  llrb_for_each(tree, concat);
+  for (struct llrb_iter iter = llrb_iter_init(tree); !llrb_iter_end(iter); llrb_iter_next(&iter)) {
+    sprintf(src, "%" PRIuPTR, (uintptr_t)iter.key);
+    strcat(dest, src);
+  }
   ASSERT_STR("1011202225303340444950556066707780889099", dest);
   ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t), llrb_size(tree));
 
@@ -54,17 +55,22 @@ CTEST(llrbtree_test, llrb_insert_test) {
   ASSERT_TRUE(llrb_empty(tree));
 }
 
-CTEST(llrbtree_test, llrb_insert_or_assign_test) {
+CTEST(llrbtree_test, llrb_replace_test) {
   struct llrb_root tree = llrb_init(less);
+  char             src[3];
+  char             dest[41];
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    ASSERT_NOT_NULL(llrb_insert_or_assign(&tree, (void *)*it, NULL));
+    ASSERT_NULL(llrb_replace(&tree, (void *)*it, NULL).value);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
-    ASSERT_NOT_NULL(llrb_insert_or_assign(&tree, (void *)*it, (void *)*it));
+    ASSERT_EQUAL_U(*it, (uintptr_t)llrb_replace(&tree, (void *)*it, (void *)*it).value);
 
   memset(dest, 0, sizeof(dest));
-  llrb_for_each(tree, concat);
+  for (struct llrb_iter iter = llrb_iter_init(tree); !llrb_iter_end(iter); llrb_iter_next(&iter)) {
+    sprintf(src, "%" PRIuPTR, (uintptr_t)iter.key);
+    strcat(dest, src);
+  }
   ASSERT_STR("1011202225303340444950556066707780889099", dest);
   ASSERT_EQUAL_U(sizeof(testcases)/sizeof(uintptr_t), llrb_size(tree));
 
@@ -84,7 +90,7 @@ CTEST(llrbtree_test, llrb_erase_test) {
   ASSERT_TRUE(llrb_empty(tree));
 }
 
-CTEST(llrbtree_test, llrb_erase_rev_test) {
+CTEST(llrbtree_test, llrb_erase_reverse_test) {
   struct llrb_root tree = llrb_init(less);
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it)
