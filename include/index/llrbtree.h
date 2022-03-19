@@ -19,11 +19,13 @@
 /**
  * struct llrb_node - a node in left-leaning red-black tree
  *
- * @key:   the key of the element
- * @value: the value of the element
- * @left:  the address of the left subtree
- * @right: the address of the right subtree
- * @color: the color of the node
+ * @key:    the key of the node
+ * @value:  the value of the node
+ * @parent: the address of the parent node
+ * @left:   the address of the left subtree
+ * @right:  the address of the right subtree
+ * @tree:   the address of the tree to which the node belongs
+ * @black:  the color of the node
  *
  * The traditional red-black tree represents 2-3-4 tree as a binary search tree
  * and uses internal red edges for 3-nodes and 4-nodes.
@@ -33,15 +35,29 @@
 struct llrb_node {
   const void             *key;
         void             *value;
+        struct llrb_node *parent;
         struct llrb_node *left;
         struct llrb_node *right;
-        bool             color;
+        struct llrb_root *tree;
+        bool             black;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
 struct llrb_root {
   struct llrb_node *root;
   bool            (*less)(const void *restrict, const void *restrict);
   size_t           size;
+} __attribute__((aligned(__SIZEOF_POINTER__)));
+
+struct llrb_iter {
+  const void             *key;
+        void             *value;
+        struct llrb_node *node;
+} __attribute__((aligned(__SIZEOF_POINTER__)));
+
+struct llrb_reverse_iter {
+  const void             *key;
+        void             *value;
+        struct llrb_node *node;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
 /*
@@ -62,7 +78,7 @@ struct llrb_root {
 /**
  * llrb_init - initializes an empty tree with @less
  *
- * @less: operator defining the (partial) element order
+ * @less: operator defining the (partial) node order
  */
 static inline struct llrb_root llrb_init(bool (*less)(const void *restrict, const void *restrict)) {
   struct llrb_root tree = {
@@ -74,9 +90,9 @@ static inline struct llrb_root llrb_init(bool (*less)(const void *restrict, cons
 }
 
 /**
- * llrb_size - returns the number of elements in @tree
+ * llrb_size - returns the number of entries in @tree
  *
- * @tree: tree to get the number of elements
+ * @tree: tree to get the number of entries
  */
 static inline size_t llrb_size(const struct llrb_root tree) { return tree.size; }
 
@@ -85,34 +101,16 @@ static inline size_t llrb_size(const struct llrb_root tree) { return tree.size; 
  *
  * @tree: tree to check
  */
-static inline bool llrb_empty(const struct llrb_root tree) { return llrb_size(tree) == 0; }
+static inline bool llrb_empty(const struct llrb_root tree) { return tree.root == NULL; }
 
 /**
- * llrb_find - finds element from @tree with @key
- *
- * @tree: tree to find element from
- * @key:  the key to search for
- */
-static inline void *llrb_find(const struct llrb_root tree, const void *restrict key) {
-  register const struct llrb_node *walk = tree.root;
-
-  while (walk != NULL) {
-    if (tree.less(key, walk->key))      walk = walk->left;
-    else if (tree.less(walk->key, key)) walk = walk->right;
-    else                                return walk->value;
-  }
-
-  return NULL;
-}
-
-/**
- * llrb_contains - checks if @tree contains element with @key
+ * llrb_contains - checks if @tree contains an entry with @key
  *
  * @tree: tree to check
  * @key:  the key to search for
  */
-static inline bool llrb_contains(const struct llrb_root tree, const void *restrict key) {
-  register const struct llrb_node *walk = tree.root;
+static inline bool llrb_contains(const struct llrb_root tree, const void *key) {
+  register struct llrb_node *walk = tree.root;
 
   while (walk != NULL) {
     if (tree.less(key, walk->key))      walk = walk->left;
@@ -124,52 +122,100 @@ static inline bool llrb_contains(const struct llrb_root tree, const void *restri
 }
 
 /**
- * llrb_insert - inserts an element into @tree
+ * llrb_find - searches @tree for an entry with @key
  *
- * @tree:  tree to insert element into
- * @key:   the key of the element to insert
- * @value: the value of the element to insert
+ * @tree: tree to search
+ * @key:  the key to search for
  */
-extern struct llrb_node *llrb_insert(struct llrb_root *restrict tree, const void *restrict key, void *restrict value);
+extern struct llrb_iter llrb_find(const struct llrb_root tree, const void *key);
 
 /**
- * llrb_insert_or_assign - inserts an element or assigns @value if @key already exists
+ * llrb_insert - inserts an entry into @tree
  *
- * @tree:  tree to insert element into
- * @key:   the key of the element to insert if not found
- * @value: the value of the element to insert or assign
+ * @tree:  tree to insert an entry into
+ * @key:   the key of the entry to insert
+ * @value: the value of the entry to insert
  */
-extern struct llrb_node *llrb_insert_or_assign(struct llrb_root *restrict tree, const void *restrict key, void *restrict value);
+extern struct llrb_iter llrb_insert(struct llrb_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
- * llrb_erase - removes the element with @key from @tree
+ * llrb_replace - inserts an entry or assigns @value if @key already exists
  *
- * @tree: tree to remove the element from
- * @key:  the key of the element to remove
+ * @tree:  tree to insert an entry into
+ * @key:   the key of the entry to insert if not found
+ * @value: the value of the entry to insert or assign
+ */
+extern struct llrb_iter llrb_replace(struct llrb_root *restrict tree, const void *restrict key, void *restrict value);
+
+/**
+ * llrb_erase - removes the entry with @key from @tree
+ *
+ * @tree: tree to remove the entry from
+ * @key:  the key of the entry to remove
  */
 extern void *llrb_erase(struct llrb_root *restrict tree, const void *restrict key);
 
 /**
- * llrb_clear - erases all elements from @tree
+ * llrb_clear - erases all entries from @tree
  *
- * @tree: tree to erase all elements from
+ * @tree: tree to erase all entries from
  */
-extern void llrb_clear(struct llrb_root *restrict tree);
+extern void llrb_clear(struct llrb_root *tree);
 
 /**
- * llrb_for_each - applies @func to each element of @tree in ascending order
+ * llrb_iter_init - initializes an iterator of @tree
  *
- * @tree: tree to apply @func to each element of
- * @func: function to apply to each element of @tree
+ * @tree: tree to initialize an iterator of
  */
-extern void llrb_for_each(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict));
+extern struct llrb_iter llrb_iter_init(const struct llrb_root tree);
 
 /**
- * llrb_rev_each - applies @func to each element of @tree in descending order
+ * llrb_iter_prev - finds logical previous entry of @iter
  *
- * @tree: tree to apply @func to each element of
- * @func: function to apply to each element of @tree
+ * @iter: iterator to find logical previous entry of
  */
-extern void llrb_rev_each(const struct llrb_root tree, void (*func)(const void *restrict, void *restrict));
+extern void llrb_iter_prev(struct llrb_iter *iter);
+
+/**
+ * llrb_iter_next - finds logical next entry of @iter
+ *
+ * @iter: iterator to find logical next entry of
+ */
+extern void llrb_iter_next(struct llrb_iter *iter);
+
+/**
+ * llrb_iter_end - checks if @iter reaches the end
+ *
+ * @iter: iterator to check
+ */
+static inline bool llrb_iter_end(const struct llrb_iter iter) { return iter.node == NULL; }
+
+/**
+ * llrb_reverse_iter_init - initializes a reverse iterator of @tree
+ *
+ * @tree: tree to initialize a reverse iterator of
+ */
+extern struct llrb_reverse_iter llrb_reverse_iter_init(const struct llrb_root tree);
+
+/**
+ * llrb_reverse_iter_prev - finds logical previous entry of @iter
+ *
+ * @iter: reverse iterator to find logical previous entry of
+ */
+extern void llrb_reverse_iter_prev(struct llrb_reverse_iter *iter);
+
+/**
+ * llrb_reverse_iter_next - finds logical next entry of @iter
+ *
+ * @iter: reverse iterator to find logical next entry of
+ */
+extern void llrb_reverse_iter_next(struct llrb_reverse_iter *iter);
+
+/**
+ * llrb_reverse_iter_end - checks if @iter reaches the end
+ *
+ * @iter: reverse iterator to check
+ */
+static inline bool llrb_reverse_iter_end(const struct llrb_reverse_iter iter) { return iter.node == NULL; }
 
 #endif /* _INDEX_LLRBTREE_H */
