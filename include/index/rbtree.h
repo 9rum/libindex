@@ -65,13 +65,13 @@ struct rb_root {
 struct rb_iter {
   const void           *key;
         void           *value;
-        struct rb_node *node;
+        struct rb_node *pivot;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
 struct rb_reverse_iter {
   const void           *key;
         void           *value;
-        struct rb_node *node;
+        struct rb_node *pivot;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
 /*
@@ -124,12 +124,12 @@ static inline bool rb_empty(const struct rb_root tree) { return tree.root == NUL
  * @key:  the key to search for
  */
 static inline bool rb_contains(const struct rb_root tree, const void *key) {
-  register struct rb_node *walk = tree.root;
+  register struct rb_node *pivot = tree.root;
 
-  while (walk != NULL) {
-    if (tree.less(key, walk->key))      walk = walk->left;
-    else if (tree.less(walk->key, key)) walk = walk->right;
-    else                                return true;
+  while (pivot != NULL) {
+    if (tree.less(key, pivot->key))      pivot = pivot->left;
+    else if (tree.less(pivot->key, key)) pivot = pivot->right;
+    else                                 return true;
   }
 
   return false;
@@ -202,7 +202,7 @@ extern void rb_iter_next(struct rb_iter *iter);
  *
  * @iter: iterator to check
  */
-static inline bool rb_iter_end(const struct rb_iter iter) { return iter.node == NULL; }
+static inline bool rb_iter_end(const struct rb_iter iter) { return iter.pivot == NULL; }
 
 /**
  * rb_reverse_iter_init - initializes a reverse iterator of @tree
@@ -230,6 +230,6 @@ extern void rb_reverse_iter_next(struct rb_reverse_iter *iter);
  *
  * @iter: reverse iterator to check
  */
-static inline bool rb_reverse_iter_end(const struct rb_reverse_iter iter) { return iter.node == NULL; }
+static inline bool rb_reverse_iter_end(const struct rb_reverse_iter iter) { return iter.pivot == NULL; }
 
 #endif /* _INDEX_RBTREE_H */

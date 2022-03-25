@@ -65,13 +65,13 @@ struct avl_root {
 struct avl_iter {
   const void            *key;
         void            *value;
-        struct avl_node *node;
+        struct avl_node *pivot;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
 struct avl_reverse_iter {
   const void            *key;
         void            *value;
-        struct avl_node *node;
+        struct avl_node *pivot;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
 /*
@@ -124,12 +124,12 @@ static inline bool avl_empty(const struct avl_root tree) { return tree.root == N
  * @key:  the key to search for
  */
 static inline bool avl_contains(const struct avl_root tree, const void *key) {
-  register struct avl_node *walk = tree.root;
+  register struct avl_node *pivot = tree.root;
 
-  while (walk != NULL) {
-    if (tree.less(key, walk->key))      walk = walk->left;
-    else if (tree.less(walk->key, key)) walk = walk->right;
-    else                                return true;
+  while (pivot != NULL) {
+    if (tree.less(key, pivot->key))      pivot = pivot->left;
+    else if (tree.less(pivot->key, key)) pivot = pivot->right;
+    else                                 return true;
   }
 
   return false;
@@ -202,7 +202,7 @@ extern void avl_iter_next(struct avl_iter *iter);
  *
  * @iter: iterator to check
  */
-static inline bool avl_iter_end(const struct avl_iter iter) { return iter.node == NULL; }
+static inline bool avl_iter_end(const struct avl_iter iter) { return iter.pivot == NULL; }
 
 /**
  * avl_reverse_iter_init - initializes a reverse iterator of @tree
@@ -230,6 +230,6 @@ extern void avl_reverse_iter_next(struct avl_reverse_iter *iter);
  *
  * @iter: reverse iterator to check
  */
-static inline bool avl_reverse_iter_end(const struct avl_reverse_iter iter) { return iter.node == NULL; }
+static inline bool avl_reverse_iter_end(const struct avl_reverse_iter iter) { return iter.pivot == NULL; }
 
 #endif /* _INDEX_AVLTREE_H */

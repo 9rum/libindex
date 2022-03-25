@@ -51,13 +51,13 @@ struct llrb_root {
 struct llrb_iter {
   const void             *key;
         void             *value;
-        struct llrb_node *node;
+        struct llrb_node *pivot;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
 struct llrb_reverse_iter {
   const void             *key;
         void             *value;
-        struct llrb_node *node;
+        struct llrb_node *pivot;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
 /*
@@ -110,12 +110,12 @@ static inline bool llrb_empty(const struct llrb_root tree) { return tree.root ==
  * @key:  the key to search for
  */
 static inline bool llrb_contains(const struct llrb_root tree, const void *key) {
-  register struct llrb_node *walk = tree.root;
+  register struct llrb_node *pivot = tree.root;
 
-  while (walk != NULL) {
-    if (tree.less(key, walk->key))      walk = walk->left;
-    else if (tree.less(walk->key, key)) walk = walk->right;
-    else                                return true;
+  while (pivot != NULL) {
+    if (tree.less(key, pivot->key))      pivot = pivot->left;
+    else if (tree.less(pivot->key, key)) pivot = pivot->right;
+    else                                 return true;
   }
 
   return false;
@@ -188,7 +188,7 @@ extern void llrb_iter_next(struct llrb_iter *iter);
  *
  * @iter: iterator to check
  */
-static inline bool llrb_iter_end(const struct llrb_iter iter) { return iter.node == NULL; }
+static inline bool llrb_iter_end(const struct llrb_iter iter) { return iter.pivot == NULL; }
 
 /**
  * llrb_reverse_iter_init - initializes a reverse iterator of @tree
@@ -216,6 +216,6 @@ extern void llrb_reverse_iter_next(struct llrb_reverse_iter *iter);
  *
  * @iter: reverse iterator to check
  */
-static inline bool llrb_reverse_iter_end(const struct llrb_reverse_iter iter) { return iter.node == NULL; }
+static inline bool llrb_reverse_iter_end(const struct llrb_reverse_iter iter) { return iter.pivot == NULL; }
 
 #endif /* _INDEX_LLRBTREE_H */
