@@ -112,7 +112,7 @@ static inline struct rb_node *rb_upper_bound(struct rb_node *node) {
  */
 static inline struct rb_iter rb_mk_iter(struct rb_node *node) {
   struct rb_iter iter = {
-    .node  = node,
+    .pivot = node,
     .key   = node == NULL ? NULL : node->key,
     .value = node == NULL ? NULL : node->value,
   };
@@ -126,7 +126,7 @@ static inline struct rb_iter rb_mk_iter(struct rb_node *node) {
  */
 static inline struct rb_reverse_iter rb_mk_reverse_iter(struct rb_node *node) {
   struct rb_reverse_iter iter = {
-    .node  = node,
+    .pivot = node,
     .key   = node == NULL ? NULL : node->key,
     .value = node == NULL ? NULL : node->value,
   };
@@ -150,32 +150,32 @@ static inline void rb_destroy(struct rb_node *node) {
 }
 
 extern struct rb_iter rb_find(const struct rb_root tree, const void *key) {
-  register struct rb_node *walk = tree.root;
+  register struct rb_node *pivot = tree.root;
 
-  while (walk != NULL) {
-    if (tree.less(key, walk->key))      walk = walk->left;
-    else if (tree.less(walk->key, key)) walk = walk->right;
-    else                                break;
+  while (pivot != NULL) {
+    if (tree.less(key, pivot->key))      pivot = pivot->left;
+    else if (tree.less(pivot->key, key)) pivot = pivot->right;
+    else                                 break;
   }
 
-  return rb_mk_iter(walk);
+  return rb_mk_iter(pivot);
 }
 
 extern struct rb_iter rb_insert(struct rb_root *restrict tree, const void *restrict key, void *restrict value) {
   register struct rb_node *gparent;
   register struct rb_node *uncle;
   register struct rb_node *parent = NULL;
-  register struct rb_node *walk   = tree->root;
+  register struct rb_node *pivot  = tree->root;
 
-  while (walk != NULL) {
-    if (tree->less(key, walk->key)) {
-      parent = walk;
-      walk   = walk->left;
-    } else if (tree->less(walk->key, key)) {
-      parent = walk;
-      walk   = walk->right;
+  while (pivot != NULL) {
+    if (tree->less(key, pivot->key)) {
+      parent = pivot;
+      pivot  = pivot->left;
+    } else if (tree->less(pivot->key, key)) {
+      parent = pivot;
+      pivot  = pivot->right;
     } else {
-      return rb_mk_iter(walk);
+      return rb_mk_iter(pivot);
     }
   }
 
@@ -187,7 +187,7 @@ extern struct rb_iter rb_insert(struct rb_root *restrict tree, const void *restr
 
   ++tree->size;
 
-  for (walk = node; walk->parent != NULL; parent = walk->parent) {
+  for (pivot = node; pivot->parent != NULL; parent = pivot->parent) {
     if (parent->black)
       return rb_mk_iter(node);
 
@@ -196,23 +196,23 @@ extern struct rb_iter rb_insert(struct rb_root *restrict tree, const void *restr
 
     if (uncle == NULL || uncle->black) { /* case of rearranging */
       if (gparent->left == parent) {
-        if (parent->left == walk) {      /* case of Left Left */
+        if (parent->left == pivot) {     /* case of Left Left */
           parent->black  = true;
           gparent->black = false;
           rb_rotate_right(gparent);
         } else {                         /* case of Left Right */
-          walk->black    = true;
+          pivot->black   = true;
           gparent->black = false;
           rb_rotate_left(parent);
           rb_rotate_right(gparent);
         }
       } else {
-        if (parent->right == walk) {     /* case of Right Right */
+        if (parent->right == pivot) {    /* case of Right Right */
           parent->black  = true;
           gparent->black = false;
           rb_rotate_left(gparent);
         } else {                         /* case of Right Left */
-          walk->black    = true;
+          pivot->black   = true;
           gparent->black = false;
           rb_rotate_right(parent);
           rb_rotate_left(gparent);
@@ -225,7 +225,7 @@ extern struct rb_iter rb_insert(struct rb_root *restrict tree, const void *restr
     parent->black  = true;               /* case of recoloring */
     uncle->black   = true;
     gparent->black = false;
-    walk           = gparent;
+    pivot          = gparent;
   }
 
   tree->root->black = true;
@@ -237,18 +237,18 @@ extern struct rb_iter rb_replace(struct rb_root *restrict tree, const void *rest
   register struct rb_node *gparent;
   register struct rb_node *uncle;
   register struct rb_node *parent = NULL;
-  register struct rb_node *walk   = tree->root;
+  register struct rb_node *pivot  = tree->root;
 
-  while (walk != NULL) {
-    if (tree->less(key, walk->key)) {
-      parent = walk;
-      walk   = walk->left;
-    } else if (tree->less(walk->key, key)) {
-      parent = walk;
-      walk   = walk->right;
+  while (pivot != NULL) {
+    if (tree->less(key, pivot->key)) {
+      parent = pivot;
+      pivot  = pivot->left;
+    } else if (tree->less(pivot->key, key)) {
+      parent = pivot;
+      pivot  = pivot->right;
     } else {
-      walk->value = value;
-      return rb_mk_iter(walk);
+      pivot->value = value;
+      return rb_mk_iter(pivot);
     }
   }
 
@@ -260,7 +260,7 @@ extern struct rb_iter rb_replace(struct rb_root *restrict tree, const void *rest
 
   ++tree->size;
 
-  for (walk = node; walk->parent != NULL; parent = walk->parent) {
+  for (pivot = node; pivot->parent != NULL; parent = pivot->parent) {
     if (parent->black)
       return rb_mk_iter(node);
 
@@ -269,23 +269,23 @@ extern struct rb_iter rb_replace(struct rb_root *restrict tree, const void *rest
 
     if (uncle == NULL || uncle->black) { /* case of rearranging */
       if (gparent->left == parent) {
-        if (parent->left == walk) {      /* case of Left Left */
+        if (parent->left == pivot) {     /* case of Left Left */
           parent->black  = true;
           gparent->black = false;
           rb_rotate_right(gparent);
         } else {                         /* case of Left Right */
-          walk->black    = true;
+          pivot->black   = true;
           gparent->black = false;
           rb_rotate_left(parent);
           rb_rotate_right(gparent);
         }
       } else {
-        if (parent->right == walk) {     /* case of Right Right */
+        if (parent->right == pivot) {    /* case of Right Right */
           parent->black  = true;
           gparent->black = false;
           rb_rotate_left(gparent);
         } else {                         /* case of Right Left */
-          walk->black    = true;
+          pivot->black   = true;
           gparent->black = false;
           rb_rotate_right(parent);
           rb_rotate_left(gparent);
@@ -298,7 +298,7 @@ extern struct rb_iter rb_replace(struct rb_root *restrict tree, const void *rest
     parent->black  = true;               /* case of recoloring */
     uncle->black   = true;
     gparent->black = false;
-    walk           = gparent;
+    pivot          = gparent;
   }
 
   tree->root->black = true;
@@ -309,99 +309,99 @@ extern struct rb_iter rb_replace(struct rb_root *restrict tree, const void *rest
 extern void *rb_erase(struct rb_root *restrict tree, const void *restrict key) {
   register struct rb_node *sibling;
   register struct rb_node *parent = NULL;
-  register struct rb_node *walk   = tree->root;
+  register struct rb_node *pivot  = tree->root;
 
-  while (walk != NULL) {
-    if (tree->less(key, walk->key)) {
-      parent = walk;
-      walk   = walk->left;
-    } else if (tree->less(walk->key, key)) {
-      parent = walk;
-      walk   = walk->right;
+  while (pivot != NULL) {
+    if (tree->less(key, pivot->key)) {
+      parent = pivot;
+      pivot  = pivot->left;
+    } else if (tree->less(pivot->key, key)) {
+      parent = pivot;
+      pivot  = pivot->right;
     } else {
       break;
     }
   }
 
-  if (walk == NULL)
+  if (pivot == NULL)
     return NULL;
 
-  void *erased = walk->value;
+  void *erased = pivot->value;
 
-  if (walk->left != NULL && walk->right != NULL) {                /* case of degree 2 */
-    parent = walk;
+  if (pivot->left != NULL && pivot->right != NULL) {                /* case of degree 2 */
+    parent = pivot;
 
-    for (walk = walk->left; walk->right != NULL; walk = walk->right);
+    for (pivot = pivot->left; pivot->right != NULL; pivot = pivot->right);
 
-    parent->key   = walk->key;
-    parent->value = walk->value;
-    parent        = walk->parent;
+    parent->key   = pivot->key;
+    parent->value = pivot->value;
+    parent        = pivot->parent;
   }
 
-  if (walk->left == NULL && walk->right == NULL) {                /* case of degree 0 */
-    if (parent == NULL)            tree->root    = NULL;          /* case of root */
-    else if (parent->left == walk) parent->left  = NULL;
-    else                           parent->right = NULL;
-  } else {                                                        /* case of degree 1 */
-    if (walk->left != NULL) {
-      if (parent == NULL)            tree->root    = walk->left;  /* case of root */
-      else if (parent->left == walk) parent->left  = walk->left;
-      else                           parent->right = walk->left;
-      walk->left->parent = parent;
+  if (pivot->left == NULL && pivot->right == NULL) {                /* case of degree 0 */
+    if (parent == NULL)             tree->root    = NULL;           /* case of root */
+    else if (parent->left == pivot) parent->left  = NULL;
+    else                            parent->right = NULL;
+  } else {                                                          /* case of degree 1 */
+    if (pivot->left != NULL) {
+      if (parent == NULL)             tree->root    = pivot->left;  /* case of root */
+      else if (parent->left == pivot) parent->left  = pivot->left;
+      else                            parent->right = pivot->left;
+      pivot->left->parent = parent;
     } else {
-      if (parent == NULL)            tree->root    = walk->right; /* case of root */
-      else if (parent->left == walk) parent->left  = walk->right;
-      else                           parent->right = walk->right;
-      walk->right->parent = parent;
+      if (parent == NULL)             tree->root    = pivot->right; /* case of root */
+      else if (parent->left == pivot) parent->left  = pivot->right;
+      else                            parent->right = pivot->right;
+      pivot->right->parent = parent;
     }
   }
 
   --tree->size;
 
-  if (!walk->black) {
-    free(walk);
+  if (!pivot->black) {
+    free(pivot);
     return erased;
   }
 
-  sibling = walk;
-  walk    = sibling->right == NULL ? sibling->left : sibling->right;
+  sibling = pivot;
+  pivot   = sibling->right == NULL ? sibling->left : sibling->right;
   free(sibling);
 
-  if (walk != NULL && !walk->black) {
-    walk->black = true;
+  if (pivot != NULL && !pivot->black) {
+    pivot->black = true;
     return erased;
   }
 
-  for (; parent != NULL; parent = walk->parent) {
-    sibling = parent->right == walk ? parent->left : parent->right;
+  for (; parent != NULL; parent = pivot->parent) {
+    sibling = parent->right == pivot ? parent->left : parent->right;
 
-    if (!sibling->black) {                                        /* case of rearranging */
+    if (!sibling->black) {                                          /* case of rearranging */
       sibling->black = true;
       parent->black  = false;
-      parent->left == walk ? rb_rotate_left(parent) : rb_rotate_right(parent);
-      sibling = parent->right == walk ? parent->left : parent->right;
+      parent->left == pivot ? rb_rotate_left(parent) : rb_rotate_right(parent);
+      sibling = parent->right == pivot ? parent->left : parent->right;
     }
 
     if (sibling->left != NULL && !sibling->left->black || sibling->right != NULL && !sibling->right->black) {
       if (parent->left == sibling) {
-        if (sibling->right != NULL && !sibling->right->black) {   /* case of Left Right */
+        if (sibling->right != NULL && !sibling->right->black) {     /* case of Left Right */
           sibling->right->black = true;
           sibling->black        = false;
           rb_rotate_left(sibling);
           sibling = parent->left;
         }
-        sibling->left->black = true;                              /* case of Left Left */
+        sibling->left->black = true;                                /* case of Left Left */
         sibling->black       = parent->black;
         parent->black        = true;
         rb_rotate_right(parent);
       } else {
-        if (sibling->left != NULL && !sibling->left->black) {     /* case of Right Left */
+        if (sibling->left != NULL && !sibling->left->black) {       /* case of Right Left */
           sibling->left->black = true;
           sibling->black       = false;
           rb_rotate_right(sibling);
           sibling = parent->right;
         }
-        sibling->right->black = true;                             /* case of Right Right */
+        sibling->right->black = true;                               /* case of Right Right */
         sibling->black        = parent->black;
         parent->black         = true;
         rb_rotate_left(parent);
@@ -410,14 +410,14 @@ extern void *rb_erase(struct rb_root *restrict tree, const void *restrict key) {
       return erased;
     }
 
-    sibling->black = false;                                       /* case of recoloring */
+    sibling->black = false;                                         /* case of recoloring */
 
     if (!parent->black) {
       parent->black = true;
       return erased;
     }
 
-    walk = parent;
+    pivot = parent;
   }
 
   return erased;
@@ -430,45 +430,45 @@ extern void rb_clear(struct rb_root *tree) {
 }
 
 extern struct rb_iter rb_iter_init(const struct rb_root tree) {
-  register struct rb_node *walk = tree.root;
+  register struct rb_node *pivot = tree.root;
 
-  if (walk != NULL)
-    while (walk->left != NULL)
-      walk = walk->left;
+  if (pivot != NULL)
+    while (pivot->left != NULL)
+      pivot = pivot->left;
 
-  return rb_mk_iter(walk);
+  return rb_mk_iter(pivot);
 }
 
 extern void rb_iter_prev(struct rb_iter *iter) {
-  iter->node  = rb_lower_bound(iter->node);
-  iter->key   = iter->node == NULL ? NULL : iter->node->key;
-  iter->value = iter->node == NULL ? NULL : iter->node->value;
+  iter->pivot = rb_lower_bound(iter->pivot);
+  iter->key   = iter->pivot == NULL ? NULL : iter->pivot->key;
+  iter->value = iter->pivot == NULL ? NULL : iter->pivot->value;
 }
 
 extern void rb_iter_next(struct rb_iter *iter) {
-  iter->node  = rb_upper_bound(iter->node);
-  iter->key   = iter->node == NULL ? NULL : iter->node->key;
-  iter->value = iter->node == NULL ? NULL : iter->node->value;
+  iter->pivot = rb_upper_bound(iter->pivot);
+  iter->key   = iter->pivot == NULL ? NULL : iter->pivot->key;
+  iter->value = iter->pivot == NULL ? NULL : iter->pivot->value;
 }
 
 extern struct rb_reverse_iter rb_reverse_iter_init(const struct rb_root tree) {
-  register struct rb_node *walk = tree.root;
+  register struct rb_node *pivot = tree.root;
 
-  if (walk != NULL)
-    while (walk->right != NULL)
-      walk = walk->right;
+  if (pivot != NULL)
+    while (pivot->right != NULL)
+      pivot = pivot->right;
 
-  return rb_mk_reverse_iter(walk);
+  return rb_mk_reverse_iter(pivot);
 }
 
 extern void rb_reverse_iter_prev(struct rb_reverse_iter *iter) {
-  iter->node  = rb_upper_bound(iter->node);
-  iter->key   = iter->node == NULL ? NULL : iter->node->key;
-  iter->value = iter->node == NULL ? NULL : iter->node->value;
+  iter->pivot = rb_upper_bound(iter->pivot);
+  iter->key   = iter->pivot == NULL ? NULL : iter->pivot->key;
+  iter->value = iter->pivot == NULL ? NULL : iter->pivot->value;
 }
 
 extern void rb_reverse_iter_next(struct rb_reverse_iter *iter) {
-  iter->node  = rb_lower_bound(iter->node);
-  iter->key   = iter->node == NULL ? NULL : iter->node->key;
-  iter->value = iter->node == NULL ? NULL : iter->node->value;
+  iter->pivot = rb_lower_bound(iter->pivot);
+  iter->key   = iter->pivot == NULL ? NULL : iter->pivot->key;
+  iter->value = iter->pivot == NULL ? NULL : iter->pivot->value;
 }

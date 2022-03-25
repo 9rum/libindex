@@ -149,7 +149,7 @@ static inline struct avl_node *avl_upper_bound(struct avl_node *node) {
  */
 static inline struct avl_iter avl_mk_iter(struct avl_node *node) {
   struct avl_iter iter = {
-    .node  = node,
+    .pivot = node,
     .key   = node == NULL ? NULL : node->key,
     .value = node == NULL ? NULL : node->value,
   };
@@ -163,7 +163,7 @@ static inline struct avl_iter avl_mk_iter(struct avl_node *node) {
  */
 static inline struct avl_reverse_iter avl_mk_reverse_iter(struct avl_node *node) {
   struct avl_reverse_iter iter = {
-    .node  = node,
+    .pivot = node,
     .key   = node == NULL ? NULL : node->key,
     .value = node == NULL ? NULL : node->value,
   };
@@ -187,30 +187,30 @@ static inline void avl_destroy(struct avl_node *node) {
 }
 
 extern struct avl_iter avl_find(const struct avl_root tree, const void *key) {
-  register struct avl_node *walk = tree.root;
+  register struct avl_node *pivot = tree.root;
 
-  while (walk != NULL) {
-    if (tree.less(key, walk->key))      walk = walk->left;
-    else if (tree.less(walk->key, key)) walk = walk->right;
-    else                                break;
+  while (pivot != NULL) {
+    if (tree.less(key, pivot->key))      pivot = pivot->left;
+    else if (tree.less(pivot->key, key)) pivot = pivot->right;
+    else                                 break;
   }
 
-  return avl_mk_iter(walk);
+  return avl_mk_iter(pivot);
 }
 
 extern struct avl_iter avl_insert(struct avl_root *restrict tree, const void *restrict key, void *restrict value) {
   register struct avl_node *parent = NULL;
-  register struct avl_node *walk   = tree->root;
+  register struct avl_node *pivot  = tree->root;
 
-  while (walk != NULL) {
-    if (tree->less(key, walk->key)) {
-      parent = walk;
-      walk   = walk->left;
-    } else if (tree->less(walk->key, key)) {
-      parent = walk;
-      walk   = walk->right;
+  while (pivot != NULL) {
+    if (tree->less(key, pivot->key)) {
+      parent = pivot;
+      pivot  = pivot->left;
+    } else if (tree->less(pivot->key, key)) {
+      parent = pivot;
+      pivot  = pivot->right;
     } else {
-      return avl_mk_iter(walk);
+      return avl_mk_iter(pivot);
     }
   }
 
@@ -222,32 +222,32 @@ extern struct avl_iter avl_insert(struct avl_root *restrict tree, const void *re
 
   ++tree->size;
 
-  for (walk = parent; walk != NULL; walk = walk->parent) {
-    walk->height = 1 + max(avl_height(walk->left), avl_height(walk->right));
-    if (1 + avl_height(walk->right) < avl_height(walk->left) || 1 + avl_height(walk->left) < avl_height(walk->right))
+  for (pivot = parent; pivot != NULL; pivot = pivot->parent) {
+    pivot->height = 1 + max(avl_height(pivot->left), avl_height(pivot->right));
+    if (1 + avl_height(pivot->right) < avl_height(pivot->left) || 1 + avl_height(pivot->left) < avl_height(pivot->right))
       break;
   }
 
-  if (walk != NULL)
-    avl_rebalance(walk);
+  if (pivot != NULL)
+    avl_rebalance(pivot);
 
   return avl_mk_iter(node);
 }
 
 extern struct avl_iter avl_replace(struct avl_root *restrict tree, const void *restrict key, void *restrict value) {
   register struct avl_node *parent = NULL;
-  register struct avl_node *walk   = tree->root;
+  register struct avl_node *pivot  = tree->root;
 
-  while (walk != NULL) {
-    if (tree->less(key, walk->key)) {
-      parent = walk;
-      walk   = walk->left;
-    } else if (tree->less(walk->key, key)) {
-      parent = walk;
-      walk   = walk->right;
+  while (pivot != NULL) {
+    if (tree->less(key, pivot->key)) {
+      parent = pivot;
+      pivot  = pivot->left;
+    } else if (tree->less(pivot->key, key)) {
+      parent = pivot;
+      pivot  = pivot->right;
     } else {
-      walk->value = value;
-      return avl_mk_iter(walk);
+      pivot->value = value;
+      return avl_mk_iter(pivot);
     }
   }
 
@@ -259,82 +259,82 @@ extern struct avl_iter avl_replace(struct avl_root *restrict tree, const void *r
 
   ++tree->size;
 
-  for (walk = parent; walk != NULL; walk = walk->parent) {
-    walk->height = 1 + max(avl_height(walk->left), avl_height(walk->right));
-    if (1 + avl_height(walk->right) < avl_height(walk->left) || 1 + avl_height(walk->left) < avl_height(walk->right))
+  for (pivot = parent; pivot != NULL; pivot = pivot->parent) {
+    pivot->height = 1 + max(avl_height(pivot->left), avl_height(pivot->right));
+    if (1 + avl_height(pivot->right) < avl_height(pivot->left) || 1 + avl_height(pivot->left) < avl_height(pivot->right))
       break;
   }
 
-  if (walk != NULL)
-    avl_rebalance(walk);
+  if (pivot != NULL)
+    avl_rebalance(pivot);
 
   return avl_mk_iter(node);
 }
 
 extern void *avl_erase(struct avl_root *restrict tree, const void *restrict key) {
   register struct avl_node *parent = NULL;
-  register struct avl_node *walk   = tree->root;
+  register struct avl_node *pivot  = tree->root;
 
-  while (walk != NULL) {
-    if (tree->less(key, walk->key)) {
-      parent = walk;
-      walk   = walk->left;
-    } else if (tree->less(walk->key, key)) {
-      parent = walk;
-      walk   = walk->right;
+  while (pivot != NULL) {
+    if (tree->less(key, pivot->key)) {
+      parent = pivot;
+      pivot  = pivot->left;
+    } else if (tree->less(pivot->key, key)) {
+      parent = pivot;
+      pivot  = pivot->right;
     } else {
       break;
     }
   }
 
-  if (walk == NULL)
+  if (pivot == NULL)
     return NULL;
 
-  void *erased = walk->value;
+  void *erased = pivot->value;
 
-  if (walk->left != NULL && walk->right != NULL) {                /* case of degree 2 */
-    parent = walk;
+  if (pivot->left != NULL && pivot->right != NULL) {                /* case of degree 2 */
+    parent = pivot;
 
-    if (avl_height(walk->left) < avl_height(walk->right))
-      for (walk = walk->right; walk->left != NULL; walk = walk->left);
+    if (avl_height(pivot->left) < avl_height(pivot->right))
+      for (pivot = pivot->right; pivot->left != NULL; pivot = pivot->left);
     else
-      for (walk = walk->left; walk->right != NULL; walk = walk->right);
+      for (pivot = pivot->left; pivot->right != NULL; pivot = pivot->right);
 
-    parent->key   = walk->key;
-    parent->value = walk->value;
-    parent        = walk->parent;
+    parent->key   = pivot->key;
+    parent->value = pivot->value;
+    parent        = pivot->parent;
   }
 
-  if (walk->left == NULL && walk->right == NULL) {                /* case of degree 0 */
-    if (parent == NULL)            tree->root    = NULL;          /* case of root */
-    else if (parent->left == walk) parent->left  = NULL;
-    else                           parent->right = NULL;
-  } else {                                                        /* case of degree 1 */
-    if (walk->left != NULL) {
-      if (parent == NULL)            tree->root    = walk->left;  /* case of root */
-      else if (parent->left == walk) parent->left  = walk->left;
-      else                           parent->right = walk->left;
-      walk->left->parent = parent;
+  if (pivot->left == NULL && pivot->right == NULL) {                /* case of degree 0 */
+    if (parent == NULL)             tree->root    = NULL;           /* case of root */
+    else if (parent->left == pivot) parent->left  = NULL;
+    else                            parent->right = NULL;
+  } else {                                                          /* case of degree 1 */
+    if (pivot->left != NULL) {
+      if (parent == NULL)             tree->root    = pivot->left;  /* case of root */
+      else if (parent->left == pivot) parent->left  = pivot->left;
+      else                            parent->right = pivot->left;
+      pivot->left->parent = parent;
     } else {
-      if (parent == NULL)            tree->root    = walk->right; /* case of root */
-      else if (parent->left == walk) parent->left  = walk->right;
-      else                           parent->right = walk->right;
-      walk->right->parent = parent;
+      if (parent == NULL)             tree->root    = pivot->right; /* case of root */
+      else if (parent->left == pivot) parent->left  = pivot->right;
+      else                            parent->right = pivot->right;
+      pivot->right->parent = parent;
     }
   }
 
   --tree->size;
 
-  free(walk);
+  free(pivot);
 
-  for (walk = parent; walk != NULL; walk = walk->parent) {
-    walk->height = 1 + max(avl_height(walk->left), avl_height(walk->right));
-    if (1 + avl_height(walk->right) < avl_height(walk->left) || 1 + avl_height(walk->left) < avl_height(walk->right))
+  for (pivot = parent; pivot != NULL; pivot = pivot->parent) {
+    pivot->height = 1 + max(avl_height(pivot->left), avl_height(pivot->right));
+    if (1 + avl_height(pivot->right) < avl_height(pivot->left) || 1 + avl_height(pivot->left) < avl_height(pivot->right))
       break;
   }
 
-  if (walk != NULL)
-    avl_rebalance(walk);
+  if (pivot != NULL)
+    avl_rebalance(pivot);
 
   return erased;
 }
@@ -346,45 +346,45 @@ extern void avl_clear(struct avl_root *tree) {
 }
 
 extern struct avl_iter avl_iter_init(const struct avl_root tree) {
-  register struct avl_node *walk = tree.root;
+  register struct avl_node *pivot = tree.root;
 
-  if (walk != NULL)
-    while (walk->left != NULL)
-      walk = walk->left;
+  if (pivot != NULL)
+    while (pivot->left != NULL)
+      pivot = pivot->left;
 
-  return avl_mk_iter(walk);
+  return avl_mk_iter(pivot);
 }
 
 extern void avl_iter_prev(struct avl_iter *iter) {
-  iter->node  = avl_lower_bound(iter->node);
-  iter->key   = iter->node == NULL ? NULL : iter->node->key;
-  iter->value = iter->node == NULL ? NULL : iter->node->value;
+  iter->pivot = avl_lower_bound(iter->pivot);
+  iter->key   = iter->pivot == NULL ? NULL : iter->pivot->key;
+  iter->value = iter->pivot == NULL ? NULL : iter->pivot->value;
 }
 
 extern void avl_iter_next(struct avl_iter *iter) {
-  iter->node  = avl_upper_bound(iter->node);
-  iter->key   = iter->node == NULL ? NULL : iter->node->key;
-  iter->value = iter->node == NULL ? NULL : iter->node->value;
+  iter->pivot = avl_upper_bound(iter->pivot);
+  iter->key   = iter->pivot == NULL ? NULL : iter->pivot->key;
+  iter->value = iter->pivot == NULL ? NULL : iter->pivot->value;
 }
 
 extern struct avl_reverse_iter avl_reverse_iter_init(const struct avl_root tree) {
-  register struct avl_node *walk = tree.root;
+  register struct avl_node *pivot = tree.root;
 
-  if (walk != NULL)
-    while (walk->right != NULL)
-      walk = walk->right;
+  if (pivot != NULL)
+    while (pivot->right != NULL)
+      pivot = pivot->right;
 
-  return avl_mk_reverse_iter(walk);
+  return avl_mk_reverse_iter(pivot);
 }
 
 extern void avl_reverse_iter_prev(struct avl_reverse_iter *iter) {
-  iter->node  = avl_upper_bound(iter->node);
-  iter->key   = iter->node == NULL ? NULL : iter->node->key;
-  iter->value = iter->node == NULL ? NULL : iter->node->value;
+  iter->pivot = avl_upper_bound(iter->pivot);
+  iter->key   = iter->pivot == NULL ? NULL : iter->pivot->key;
+  iter->value = iter->pivot == NULL ? NULL : iter->pivot->value;
 }
 
 extern void avl_reverse_iter_next(struct avl_reverse_iter *iter) {
-  iter->node  = avl_lower_bound(iter->node);
-  iter->key   = iter->node == NULL ? NULL : iter->node->key;
-  iter->value = iter->node == NULL ? NULL : iter->node->value;
+  iter->pivot = avl_lower_bound(iter->pivot);
+  iter->key   = iter->pivot == NULL ? NULL : iter->pivot->key;
+  iter->value = iter->pivot == NULL ? NULL : iter->pivot->value;
 }
