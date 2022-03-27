@@ -31,7 +31,10 @@
  *
  * @keys:     the ordered set of keys of the node
  * @values:   the ordered set of values of the node
+ * @parent:   the address of the parent node
  * @children: the ordered set of children of the node
+ * @tree:     the address of the tree to which the node belongs
+ * @index:    the index to the parent node
  * @nmemb:    the number of the keys in the node
  *
  * According to Knuth's definition, a B-tree of order m is a tree which satisfies the following properties:
@@ -45,7 +48,10 @@
 struct btree_node {
   const void              **keys;
         void              **values;
+        struct btree_node *parent;
         struct btree_node **children;
+        struct btree_root *tree;
+        size_t            index;
         size_t            nmemb;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
@@ -54,6 +60,20 @@ struct btree_root {
         bool             (*less)(const void *restrict, const void *restrict);
         size_t            size;
   const size_t            order;
+} __attribute__((aligned(__SIZEOF_POINTER__)));
+
+struct btree_iter {
+  const void              *key;
+        void              *value;
+        struct btree_node *pivot;
+        size_t            index;
+} __attribute__((aligned(__SIZEOF_POINTER__)));
+
+struct btree_reverse_iter {
+  const void              *key;
+        void              *value;
+        struct btree_node *pivot;
+        size_t            index;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
 /*
@@ -75,7 +95,7 @@ struct btree_root {
  * btree_init - initializes an empty tree of @order with @less
  *
  * @order: the order of tree
- * @less:  operator defining the (partial) element order
+ * @less:  operator defining the (partial) node order
  */
 static inline struct btree_root btree_init(const size_t order, bool (*less)(const void *restrict, const void *restrict)) {
   struct btree_root tree = {
@@ -88,9 +108,9 @@ static inline struct btree_root btree_init(const size_t order, bool (*less)(cons
 }
 
 /**
- * btree_size - returns the number of elements in @tree
+ * btree_size - returns the number of entries in @tree
  *
- * @tree: tree to get the number of elements
+ * @tree: tree to get the number of entries
  */
 static inline size_t btree_size(const struct btree_root tree) { return tree.size; }
 
@@ -99,71 +119,111 @@ static inline size_t btree_size(const struct btree_root tree) { return tree.size
  *
  * @tree: tree to check
  */
-static inline bool btree_empty(const struct btree_root tree) { return btree_size(tree) == 0; }
+static inline bool btree_empty(const struct btree_root tree) { return tree.root == NULL; }
 
 /**
- * btree_find - finds element from @tree with @key
- *
- * @tree: tree to find element from
- * @key:  the key to search for
- */
-extern void *btree_find(const struct btree_root tree, const void *restrict key);
-
-/**
- * btree_contains - checks if @tree contains element with @key
+ * btree_contains - checks if @tree contains an entry with @key
  *
  * @tree: tree to check
  * @key:  the key to search for
  */
-extern bool btree_contains(const struct btree_root tree, const void *restrict key);
+extern bool btree_contains(const struct btree_root tree, const void *key);
 
 /**
- * btree_insert - inserts an element into @tree
+ * btree_find - searches @tree for an entry with @key
  *
- * @tree:  tree to insert element into
- * @key:   the key of the element to insert
- * @value: the value of the element to insert
+ * @tree: tree to search
+ * @key:  the key to search for
  */
-extern struct btree_node *btree_insert(struct btree_root *restrict tree, const void *restrict key, void *restrict value);
+extern struct btree_iter btree_find(const struct btree_root tree, const void *key);
 
 /**
- * btree_insert_or_assign - inserts an element or assigns @value if @key already exists
+ * btree_insert - inserts an entry into @tree
  *
- * @tree:  tree to insert element into
- * @key:   the key of the element to insert if not found
- * @value: the value of the element to insert or assign
+ * @tree:  tree to insert an entry into
+ * @key:   the key of the entry to insert
+ * @value: the value of the entry to insert
  */
-extern struct btree_node *btree_insert_or_assign(struct btree_root *restrict tree, const void *restrict key, void *restrict value);
+extern struct btree_iter btree_insert(struct btree_root *restrict tree, const void *restrict key, void *restrict value);
 
 /**
- * btree_erase - removes the element with @key from @tree
+ * btree_replace - inserts an entry or assigns @value if @key already exists
  *
- * @tree: tree to remove the element from
- * @key:  the key of the element to remove
+ * @tree:  tree to insert an entry into
+ * @key:   the key of the entry to insert if not found
+ * @value: the value of the entry to insert or assign
+ */
+extern struct btree_iter btree_replace(struct btree_root *restrict tree, const void *restrict key, void *restrict value);
+
+/**
+ * btree_erase - removes the entry with @key from @tree
+ *
+ * @tree: tree to remove the entry from
+ * @key:  the key of the entry to remove
  */
 extern void *btree_erase(struct btree_root *restrict tree, const void *restrict key);
 
 /**
- * btree_clear - erases all elements from @tree
+ * btree_clear - erases all entries from @tree
  *
- * @tree: tree to erase all elements from
+ * @tree: tree to erase all entries from
  */
-extern void btree_clear(struct btree_root *restrict tree);
+extern void btree_clear(struct btree_root *tree);
 
 /**
- * btree_for_each - applies @func to each element of @tree in ascending order
+ * btree_iter_init - initializes an iterator of @tree
  *
- * @tree: tree to apply @func to each element of
- * @func: function to apply to each element of @tree
+ * @tree: tree to initialize an iterator of
  */
-extern void btree_for_each(const struct btree_root tree, void (*func)(const void *restrict, void *restrict));
+extern struct btree_iter btree_iter_init(const struct btree_root tree);
 
 /**
- * btree_rev_each - applies @func to each element of @tree in descending order
+ * btree_iter_prev - finds logical previous entry of @iter
  *
- * @tree: tree to apply @func to each element of
- * @func: function to apply to each element of @tree
+ * @iter: iterator to find logical previous entry of
  */
-extern void btree_rev_each(const struct btree_root tree, void (*func)(const void *restrict, void *restrict));
+extern void btree_iter_prev(struct btree_iter *iter);
+
+/**
+ * btree_iter_next - finds logical next entry of @iter
+ *
+ * @iter: iterator to find logical next entry of
+ */
+extern void btree_iter_next(struct btree_iter *iter);
+
+/**
+ * btree_iter_end - checks if @iter reaches the end
+ *
+ * @iter: iterator to check
+ */
+static inline bool btree_iter_end(const struct btree_iter iter) { return iter.pivot == NULL; }
+
+/**
+ * btree_reverse_iter_init - initializes a reverse iterator of @tree
+ *
+ * @tree: tree to initialize a reverse iterator of
+ */
+extern struct btree_reverse_iter btree_reverse_iter_init(const struct btree_root tree);
+
+/**
+ * btree_reverse_iter_prev - finds logical previous entry of @iter
+ *
+ * @iter: reverse iterator to find logical previous entry of
+ */
+extern void btree_reverse_iter_prev(struct btree_reverse_iter *iter);
+
+/**
+ * btree_reverse_iter_next - finds logical next entry of @iter
+ *
+ * @iter: reverse iterator to find logical next entry of
+ */
+extern void btree_reverse_iter_next(struct btree_reverse_iter *iter);
+
+/**
+ * btree_reverse_iter_end - checks if @iter reaches the end
+ *
+ * @iter: reverse iterator to check
+ */
+static inline bool btree_reverse_iter_end(const struct btree_reverse_iter iter) { return iter.pivot == NULL; }
 
 #endif /* _INDEX_BTREE_H */
