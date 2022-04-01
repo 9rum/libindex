@@ -1,7 +1,7 @@
 Index library
 =============
 
-This library is an in-memory implementation of five widely-used methods for constructing efficient data index. *i.e.*
+This library is an in-memory implementation of five widely-used methods for constructing efficient data index. i.e.,
 
 * AVL tree
 * Red-black tree
