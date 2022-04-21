@@ -25,6 +25,10 @@
 
         | These structures represent a node and the root of a B-tree respectively.
 
+    ``struct btree_iter`` and ``struct btree_reverse_iter``
+
+        | These structures represent an iterator and a reverse iterator of a B-tree respectively.
+
     The below function uses the operator with 3 different calling conventions. The operator denotes:
 
     .. code-block::
@@ -46,50 +50,74 @@
 
     ``size_t btree_size(const struct btree_root tree)``
 
-        | This function returns the number of elements in tree *tree*.
+        | This function returns the number of entries in tree *tree*.
 
     ``bool btree_empty(const struct btree_root tree)``
 
         | This function checks whether tree *tree* is empty.
 
-    ``void *btree_find(const struct btree_root tree, const void *key)``
-
-        | This function finds element from tree *tree* with specified key *key*.
-        | It returns the value of the element with the equivalent key.
-        | If *key* is not found in *tree*, it returns ``NULL``.
-
     ``bool btree_contains(const struct btree_root tree, const void *key)``
 
-        | This function checks if tree *tree* contains element with specified key *key*.
+        | This function checks if tree *tree* contains an entry with specified key *key*.
 
-    ``struct btree_node *btree_insert(struct btree_root *tree, const void *key, void *value)``
+    ``struct btree_iter btree_find(const struct btree_root tree, const void *key)``
 
-        | This function inserts an element with key *key* and value *value* into tree *tree*.
-        | It returns the address of the inserted element.
-        | If *key* already exists in *tree*, it returns ``NULL`` without insertion.
+        | This function searches tree *tree* for an entry with specified key *key*.
+        | It returns the iterator of the entry with the equivalent key.
+        | If *key* is not present in *tree*, the iterator points to ``NULL``.
 
-    ``struct btree_node *btree_insert_or_assign(struct btree_root *tree, const void *key, void *value)``
+    ``struct btree_iter btree_insert(struct btree_root *tree, const void *key, void *value)``
 
-        | This function inserts an element with key *key* and value *value* into tree *tree*.
+        | This function inserts an entry with key *key* and value *value* into tree *tree*.
+        | It returns the iterator of the inserted entry.
+        | If *key* already exists in *tree*, the iterator points to the entry that prevented the insertion.
+
+    ``struct btree_iter btree_replace(struct btree_root *tree, const void *key, void *value)``
+
+        | This function inserts an entry with key *key* and value *value* into tree *tree*.
         | Unlike ``btree_insert``, it assigns *value* if *key* already exists in *tree*.
-        | It returns the address of the inserted/assigned element.
+        | It returns the iterator of the inserted/assigned entry.
 
     ``void *btree_erase(struct btree_root *tree, const void *key)``
 
-        | This function removes the element from tree *tree* with specified key *key*.
-        | It returns the value of the element with the equivalent key.
-        | If *key* does not exist in *tree*, it returns ``NULL`` without removal.
+        | This function removes the entry from tree *tree* with specified key *key*.
+        | It returns the value of the entry with the equivalent key.
+        | If *key* is not present in *tree*, it returns ``NULL`` without removal.
 
     ``void btree_clear(struct btree_root *tree)``
 
-        | This function erases all elements from tree *tree*.
-        | If you inserted elements using ``btree_insert`` or ``btree_insert_or_assign`` and did not erase all the elements, you must clear the tree using this function, or memory leak would occur.
-        | After calling this function, ``btree_size`` returns zero.
+        | This function erases all entries from tree *tree*.
+        | If you inserted entries using ``btree_insert`` or ``btree_replace`` and did not erase all the entries, you must clear the tree using this function, or memory leak would occur.
+        | After this call, ``btree_size`` returns zero.
 
-    ``void btree_for_each(const struct btree_root tree, void (*func)(const void *, void *))``
+    ``struct btree_iter btree_iter_init(const struct btree_root tree)``
 
-        | This function applies function *func* to each element of tree *tree* in ascending order.
+        | This function initializes an iterator of tree *tree*.
 
-    ``void btree_rev_each(const struct btree_root tree, void (*func)(const void *, void *))``
+    ``void btree_iter_prev(struct btree_iter *iter)``
 
-        | This function applies function *func* to each element of tree *tree* in descending order.
+        | This function finds logical previous entry of iterator *iter*.
+
+    ``void btree_iter_next(struct btree_iter *iter)``
+
+        | This function finds logical next entry of iterator *iter*.
+
+    ``bool btree_iter_end(const struct btree_iter iter)``
+
+        | This function checks if iterator *iter* reaches the end.
+
+    ``struct btree_reverse_iter btree_reverse_iter_init(const struct btree_root tree)``
+
+        | This function initializes a reverse iterator of tree *tree*.
+
+    ``void btree_reverse_iter_prev(struct btree_reverse_iter *iter)``
+
+        | This function finds logical previous entry of reverse iterator *iter*.
+
+    ``void btree_reverse_iter_next(struct btree_reverse_iter *iter)``
+
+        | This function finds logical next entry of reverse iterator *iter*.
+
+    ``bool btree_reverse_iter_end(const struct btree_reverse_iter iter)``
+
+        | This function checks if reverse iterator *iter* reaches the end.

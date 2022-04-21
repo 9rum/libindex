@@ -20,4 +20,4 @@ Linking the Index library
 -------------------------
 
 | After installing the Index library, you can use the library by statically linking it.
-| As the library is installed on your standard system directory, *i.e.* ``/usr/local`` specify ``-lindex`` as an argument to the linker.
+| As the library is installed on your standard system directory, i.e., ``/usr/local`` specify ``-lindex`` as an argument to the linker.
