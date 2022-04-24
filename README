@@ -1,8 +1,7 @@
 Index library
 =============
 
-This library is an in-memory implementation of five widely-used methods
-for constructing efficient data index, i.e.,
+This library is an in-memory implementation of five widely-used mappings for constructing efficient data index, i.e.,
 
   * AVL tree
   * Red-black tree
@@ -12,16 +11,14 @@ for constructing efficient data index, i.e.,
 
 There are several guides for users. Please read doc/README.rst first.
 
-You need to have GNU Autotools installed on your machine
-before generating Makefile. Run the following commands:
+You need to have GNU Autotools installed on your machine before generating Makefile.
+Run the following commands:
 
   $ autoreconf --install
   $ ./configure
   $ make
 
-In order to install the Index library, use ``make install`` or
-run tests using ``make check``.
+In order to install the Index library, use ``make install`` or to run tests, use ``make check``.
 
-The Index library is distributed under the terms of the
-GNU Lesser General Public License, version 2.1;
+The Index library is distributed under the terms of the GNU Lesser General Public License, version 2.1;
 see COPYING for the full license text.
