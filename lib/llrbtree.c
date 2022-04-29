@@ -260,38 +260,6 @@ extern struct llrb_iter llrb_insert(struct llrb_root *restrict tree, const void 
   return llrb_mk_iter(node);
 }
 
-extern struct llrb_iter llrb_replace(struct llrb_root *restrict tree, const void *restrict key, void *restrict value) {
-  register struct llrb_node *parent = NULL;
-  register struct llrb_node *pivot  = tree->root;
-
-  while (pivot != NULL) {
-    if (tree->less(key, pivot->key)) {
-      parent = pivot;
-      pivot  = pivot->left;
-    } else if (tree->less(pivot->key, key)) {
-      parent = pivot;
-      pivot  = pivot->right;
-    } else {
-      pivot->value = value;
-      return llrb_mk_iter(pivot);
-    }
-  }
-
-  struct llrb_node *node = llrb_alloc(key, value, parent, tree);
-
-  if (parent == NULL)                    tree->root    = node;
-  else if (tree->less(key, parent->key)) parent->left  = node;
-  else                                   parent->right = node;
-
-  ++tree->size;
-
-  llrb_rebalance(parent);
-
-  tree->root->black = true;
-
-  return llrb_mk_iter(node);
-}
-
 extern void *llrb_erase(struct llrb_root *restrict tree, const void *restrict key) {
   register struct llrb_node *parent = NULL;
   register struct llrb_node *pivot  = tree->root;

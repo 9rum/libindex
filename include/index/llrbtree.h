@@ -145,7 +145,12 @@ extern struct llrb_iter llrb_insert(struct llrb_root *restrict tree, const void 
  * @key:   the key of the entry to insert if not found
  * @value: the value of the entry to insert or assign
  */
-extern struct llrb_iter llrb_replace(struct llrb_root *restrict tree, const void *restrict key, void *restrict value);
+static inline struct llrb_iter llrb_replace(struct llrb_root *restrict tree, const void *restrict key, void *restrict value) {
+  struct llrb_iter iter = llrb_insert(tree, key, value);
+  iter.pivot->value     = value;
+  iter.value            = value;
+  return iter;
+}
 
 /**
  * llrb_erase - removes the entry with @key from @tree
