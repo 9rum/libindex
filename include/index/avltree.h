@@ -159,7 +159,12 @@ extern struct avl_iter avl_insert(struct avl_root *restrict tree, const void *re
  * @key:   the key of the entry to insert if not found
  * @value: the value of the entry to insert or assign
  */
-extern struct avl_iter avl_replace(struct avl_root *restrict tree, const void *restrict key, void *restrict value);
+static inline struct avl_iter avl_replace(struct avl_root *restrict tree, const void *restrict key, void *restrict value) {
+  struct avl_iter iter = avl_insert(tree, key, value);
+  iter.pivot->value    = value;
+  iter.value           = value;
+  return iter;
+}
 
 /**
  * avl_erase - removes the entry with @key from @tree

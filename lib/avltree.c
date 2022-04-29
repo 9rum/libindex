@@ -234,43 +234,6 @@ extern struct avl_iter avl_insert(struct avl_root *restrict tree, const void *re
   return avl_mk_iter(node);
 }
 
-extern struct avl_iter avl_replace(struct avl_root *restrict tree, const void *restrict key, void *restrict value) {
-  register struct avl_node *parent = NULL;
-  register struct avl_node *pivot  = tree->root;
-
-  while (pivot != NULL) {
-    if (tree->less(key, pivot->key)) {
-      parent = pivot;
-      pivot  = pivot->left;
-    } else if (tree->less(pivot->key, key)) {
-      parent = pivot;
-      pivot  = pivot->right;
-    } else {
-      pivot->value = value;
-      return avl_mk_iter(pivot);
-    }
-  }
-
-  struct avl_node *node = avl_alloc(key, value, parent, tree);
-
-  if (parent == NULL)                    tree->root    = node;
-  else if (tree->less(key, parent->key)) parent->left  = node;
-  else                                   parent->right = node;
-
-  ++tree->size;
-
-  for (pivot = parent; pivot != NULL; pivot = pivot->parent) {
-    pivot->height = 1 + max(avl_height(pivot->left), avl_height(pivot->right));
-    if (1 + avl_height(pivot->right) < avl_height(pivot->left) || 1 + avl_height(pivot->left) < avl_height(pivot->right))
-      break;
-  }
-
-  if (pivot != NULL)
-    avl_rebalance(pivot);
-
-  return avl_mk_iter(node);
-}
-
 extern void *avl_erase(struct avl_root *restrict tree, const void *restrict key) {
   register struct avl_node *parent = NULL;
   register struct avl_node *pivot  = tree->root;
