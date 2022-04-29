@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: LGPL-2.1
+dnl SPDX-License-Identifier: LGPL-2.1
 
 dnl Process this file with autoconf to produce a configure script.
 
