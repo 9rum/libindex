@@ -159,7 +159,12 @@ extern struct rb_iter rb_insert(struct rb_root *restrict tree, const void *restr
  * @key:   the key of the entry to insert if not found
  * @value: the value of the entry to insert or assign
  */
-extern struct rb_iter rb_replace(struct rb_root *restrict tree, const void *restrict key, void *restrict value);
+static inline struct rb_iter rb_replace(struct rb_root *restrict tree, const void *restrict key, void *restrict value) {
+  struct rb_iter iter = rb_insert(tree, key, value);
+  iter.pivot->value   = value;
+  iter.value          = value;
+  return iter;
+}
 
 /**
  * rb_erase - removes the entry with @key from @tree

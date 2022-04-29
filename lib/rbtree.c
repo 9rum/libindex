@@ -233,79 +233,6 @@ extern struct rb_iter rb_insert(struct rb_root *restrict tree, const void *restr
   return rb_mk_iter(node);
 }
 
-extern struct rb_iter rb_replace(struct rb_root *restrict tree, const void *restrict key, void *restrict value) {
-  register struct rb_node *gparent;
-  register struct rb_node *uncle;
-  register struct rb_node *parent = NULL;
-  register struct rb_node *pivot  = tree->root;
-
-  while (pivot != NULL) {
-    if (tree->less(key, pivot->key)) {
-      parent = pivot;
-      pivot  = pivot->left;
-    } else if (tree->less(pivot->key, key)) {
-      parent = pivot;
-      pivot  = pivot->right;
-    } else {
-      pivot->value = value;
-      return rb_mk_iter(pivot);
-    }
-  }
-
-  struct rb_node *node = rb_alloc(key, value, parent, tree);
-
-  if (parent == NULL)                    tree->root    = node;
-  else if (tree->less(key, parent->key)) parent->left  = node;
-  else                                   parent->right = node;
-
-  ++tree->size;
-
-  for (pivot = node; pivot->parent != NULL; parent = pivot->parent) {
-    if (parent->black)
-      return rb_mk_iter(node);
-
-    gparent = parent->parent;
-    uncle   = gparent->right == parent ? gparent->left : gparent->right;
-
-    if (uncle == NULL || uncle->black) { /* case of rearranging */
-      if (gparent->left == parent) {
-        if (parent->left == pivot) {     /* case of Left Left */
-          parent->black  = true;
-          gparent->black = false;
-          rb_rotate_right(gparent);
-        } else {                         /* case of Left Right */
-          pivot->black   = true;
-          gparent->black = false;
-          rb_rotate_left(parent);
-          rb_rotate_right(gparent);
-        }
-      } else {
-        if (parent->right == pivot) {    /* case of Right Right */
-          parent->black  = true;
-          gparent->black = false;
-          rb_rotate_left(gparent);
-        } else {                         /* case of Right Left */
-          pivot->black   = true;
-          gparent->black = false;
-          rb_rotate_right(parent);
-          rb_rotate_left(gparent);
-        }
-      }
-
-      return rb_mk_iter(node);
-    }
-
-    parent->black  = true;               /* case of recoloring */
-    uncle->black   = true;
-    gparent->black = false;
-    pivot          = gparent;
-  }
-
-  tree->root->black = true;
-
-  return rb_mk_iter(node);
-}
-
 extern void *rb_erase(struct rb_root *restrict tree, const void *restrict key) {
   register struct rb_node *sibling;
   register struct rb_node *parent = NULL;
@@ -372,7 +299,7 @@ extern void *rb_erase(struct rb_root *restrict tree, const void *restrict key) {
     return erased;
   }
 
-  for (; parent != NULL; parent = pivot->parent) {
+  while (parent != NULL) {
     sibling = parent->right == pivot ? parent->left : parent->right;
 
     if (!sibling->black) {                                          /* case of rearranging */
@@ -417,7 +344,8 @@ extern void *rb_erase(struct rb_root *restrict tree, const void *restrict key) {
       return erased;
     }
 
-    pivot = parent;
+    pivot  = parent;
+    parent = pivot->parent;
   }
 
   return erased;
