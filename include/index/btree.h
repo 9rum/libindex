@@ -34,6 +34,7 @@
  * @parent:   the address of the parent node
  * @children: the ordered set of children of the node
  * @tree:     the address of the tree to which the node belongs
+ * @index:    the index to the parent node
  * @nmemb:    the number of the keys in the node
  *
  * According to Knuth's definition, a B-tree of order m is a tree which satisfies the following properties:
@@ -50,6 +51,7 @@ struct btree_node {
         struct btree_node *parent;
         struct btree_node **children;
         struct btree_root *tree;
+        size_t            index;
         size_t            nmemb;
 } __attribute__((aligned(__SIZEOF_POINTER__)));
 
@@ -151,7 +153,12 @@ extern struct btree_iter btree_insert(struct btree_root *restrict tree, const vo
  * @key:   the key of the entry to insert if not found
  * @value: the value of the entry to insert or assign
  */
-extern struct btree_iter btree_replace(struct btree_root *restrict tree, const void *restrict key, void *restrict value);
+static inline struct btree_iter btree_replace(struct btree_root *restrict tree, const void *restrict key, void *restrict value) {
+  struct btree_iter iter         = btree_insert(tree, key, value);
+  iter.pivot->values[iter.index] = value;
+  iter.value                     = value;
+  return iter;
+}
 
 /**
  * btree_erase - removes the entry with @key from @tree
