@@ -102,8 +102,10 @@ static inline void avl_rebalance(struct avl_node *node) {
     }
   }
 
-  for (; node != NULL; node = node->parent)
+  while (node != NULL) {
     node->height = 1 + max(avl_height(node->left), avl_height(node->right));
+    node = node->parent;
+  }
 }
 
 /**
@@ -120,7 +122,8 @@ static inline struct avl_node *avl_lower_bound(struct avl_node *node) {
     return node;
   }
 
-  for (; node->parent != NULL && node->parent->left == node; node = node->parent);
+  while (node->parent != NULL && node->parent->left == node)
+    node = node->parent;
   return node->parent;
 }
 
@@ -138,7 +141,8 @@ static inline struct avl_node *avl_upper_bound(struct avl_node *node) {
     return node;
   }
 
-  for (; node->parent != NULL && node->parent->right == node; node = node->parent);
+  while (node->parent != NULL && node->parent->right == node)
+    node = node->parent;
   return node->parent;
 }
 

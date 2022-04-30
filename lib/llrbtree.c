@@ -94,13 +94,14 @@ static inline void llrb_flip(struct llrb_node *node) {
  * @node: node to initiate rebalancing
  */
 static inline void llrb_rebalance(struct llrb_node *node) {
-  for (; node != NULL; node = node->parent) {
+  while (node != NULL) {
     if (node->right != NULL && !node->right->black)                                                       /* case of right-leaning red */
       node = llrb_rotate_left(node);
     if (node->left != NULL && !node->left->black && node->left->left != NULL && !node->left->left->black) /* case of double reds */
       node = llrb_rotate_right(node);
     if (node->left != NULL && !node->left->black && node->right != NULL && !node->right->black)           /* case of 4-node */
       llrb_flip(node);
+    node = node->parent;
   }
 }
 
@@ -151,7 +152,8 @@ static inline struct llrb_node *llrb_lower_bound(struct llrb_node *node) {
     return node;
   }
 
-  for (; node->parent != NULL && node->parent->left == node; node = node->parent);
+  while (node->parent != NULL && node->parent->left == node)
+    node = node->parent;
   return node->parent;
 }
 
@@ -169,7 +171,8 @@ static inline struct llrb_node *llrb_upper_bound(struct llrb_node *node) {
     return node;
   }
 
-  for (; node->parent != NULL && node->parent->right == node; node = node->parent);
+  while (node->parent != NULL && node->parent->right == node)
+    node = node->parent;
   return node->parent;
 }
 

@@ -83,7 +83,8 @@ static inline struct rb_node *rb_lower_bound(struct rb_node *node) {
     return node;
   }
 
-  for (; node->parent != NULL && node->parent->left == node; node = node->parent);
+  while (node->parent != NULL && node->parent->left == node)
+    node = node->parent;
   return node->parent;
 }
 
@@ -101,7 +102,8 @@ static inline struct rb_node *rb_upper_bound(struct rb_node *node) {
     return node;
   }
 
-  for (; node->parent != NULL && node->parent->right == node; node = node->parent);
+  while (node->parent != NULL && node->parent->right == node)
+    node = node->parent;
   return node->parent;
 }
 
