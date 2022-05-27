@@ -10,11 +10,11 @@ Documentation
 * `btree.rst`_: B-tree
 * `bplustree.rst`_: B+-tree
 
-.. _`avltree.rst`: https://github.com/9rum/libindex/blob/master/doc/avltree.rst
-.. _`rbtree.rst`: https://github.com/9rum/libindex/blob/master/doc/rbtree.rst
-.. _`llrbtree.rst`: https://github.com/9rum/libindex/blob/master/doc/llrbtree.rst
-.. _`btree.rst`: https://github.com/9rum/libindex/blob/master/doc/btree.rst
-.. _`bplustree.rst`: https://github.com/9rum/libindex/blob/master/doc/bplustree.rst
+.. _`avltree.rst`: https://github.com/9rum/libindex/blob/master/docs/avltree.rst
+.. _`rbtree.rst`: https://github.com/9rum/libindex/blob/master/docs/rbtree.rst
+.. _`llrbtree.rst`: https://github.com/9rum/libindex/blob/master/docs/llrbtree.rst
+.. _`btree.rst`: https://github.com/9rum/libindex/blob/master/docs/btree.rst
+.. _`bplustree.rst`: https://github.com/9rum/libindex/blob/master/docs/bplustree.rst
 
 Linking the Index library
 -------------------------
