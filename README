@@ -9,7 +9,7 @@ This library is an in-memory implementation of five widely-used mappings for con
   * B-tree
   * B+-tree
 
-There are several guides for users. Please read doc/README.rst first.
+There are several guides for users. Please read docs/README.rst first.
 
 You need to have GNU Autotools installed on your machine before generating Makefile.
 Run the following commands:
